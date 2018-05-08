@@ -98,41 +98,41 @@
       <Add option="-Wno-strict-overflow"/>
     </Compiler>
     <Linker/>
-    <Unit filename="../../Source/PajFFT/WojDFT.cpp">
+    <Unit filename="../../Source/PajFFT/PajDFT.cpp">
       <Option target="App | Debug"/>
       <Option target="App | Release"/>
     </Unit>
-    <Unit filename="../../Source/PajFFT/WojDFT.h">
-      <Option target="App | Debug"/>
-      <Option target="App | Release"/>
-      <Option compile="0"/>
-      <Option link="0"/>
-    </Unit>
-    <Unit filename="../../Source/PajFFT/WojFFT_fRange.cpp">
-      <Option target="App | Debug"/>
-      <Option target="App | Release"/>
-    </Unit>
-    <Unit filename="../../Source/PajFFT/WojFFT_fRange.h">
+    <Unit filename="../../Source/PajFFT/PajDFT.h">
       <Option target="App | Debug"/>
       <Option target="App | Release"/>
       <Option compile="0"/>
       <Option link="0"/>
     </Unit>
-    <Unit filename="../../Source/PajFFT/WojFFT_MixedRadix.cpp">
+    <Unit filename="../../Source/PajFFT/PajFFT_fRange.cpp">
       <Option target="App | Debug"/>
       <Option target="App | Release"/>
     </Unit>
-    <Unit filename="../../Source/PajFFT/WojFFT_MixedRadix.h">
+    <Unit filename="../../Source/PajFFT/PajFFT_fRange.h">
       <Option target="App | Debug"/>
       <Option target="App | Release"/>
       <Option compile="0"/>
       <Option link="0"/>
     </Unit>
-    <Unit filename="../../Source/PajFFT/WojFFT_Radix2.cpp">
+    <Unit filename="../../Source/PajFFT/PajFFT_MixedRadix.cpp">
       <Option target="App | Debug"/>
       <Option target="App | Release"/>
     </Unit>
-    <Unit filename="../../Source/PajFFT/WojFFT_Radix2.h">
+    <Unit filename="../../Source/PajFFT/PajFFT_MixedRadix.h">
+      <Option target="App | Debug"/>
+      <Option target="App | Release"/>
+      <Option compile="0"/>
+      <Option link="0"/>
+    </Unit>
+    <Unit filename="../../Source/PajFFT/PajFFT_Radix2.cpp">
+      <Option target="App | Debug"/>
+      <Option target="App | Release"/>
+    </Unit>
+    <Unit filename="../../Source/PajFFT/PajFFT_Radix2.h">
       <Option target="App | Debug"/>
       <Option target="App | Release"/>
       <Option compile="0"/>

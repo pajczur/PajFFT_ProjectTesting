@@ -38,6 +38,7 @@ MainComponent::MainComponent() : fftInterface(this)
     
     addAndMakeVisible(&selectOscill);
     selectOscill.setToggleState(true, dontSendNotification);
+    updateToggleState(&selectOscill, selectOscill_ID);
     addAndMakeVisible(&selectPlayer);
     selectOscill.setRadioGroupId(playerOrOscillatorButtons);
     selectOscill.onClick = [this] { updateToggleState(&selectOscill, selectOscill_ID); };
@@ -79,7 +80,7 @@ void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
         }
         else
         {
-            playInversedFFTAudioFile(bufferToFill);
+            playInversedFFTAudioFile(bufferToFill); // Will never be executed until I repair playInversedFFTAudioFile
         }
     }
     else
@@ -90,7 +91,7 @@ void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
         }
         else
         {
-            playInversedFFT(bufferToFill);
+            playInversedFFT(bufferToFill); // Will never be executed until I repair playInversedFFT
         }
     }
     
@@ -121,7 +122,7 @@ void MainComponent::paint (Graphics& g)
     }
     else
     {
-        hearFFTinversedSignal = false;
+        hearFFTinversedSignal = false; // Set to true if ready playInverseFFT...
         display_logarithmic.setVisible(false);
         addAndMakeVisible(&display_linear);
     }
@@ -270,10 +271,14 @@ void MainComponent::updateToggleState(Button* button, int buttonID)
     {
         case 1:
             playerOrOscillat = false;
+            wAudioPlayer.setControlsVisible(false);
+            oscInterface.setControlsVisible(true);
             break;
             
         case 2:
             playerOrOscillat = true;
+            wAudioPlayer.setControlsVisible(true);
+            oscInterface.setControlsVisible(false);
             break;
 
         default:

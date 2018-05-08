@@ -24,6 +24,8 @@ public:
     void paint (Graphics&) override;
     void resized() override;
     
+    void setControlsVisible(bool areVisible);
+    
     void changeListenerCallback (ChangeBroadcaster* source) override;
 
 private:

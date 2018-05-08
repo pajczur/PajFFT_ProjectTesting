@@ -376,16 +376,16 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Source\PajFFT\WojDFT.cpp">
+    <ClCompile Include="..\..\Source\PajFFT\PajDFT.cpp">
       <Filter>PajFFTproject\Source\PajFFT</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\PajFFT\WojFFT_fRange.cpp">
+    <ClCompile Include="..\..\Source\PajFFT\PajFFT_fRange.cpp">
       <Filter>PajFFTproject\Source\PajFFT</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\PajFFT\WojFFT_MixedRadix.cpp">
+    <ClCompile Include="..\..\Source\PajFFT\PajFFT_MixedRadix.cpp">
       <Filter>PajFFTproject\Source\PajFFT</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\PajFFT\WojFFT_Radix2.cpp">
+    <ClCompile Include="..\..\Source\PajFFT\PajFFT_Radix2.cpp">
       <Filter>PajFFTproject\Source\PajFFT</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Main.cpp">
@@ -2226,16 +2226,16 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Source\PajFFT\WojDFT.h">
+    <ClInclude Include="..\..\Source\PajFFT\PajDFT.h">
       <Filter>PajFFTproject\Source\PajFFT</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\PajFFT\WojFFT_fRange.h">
+    <ClInclude Include="..\..\Source\PajFFT\PajFFT_fRange.h">
       <Filter>PajFFTproject\Source\PajFFT</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\PajFFT\WojFFT_MixedRadix.h">
+    <ClInclude Include="..\..\Source\PajFFT\PajFFT_MixedRadix.h">
       <Filter>PajFFTproject\Source\PajFFT</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\PajFFT\WojFFT_Radix2.h">
+    <ClInclude Include="..\..\Source\PajFFT\PajFFT_Radix2.h">
       <Filter>PajFFTproject\Source\PajFFT</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\MainComponent.h">

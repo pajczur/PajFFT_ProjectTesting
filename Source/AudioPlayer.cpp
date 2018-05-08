@@ -47,6 +47,8 @@ void AudioPlayer::paint (Graphics& g)
 
     g.setColour (Colours::grey);
     g.drawRect (getLocalBounds(), 1);   // draw an outline around the component
+    g.setColour (Colours::white);
+    g.drawText("AUDIO PLAYER", 30, 5, 130, 20, Justification::centredLeft);
 
 }
 
@@ -128,4 +130,21 @@ void AudioPlayer::playButtonClicked()
 void AudioPlayer::stopButtonClicked()
 {
     changeState (Stopping);
+}
+
+
+void AudioPlayer::setControlsVisible(bool areVisible)
+{
+    if(areVisible)
+    {
+        addAndMakeVisible (&openButton);
+        addAndMakeVisible (&playButton);
+        addAndMakeVisible (&stopButton);
+    }
+    else
+    {
+        openButton.setVisible(false);
+        playButton.setVisible(false);
+        stopButton.setVisible(false);
+    }
 }

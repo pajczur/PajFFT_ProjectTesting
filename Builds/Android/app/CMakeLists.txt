@@ -30,14 +30,14 @@ add_library( ${BINARY_NAME}
 
     SHARED
 
-    "../../../Source/PajFFT/WojDFT.cpp"
-    "../../../Source/PajFFT/WojDFT.h"
-    "../../../Source/PajFFT/WojFFT_fRange.cpp"
-    "../../../Source/PajFFT/WojFFT_fRange.h"
-    "../../../Source/PajFFT/WojFFT_MixedRadix.cpp"
-    "../../../Source/PajFFT/WojFFT_MixedRadix.h"
-    "../../../Source/PajFFT/WojFFT_Radix2.cpp"
-    "../../../Source/PajFFT/WojFFT_Radix2.h"
+    "../../../Source/PajFFT/PajDFT.cpp"
+    "../../../Source/PajFFT/PajDFT.h"
+    "../../../Source/PajFFT/PajFFT_fRange.cpp"
+    "../../../Source/PajFFT/PajFFT_fRange.h"
+    "../../../Source/PajFFT/PajFFT_MixedRadix.cpp"
+    "../../../Source/PajFFT/PajFFT_MixedRadix.h"
+    "../../../Source/PajFFT/PajFFT_Radix2.cpp"
+    "../../../Source/PajFFT/PajFFT_Radix2.h"
     "../../../Source/Main.cpp"
     "../../../Source/MainComponent.cpp"
     "../../../Source/MainComponent.h"
@@ -1300,10 +1300,10 @@ add_library( ${BINARY_NAME}
     "../../../JuceLibraryCode/JuceHeader.h"
 )
 
-set_source_files_properties("../../../Source/PajFFT/WojDFT.h" PROPERTIES HEADER_FILE_ONLY TRUE)
-set_source_files_properties("../../../Source/PajFFT/WojFFT_fRange.h" PROPERTIES HEADER_FILE_ONLY TRUE)
-set_source_files_properties("../../../Source/PajFFT/WojFFT_MixedRadix.h" PROPERTIES HEADER_FILE_ONLY TRUE)
-set_source_files_properties("../../../Source/PajFFT/WojFFT_Radix2.h" PROPERTIES HEADER_FILE_ONLY TRUE)
+set_source_files_properties("../../../Source/PajFFT/PajDFT.h" PROPERTIES HEADER_FILE_ONLY TRUE)
+set_source_files_properties("../../../Source/PajFFT/PajFFT_fRange.h" PROPERTIES HEADER_FILE_ONLY TRUE)
+set_source_files_properties("../../../Source/PajFFT/PajFFT_MixedRadix.h" PROPERTIES HEADER_FILE_ONLY TRUE)
+set_source_files_properties("../../../Source/PajFFT/PajFFT_Radix2.h" PROPERTIES HEADER_FILE_ONLY TRUE)
 set_source_files_properties("../../../Source/MainComponent.h" PROPERTIES HEADER_FILE_ONLY TRUE)
 set_source_files_properties("../../../Source/FFTInterface.h" PROPERTIES HEADER_FILE_ONLY TRUE)
 set_source_files_properties("../../../Source/OscInterface.h" PROPERTIES HEADER_FILE_ONLY TRUE)

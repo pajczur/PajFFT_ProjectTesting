@@ -77,7 +77,7 @@ void OscInterface::paint (Graphics& g)
     g.drawRect (getLocalBounds(), 1);   // draw an outline around the component
 
     g.setColour (Colours::white);
-    g.drawText("OSCILLATOR", 0, 1, 130, 20, Justification::centred);
+    g.drawText("OSCILLATOR", 30, 5, 130, 20, Justification::centredLeft);
 }
 
 void OscInterface::resized()
@@ -161,4 +161,36 @@ void OscInterface::settings(WavesGen &waveGenerator, CalculateDTFT &graph, doubl
     wPitchBand.setRange(0, sampRate/2.0, 1.0);
     wPitchBand.setValue(172.0);
     wPitchBand.setSkewFactorFromMidPoint(1000);
+}
+
+
+void OscInterface::setControlsVisible(bool areVisible)
+{
+    if(areVisible)
+    {
+//        addAndMakeVisible(&wPitchBand);
+//        addAndMakeVisible(&wAmplitude);
+//        addAndMakeVisible(&selectSinWave);
+//        addAndMakeVisible(&selectSawWave);
+//        addAndMakeVisible(&selectSqrWave);
+//        addAndMakeVisible(&selectWhiteNoise);
+//        addAndMakeVisible(&wMuteButton);
+        wPitchBand.setVisible(true);
+        wAmplitude.setVisible(true);
+        selectSinWave.setVisible(true);
+        selectSawWave.setVisible(true);
+        selectSqrWave.setVisible(true);
+        selectWhiteNoise.setVisible(true);
+        wMuteButton.setVisible(true);
+    }
+    else
+    {
+        wPitchBand.setVisible(false);
+        wAmplitude.setVisible(false);
+        selectSinWave.setVisible(false);
+        selectSawWave.setVisible(false);
+        selectSqrWave.setVisible(false);
+        selectWhiteNoise.setVisible(false);
+        wMuteButton.setVisible(false);
+    }
 }

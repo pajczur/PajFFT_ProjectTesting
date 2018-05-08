@@ -6,18 +6,18 @@
   <MAINGROUP id="ACkfm9" name="PajFFTproject">
     <GROUP id="{0A6B6ACA-BE6D-F128-9279-CDDF90AB5AEB}" name="Source">
       <GROUP id="{7FC05475-7400-5EC2-80BC-351C13991B0F}" name="PajFFT">
-        <FILE id="e64uoA" name="WojDFT.cpp" compile="1" resource="0" file="Source/PajFFT/WojDFT.cpp"/>
-        <FILE id="XS2Fov" name="WojDFT.h" compile="0" resource="0" file="Source/PajFFT/WojDFT.h"/>
-        <FILE id="LFVJxC" name="WojFFT_fRange.cpp" compile="1" resource="0"
-              file="Source/PajFFT/WojFFT_fRange.cpp"/>
-        <FILE id="MlZU0W" name="WojFFT_fRange.h" compile="0" resource="0" file="Source/PajFFT/WojFFT_fRange.h"/>
-        <FILE id="Fpo5YT" name="WojFFT_MixedRadix.cpp" compile="1" resource="0"
-              file="Source/PajFFT/WojFFT_MixedRadix.cpp"/>
-        <FILE id="ncaHX2" name="WojFFT_MixedRadix.h" compile="0" resource="0"
-              file="Source/PajFFT/WojFFT_MixedRadix.h"/>
-        <FILE id="caJ51m" name="WojFFT_Radix2.cpp" compile="1" resource="0"
-              file="Source/PajFFT/WojFFT_Radix2.cpp"/>
-        <FILE id="UHu9GC" name="WojFFT_Radix2.h" compile="0" resource="0" file="Source/PajFFT/WojFFT_Radix2.h"/>
+        <FILE id="e64uoA" name="PajDFT.cpp" compile="1" resource="0" file="Source/PajFFT/PajDFT.cpp"/>
+        <FILE id="XS2Fov" name="PajDFT.h" compile="0" resource="0" file="Source/PajFFT/PajDFT.h"/>
+        <FILE id="LFVJxC" name="PajFFT_fRange.cpp" compile="1" resource="0"
+              file="Source/PajFFT/PajFFT_fRange.cpp"/>
+        <FILE id="MlZU0W" name="PajFFT_fRange.h" compile="0" resource="0" file="Source/PajFFT/PajFFT_fRange.h"/>
+        <FILE id="Fpo5YT" name="PajFFT_MixedRadix.cpp" compile="1" resource="0"
+              file="Source/PajFFT/PajFFT_MixedRadix.cpp"/>
+        <FILE id="ncaHX2" name="PajFFT_MixedRadix.h" compile="0" resource="0"
+              file="Source/PajFFT/PajFFT_MixedRadix.h"/>
+        <FILE id="caJ51m" name="PajFFT_Radix2.cpp" compile="1" resource="0"
+              file="Source/PajFFT/PajFFT_Radix2.cpp"/>
+        <FILE id="UHu9GC" name="PajFFT_Radix2.h" compile="0" resource="0" file="Source/PajFFT/PajFFT_Radix2.h"/>
       </GROUP>
       <FILE id="wtj5Q6" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
       <FILE id="ZFxA7k" name="MainComponent.cpp" compile="1" resource="0"

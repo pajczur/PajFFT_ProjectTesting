@@ -68,10 +68,10 @@ ifeq ($(CONFIG),Release)
 endif
 
 OBJECTS_APP := \
-  $(JUCE_OBJDIR)/WojDFT_23763f5.o \
-  $(JUCE_OBJDIR)/WojFFT_fRange_fb40f749.o \
-  $(JUCE_OBJDIR)/WojFFT_MixedRadix_c961783b.o \
-  $(JUCE_OBJDIR)/WojFFT_Radix2_dedeb420.o \
+  $(JUCE_OBJDIR)/PajDFT_38773a0e.o \
+  $(JUCE_OBJDIR)/PajFFT_fRange_70a1c310.o \
+  $(JUCE_OBJDIR)/PajFFT_MixedRadix_c6590882.o \
+  $(JUCE_OBJDIR)/PajFFT_Radix2_543f7fe7.o \
   $(JUCE_OBJDIR)/Main_90ebc5c2.o \
   $(JUCE_OBJDIR)/MainComponent_a6ffb4a5.o \
   $(JUCE_OBJDIR)/FFTInterface_6c7425ee.o \
@@ -108,24 +108,24 @@ $(JUCE_OUTDIR)/$(JUCE_TARGET_APP) : check-pkg-config $(OBJECTS_APP) $(RESOURCES)
 	-$(V_AT)mkdir -p $(JUCE_OUTDIR)
 	$(V_AT)$(CXX) -o $(JUCE_OUTDIR)/$(JUCE_TARGET_APP) $(OBJECTS_APP) $(JUCE_LDFLAGS) $(JUCE_LDFLAGS_APP) $(RESOURCES) $(TARGET_ARCH)
 
-$(JUCE_OBJDIR)/WojDFT_23763f5.o: ../../Source/PajFFT/WojDFT.cpp
+$(JUCE_OBJDIR)/PajDFT_38773a0e.o: ../../Source/PajFFT/PajDFT.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling WojDFT.cpp"
+	@echo "Compiling PajDFT.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
 
-$(JUCE_OBJDIR)/WojFFT_fRange_fb40f749.o: ../../Source/PajFFT/WojFFT_fRange.cpp
+$(JUCE_OBJDIR)/PajFFT_fRange_70a1c310.o: ../../Source/PajFFT/PajFFT_fRange.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling WojFFT_fRange.cpp"
+	@echo "Compiling PajFFT_fRange.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
 
-$(JUCE_OBJDIR)/WojFFT_MixedRadix_c961783b.o: ../../Source/PajFFT/WojFFT_MixedRadix.cpp
+$(JUCE_OBJDIR)/PajFFT_MixedRadix_c6590882.o: ../../Source/PajFFT/PajFFT_MixedRadix.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling WojFFT_MixedRadix.cpp"
+	@echo "Compiling PajFFT_MixedRadix.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
 
-$(JUCE_OBJDIR)/WojFFT_Radix2_dedeb420.o: ../../Source/PajFFT/WojFFT_Radix2.cpp
+$(JUCE_OBJDIR)/PajFFT_Radix2_543f7fe7.o: ../../Source/PajFFT/PajFFT_Radix2.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling WojFFT_Radix2.cpp"
+	@echo "Compiling PajFFT_Radix2.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/Main_90ebc5c2.o: ../../Source/Main.cpp

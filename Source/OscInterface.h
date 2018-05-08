@@ -27,6 +27,8 @@ public:
     void paint (Graphics&) override;
     void resized() override;
     
+    void setControlsVisible(bool areVisible);
+    
     void sliderValueChanged (Slider *slider) override;
     void updateToggleState(Button* button, int waveIdentifier);
     
