@@ -16,6 +16,7 @@
 #include "Display_Logarithmic.h"
 #include "Display_Linear.h"
 #include "CalculateDTFT.h"
+#include "Clock.h"
 #include <vector>
 
 //==============================================================================
@@ -23,12 +24,14 @@
     This component lives inside our window, and this is where you should put all
     your controls and content.
 */
-class MainComponent   : public AudioAppComponent
+class MainComponent   : public AudioAppComponent, private Timer
 {
 public:
     //==============================================================================
     MainComponent();
     ~MainComponent();
+    
+    void timerCallback() override;
 
     //==============================================================================
     void prepareToPlay (int samplesPerBlockExpected, double sampleRate) override;
@@ -40,8 +43,8 @@ public:
     void paint (Graphics& g) override;
     void resized() override;
     
-    void playWaveOscilla(const AudioSourceChannelInfo& bufferToFill);
-    void playInversedFFT(const AudioSourceChannelInfo& bufferToFill);
+    void playWaveGen(const AudioSourceChannelInfo& bufferToFill);
+    void playInversedFFTWaveGen(const AudioSourceChannelInfo& bufferToFill);
     
     void playIAudioFile(const AudioSourceChannelInfo& bufferToFill);
     void playInversedFFTAudioFile(const AudioSourceChannelInfo& bufferToFill);
@@ -77,6 +80,14 @@ private:
     int playerOrOscillatorButtons=1;
     bool playerOrOscillat;
     
+    void calculateTime();
+    int fftTimeElapsed=0;
+    int bufferCounter=0;
+    
+    Label fftTimeElapsedLabel;
+    Label fftTimeElapsedInfo;
+    Label fftTimeElapsedLabel2;
+    Label fftTimeElapsedInfo2;
     
     bool hearFFTinversedSignal;
     std::vector<float> signalToFFT;

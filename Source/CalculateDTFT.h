@@ -101,6 +101,8 @@ private:
     
     bool oneOfTwo;
     
+    float timeElapsed=0.0f;
+    
     int temm;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CalculateDTFT)

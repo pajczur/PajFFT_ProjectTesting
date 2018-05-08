@@ -45,6 +45,26 @@ MainComponent::MainComponent() : fftInterface(this)
     selectPlayer.setRadioGroupId(playerOrOscillatorButtons);
     selectPlayer.onClick = [this] { updateToggleState(&selectPlayer, selectPlayer_ID); };
     
+    fftTimeElapsedLabel.setEditable(false);
+    addAndMakeVisible(&fftTimeElapsedLabel);
+    fftTimeElapsedLabel.setJustificationType(Justification::centredRight);
+    
+//    fftTimeElapsedLabel2.setEditable(false);
+//    addAndMakeVisible(&fftTimeElapsedLabel2);
+//    fftTimeElapsedLabel2.setJustificationType(Justification::centredRight);
+    
+    fftTimeElapsedInfo.setEditable(false);
+    addAndMakeVisible(&fftTimeElapsedInfo);
+    fftTimeElapsedInfo.setJustificationType(Justification::centred);
+    fftTimeElapsedInfo.setText("Time needs to calc FFT forw or forw AND back, in micro sec", dontSendNotification);
+    
+//    fftTimeElapsedInfo2.setEditable(false);
+//    addAndMakeVisible(&fftTimeElapsedInfo2);
+//    fftTimeElapsedInfo2.setJustificationType(Justification::centred);
+//    fftTimeElapsedInfo2.setText("Time needs for whole process: get and prepare data, all ffts. In micro sec", dontSendNotification);
+    
+    startTimer(1000);
+    
     // specify the number of input and output channels that we want to open
     setAudioChannels (2, 2);
 }
@@ -87,16 +107,14 @@ void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
     {
         if(!hearFFTinversedSignal)
         {
-            playWaveOscilla(bufferToFill);
+            playWaveGen(bufferToFill);
         }
         else
         {
-            playInversedFFT(bufferToFill); // Will never be executed until I repair playInversedFFT
+            playInversedFFTWaveGen(bufferToFill); // Will never be executed until I repair playInversedFFT
         }
     }
-    
-
-
+    calculateTime();
 }
 
 void MainComponent::releaseResources()
@@ -131,12 +149,23 @@ void MainComponent::paint (Graphics& g)
 
 void MainComponent::resized()
 {
+//    auto area = getLocalBounds();
+//    sideItemA.setBounds (sideBarArea.removeFromTop (sideItemHeight).reduced (sideItemMargin));
+//    oscInterface.setBounds(area.removeFromLeft(getWidth()*0.15).reduced(10));
+//    display_logarithmic.setBounds(area.removeFromLeft(getWidth()*0.72).reduced(10));
+//    display_linear.setBounds(area.removeFromLeft(getWidth()*0.72).reduced(10));
+    display_logarithmic.setBounds           (150, 0, 700, 400);
+    display_linear.setBounds                (150, 0, 700, 400);
     oscInterface.setBounds(10, 10, 130, 410);
     fftInterface.setBounds((getWidth()/2) + 5, 430, 485, 160);
     wAudioPlayer.setBounds(10, 430, 485, 160);
-    display_logarithmic.setBounds           (150, 0, 700, 400);
-    display_linear.setBounds                (150, 0, 700, 400);
     calculator_FFT.setBounds     (display_logarithmic.getDisplayMargXLeft()+150, display_logarithmic.getDisplayMargYTop(), calculator_FFT.getWidth(), calculator_FFT.getHeight());
+
+    fftTimeElapsedInfo.setBounds(getWidth()-130, 10, 120, 60);
+    fftTimeElapsedLabel.setBounds(getWidth()-130, 70, 120, 30);
+    
+//    fftTimeElapsedInfo2.setBounds(getWidth()-130, 110, 120, 30);
+//    fftTimeElapsedLabel.setBounds(getWidth()-130, 170, 120, 30);
     
     selectOscill.setBounds(12, 12, 25, 25);
     selectPlayer.setBounds(12, 432, 25, 25);
@@ -172,7 +201,7 @@ void MainComponent::fft_defaultSettings()
 
 }
 
-void MainComponent::playWaveOscilla(const AudioSourceChannelInfo& bufferToFill)
+void MainComponent::playWaveGen(const AudioSourceChannelInfo& bufferToFill)
 {
     oscillator.playWave(*bufferToFill.buffer, bufferToFill.numSamples, bufferToFill.startSample);
     
@@ -182,7 +211,7 @@ void MainComponent::playWaveOscilla(const AudioSourceChannelInfo& bufferToFill)
     }
 }
 
-void MainComponent::playInversedFFT(const AudioSourceChannelInfo& bufferToFill)
+void MainComponent::playInversedFFTWaveGen(const AudioSourceChannelInfo& bufferToFill)
 {
     oscillator.prepareWave(signalToFFT, bufferToFill.numSamples, bufferToFill.startSample);
     if((oscillator.getWaveType() !=0) && calculator_FFT.fftType !=0 && calculator_FFT.isTimerRunning() && !calculator_FFT.dataIsInUse)
@@ -283,5 +312,23 @@ void MainComponent::updateToggleState(Button* button, int buttonID)
 
         default:
             return;
+    }
+}
+
+
+void MainComponent::calculateTime()
+{
+    bufferCounter++;
+    fftTimeElapsed += calculator_FFT.timeElapsed;
+}
+
+void MainComponent::timerCallback()
+{
+    if(bufferCounter!=0 && fftTimeElapsed!=0)
+    {
+        int avarage = fftTimeElapsed/bufferCounter;
+        fftTimeElapsedLabel.setText(to_string(avarage), dontSendNotification);
+        bufferCounter = 0;
+        fftTimeElapsed = 0;
     }
 }

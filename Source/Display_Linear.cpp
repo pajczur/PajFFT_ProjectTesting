@@ -36,7 +36,7 @@ void Display_Linear::paint (Graphics& g)
 
     g.setColour(Colours::lightblue);
     
-    g.drawLine(margXLeft, margYTop, margXLeft, margYTop+ _winY);
+    g.drawRect(margXLeft, margYTop, getWidth()-margXRight-margXLeft, _winY);
 }
 
 void Display_Linear::resized()

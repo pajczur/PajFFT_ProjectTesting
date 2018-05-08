@@ -141,6 +141,7 @@ void CalculateDTFT::timerCallback()
                 break;
         }
 //        std::cout << _time.secondsElapsed() << std::endl;
+        timeElapsed = _time.secondsElapsed();
         fftGraph.clear();
         if(!isForward)
         {
