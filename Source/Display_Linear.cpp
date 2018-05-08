@@ -1,0 +1,99 @@
+/*
+  ==============================================================================
+
+    LinearDisplay.cpp
+    Created: 5 May 2018 7:43:42pm
+    Author:  Wojtek Pilwinski
+
+  ==============================================================================
+*/
+
+#include "../JuceLibraryCode/JuceHeader.h"
+#include "Display_Linear.h"
+
+//==============================================================================
+Display_Linear::Display_Linear()
+{
+    margXLeft = 41.0f;
+    margXRight = 10.0f;
+    margYBot = 20.0f+30.0f;
+    margYTop = 20.0f;
+
+    wZoom.setSliderStyle(Slider::SliderStyle::ThreeValueHorizontal);
+    addAndMakeVisible(&wZoom);
+    wZoom.setTextBoxStyle(Slider::NoTextBox, true, 0, 0);
+    wZoom.addListener(this);
+}
+
+Display_Linear::~Display_Linear()
+{
+}
+
+void Display_Linear::paint (Graphics& g)
+{
+    _winX = getWidth() - margXLeft - margXRight;
+    _winY = getHeight() - margYBot - margYTop;
+
+    g.setColour(Colours::lightblue);
+    
+    g.drawLine(margXLeft, margYTop, margXLeft, margYTop+ _winY);
+}
+
+void Display_Linear::resized()
+{
+    wZoom.setBounds(margXLeft-11, getHeight()-33, getWidth()-(margXLeft-11), 30);
+}
+
+int Display_Linear::getDisplayHeight()
+{
+    return getHeight()-margYBot-margYTop;
+}
+
+int Display_Linear::getDisplayWidth()
+{
+    return getWidth()-margXLeft-margXRight;
+}
+
+int Display_Linear::getDisplayMargXLeft()
+{
+    return margXLeft;
+}
+
+int Display_Linear::getDisplayMargYTop()
+{
+    return margYTop;
+}
+
+void Display_Linear::setSampRate(double sampRat)
+{
+    wSampleRateToDisplay = sampRat;
+    
+    wZoom.setRange(0.0, wSampleRateToDisplay, 0.001);
+    
+    wZoom.setMinAndMaxValues(0.0, wSampleRateToDisplay);
+    wZoom.setValue( ((wZoom.getMaxValue()-wZoom.getMinValue())/2.0) + wZoom.getMinValue() );
+}
+
+void Display_Linear::sliderValueChanged (Slider *slider)
+{
+    if(slider == &wZoom)
+    {
+        //        double wMin = wZoom.getMinValue();
+        //        double wMid = wZoom.getValue();
+        //        double wMax = wZoom.getMaxValue();
+        //        wZoom.setMinAndMaxValues(wMid-((wMax-wMin)/2.0), wMid+((wMax-wMin)/2.0));
+        wZoom.setValue(((wZoom.getMaxValue()-wZoom.getMinValue())/2.0)+wZoom.getMinValue());
+        
+        lowEnd = wZoom.getMinValue();
+        topEnd = wZoom.getMaxValue();
+        repaint();
+        calculator_FFT->setZoomLinear(wZoom.getMinValue(), wZoom.getMaxValue());
+        //        wZoom.setMinValue(wMid-((wMax-wMin)/2.0));
+        //        wZoom.setMaxValue(wMid+((wMax-wMin)/2.0));
+    }
+}
+
+void Display_Linear::setFFTcalc(CalculateDTFT &fftCalc)
+{
+    calculator_FFT = &fftCalc;
+}
