@@ -61,14 +61,14 @@
 #include <complex>
 #include <vector>
 
-class WojFFT_MixedRadix
+class PajFFT_MixedRadix
 {
     // ===========================================================================================================================================
     // == FUNCTIONS ==============================================================================================================================
     // ===========================================================================================================================================
 public:
-    WojFFT_MixedRadix();
-    ~WojFFT_MixedRadix();
+    PajFFT_MixedRadix();
+    ~PajFFT_MixedRadix();
     void printRadixDimensionsInTheConsole(); // Just to see size and dimensions of radix - check if it's as expected
     
     // == SETTINGS ====================================================
@@ -117,7 +117,7 @@ private:
     void                        freqMagnitudeCalculator  (std::complex<float> fftOutput, int freqBin);
     void                        freqMagnCalc_ComplexOut  (std::complex<float> fftOutput, int freqBin);
     void                        waveAmplitudeCalculator  (std::complex<float> fftOutput, int index);
-    void   (WojFFT_MixedRadix::*forwBackChooser)         (std::complex<float> fftOutput, int freqBinOrIndex);
+    void   (PajFFT_MixedRadix::*forwBackChooser)         (std::complex<float> fftOutput, int freqBinOrIndex);
   
     
     

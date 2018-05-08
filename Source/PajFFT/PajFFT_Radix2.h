@@ -77,14 +77,14 @@
 #include <complex>
 #include <vector>
 
-class WojFFT_Radix2
+class PajFFT_Radix2
 {
     // ===========================================================================================================================================
     // == FUNCTIONS ==============================================================================================================================
     // ===========================================================================================================================================
 public:
-    WojFFT_Radix2();
-    ~WojFFT_Radix2();
+    PajFFT_Radix2();
+    ~PajFFT_Radix2();
   
     
     // == SETTINGS ==================================================================
@@ -131,7 +131,7 @@ private:
     void                   freqMagnitudeCalculator  (std::complex<float> fftOutput, int freqBin);
     void                   freqMagnCalc_ComplexOut  (std::complex<float> fftOutput, int freqBin);
     void                   waveAmplitudeCalculator  (std::complex<float> fftOutput, int index);
-    void  (WojFFT_Radix2::*forwBackChooser)         (std::complex<float> fftOutput, int freqBinOrIndex);
+    void  (PajFFT_Radix2::*forwBackChooser)         (std::complex<float> fftOutput, int freqBinOrIndex);
     
     
     

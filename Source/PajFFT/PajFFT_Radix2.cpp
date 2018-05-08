@@ -71,14 +71,14 @@
  ==============================================================================
 */
 
-#include "WojFFT_Radix2.h"
+#include "PajFFT_Radix2.h"
 
 
 // =========================================================================================================================================
 // == C O N S T R U C T O R ==== D E S T R U C T O T =======================================================================================
 // =========================================================================================================================================
 // ==== PUBLIC: ====
-WojFFT_Radix2::WojFFT_Radix2()
+PajFFT_Radix2::PajFFT_Radix2()
 {
     fPi = 4.0f * atan(1.0f);
 
@@ -104,7 +104,7 @@ WojFFT_Radix2::WojFFT_Radix2()
 }
 
 
-WojFFT_Radix2::~WojFFT_Radix2()
+PajFFT_Radix2::~PajFFT_Radix2()
 {
     
 }
@@ -118,14 +118,14 @@ WojFFT_Radix2::~WojFFT_Radix2()
 // == S E T T I N G S ======================================================================================================================
 // =========================================================================================================================================
 // ==== PRIVATE: ====
-void WojFFT_Radix2::setSampleRate                          (float sampleR)
+void PajFFT_Radix2::setSampleRate                          (float sampleR)
 {
     wSampleRate = sampleR;
     updateFreqRangeScale(low_End, top_End);
 }
 
 
-void WojFFT_Radix2::setBufferSize                          (float bufferS)
+void PajFFT_Radix2::setBufferSize                          (float bufferS)
 {
     trueBuffersize = bufferS;
     int correction = log2(bufferS);
@@ -144,7 +144,7 @@ void WojFFT_Radix2::setBufferSize                          (float bufferS)
 }
 
 
-void WojFFT_Radix2::resetOutputData                        ()
+void PajFFT_Radix2::resetOutputData                        ()
 {
     if(isComplexOutput)
     {
@@ -166,14 +166,14 @@ void WojFFT_Radix2::resetOutputData                        ()
 }
 
 
-void WojFFT_Radix2::updateFreqRangeScale   (float lEnd, float tEnd)
+void PajFFT_Radix2::updateFreqRangeScale   (float lEnd, float tEnd)
 {
     setLowEnd(lEnd);
     setTopEnd(tEnd);
 }
 
 // ==== PUBLIC: ====
-void WojFFT_Radix2::wSettings                              (float sampleRate, float bufferSize, std::vector<float> &wOutput, bool forwardTRUE_backwardFALSE)
+void PajFFT_Radix2::wSettings                              (float sampleRate, float bufferSize, std::vector<float> &wOutput, bool forwardTRUE_backwardFALSE)
 {
     wOutputData = &wOutput;
     isComplexOutput = false;
@@ -197,7 +197,7 @@ void WojFFT_Radix2::wSettings                              (float sampleRate, fl
 }
 
 
-void WojFFT_Radix2::wSettings                              (float sampleRate, float bufferSize, std::vector<std::complex<float>> &wOutputC, bool forwardTRUE_backwardFALSE)
+void PajFFT_Radix2::wSettings                              (float sampleRate, float bufferSize, std::vector<std::complex<float>> &wOutputC, bool forwardTRUE_backwardFALSE)
 {
     wOutputDataC = &wOutputC;
     isComplexOutput = true;
@@ -220,21 +220,21 @@ void WojFFT_Radix2::wSettings                              (float sampleRate, fl
 }
 
 
-void WojFFT_Radix2::setLowEnd                              (float lowEnd)
+void PajFFT_Radix2::setLowEnd                              (float lowEnd)
 {
     low_End = lowEnd;
     lEndScale = wBufferSize * (lowEnd/wSampleRate);
 }
 
 
-void WojFFT_Radix2::setTopEnd                              (float topEnd)
+void PajFFT_Radix2::setTopEnd                              (float topEnd)
 {
     top_End = topEnd;
     tEndScale = wBufferSize * (topEnd/wSampleRate);
 }
 
 
-void WojFFT_Radix2::setZeroPadding                         (bool  trueON_falseOFF)
+void PajFFT_Radix2::setZeroPadding                         (bool  trueON_falseOFF)
 {
     zeroPadding = trueON_falseOFF;
     if(dataPreparedConfirm)
@@ -242,14 +242,14 @@ void WojFFT_Radix2::setZeroPadding                         (bool  trueON_falseOF
 }
 
 
-void WojFFT_Radix2::setPhase                               (float phase)
+void PajFFT_Radix2::setPhase                               (float phase)
 {
     wPhase = phase;
     phaseRotation = pow(imaginary_j, wPhase);
 }
 
 
-void WojFFT_Radix2::setWindowing                           (bool wind)
+void PajFFT_Radix2::setWindowing                           (bool wind)
 {
     isWindowing = wind;
 }
@@ -263,7 +263,7 @@ void WojFFT_Radix2::setWindowing                           (bool wind)
 // == P R E == C R E A T I O N =============================================================================================================
 // =========================================================================================================================================
 // ==== PRIVATE: ====
-void WojFFT_Radix2::bitReversal                            (float bufSize)
+void PajFFT_Radix2::bitReversal                            (float bufSize)
 {
     bitReversed.resize(bufSize);
     
@@ -308,13 +308,13 @@ void WojFFT_Radix2::bitReversal                            (float bufSize)
 }
 
 
-void WojFFT_Radix2::prepareTwiddlesArray                   (bool forwardOrBackward)
+void PajFFT_Radix2::prepareTwiddlesArray                   (bool forwardOrBackward)
 {
     wnkN.resize((unsigned int)wBufferSize);
     if(forwardOrBackward)
     {
-        if(isComplexOutput) forwBackChooser = &WojFFT_Radix2::freqMagnCalc_ComplexOut;
-        else                forwBackChooser = &WojFFT_Radix2::freqMagnitudeCalculator;
+        if(isComplexOutput) forwBackChooser = &PajFFT_Radix2::freqMagnCalc_ComplexOut;
+        else                forwBackChooser = &PajFFT_Radix2::freqMagnitudeCalculator;
         for(unsigned int i=0; i<wBufferSize; i++)
         {
             wnkN[i] = twiddleCalculator((float)i);
@@ -322,7 +322,7 @@ void WojFFT_Radix2::prepareTwiddlesArray                   (bool forwardOrBackwa
     }
     else
     {
-        forwBackChooser = &WojFFT_Radix2::waveAmplitudeCalculator;
+        forwBackChooser = &PajFFT_Radix2::waveAmplitudeCalculator;
         for(unsigned int i=0; i<wBufferSize; i++)
         {
             wnkN[i] = twiddleCalculator(-(float)i);
@@ -331,7 +331,7 @@ void WojFFT_Radix2::prepareTwiddlesArray                   (bool forwardOrBackwa
 }
 
 
-void WojFFT_Radix2::prepare_sN0_matrix                     ()
+void PajFFT_Radix2::prepare_sN0_matrix                     ()
 {
     sN0.resize(log2(wBufferSize));
     for(int z=0; z<sN0.size(); z++)
@@ -348,7 +348,7 @@ void WojFFT_Radix2::prepare_sN0_matrix                     ()
 }
 
 
-void WojFFT_Radix2::prepareWindowingArray                  ()
+void PajFFT_Radix2::prepareWindowingArray                  ()
 {
     windowHann.clear();
     for(int i=0; i<wBufferSize; i++)
@@ -372,7 +372,7 @@ void WojFFT_Radix2::prepareWindowingArray                  ()
 // == F F T == A L G O R I T H M ===========================================================================================================
 // =========================================================================================================================================
 // ==== PUBLIC: ====
-void WojFFT_Radix2::makeFFT                                (std::vector<float> inputSignal)
+void PajFFT_Radix2::makeFFT                                (std::vector<float> inputSignal)
 {
     std::vector<float> wBuffer = inputSignal;
 
@@ -396,7 +396,7 @@ void WojFFT_Radix2::makeFFT                                (std::vector<float> i
 //    }
 }
 
-void WojFFT_Radix2::makeFFT                                (std::vector<std::complex<float>> inputSignalC)
+void PajFFT_Radix2::makeFFT                                (std::vector<std::complex<float>> inputSignalC)
 {
     std::vector<std::complex<float>> wBuffer = inputSignalC;
 
@@ -422,7 +422,7 @@ void WojFFT_Radix2::makeFFT                                (std::vector<std::com
 
 
 // PRIVATE:
-void WojFFT_Radix2::firstStepFFT                           (std::vector<float> inputSignal, int rdx2)
+void PajFFT_Radix2::firstStepFFT                           (std::vector<float> inputSignal, int rdx2)
 {
     for(int k=0; k<wBufferSize/pow(2, rdx2+1); k++)
     {
@@ -435,7 +435,7 @@ void WojFFT_Radix2::firstStepFFT                           (std::vector<float> i
     }
 }
 
-void WojFFT_Radix2::firstStepFFTc                          (std::vector<std::complex<float>> inputSignalc, int rdx2)
+void PajFFT_Radix2::firstStepFFTc                          (std::vector<std::complex<float>> inputSignalc, int rdx2)
 {
     for(int k=0; k<wBufferSize/pow(2, rdx2+1); k++)
     {
@@ -449,7 +449,7 @@ void WojFFT_Radix2::firstStepFFTc                          (std::vector<std::com
 }
 
 
-void WojFFT_Radix2::divideAndConquereFFT                   (int rdx2)
+void PajFFT_Radix2::divideAndConquereFFT                   (int rdx2)
 {
     for(int k=0; k<wBufferSize/pow(2, rdx2+1); k++)
     {
@@ -468,7 +468,7 @@ void WojFFT_Radix2::divideAndConquereFFT                   (int rdx2)
 }
 
 
-void WojFFT_Radix2::lastStepFFT                            (int rdx2)
+void PajFFT_Radix2::lastStepFFT                            (int rdx2)
 {
     for(int k=0; k<wBufferSize/pow(2, rdx2+1); k++)
     {
@@ -498,7 +498,7 @@ void WojFFT_Radix2::lastStepFFT                            (int rdx2)
 // == C A L C U L A T O R S ================================================================================================================
 // =========================================================================================================================================
 // ==== PRIVATE: ====
-std::complex<float> WojFFT_Radix2::twiddleCalculator       (float nXk)
+std::complex<float> PajFFT_Radix2::twiddleCalculator       (float nXk)
 {
     std::complex<float> wnk_N_temp;
     if((int)nXk % (int)wBufferSize == 0)
@@ -520,7 +520,7 @@ std::complex<float> WojFFT_Radix2::twiddleCalculator       (float nXk)
 }
 
 
-void WojFFT_Radix2::freqMagnitudeCalculator               (std::complex<float> fftOutput, int freqBin)
+void PajFFT_Radix2::freqMagnitudeCalculator               (std::complex<float> fftOutput, int freqBin)
 {
     if(freqBin<lEndScale  ||  freqBin>tEndScale)
         wOutputData->at(freqBin) = fZero;
@@ -535,7 +535,7 @@ void WojFFT_Radix2::freqMagnitudeCalculator               (std::complex<float> f
     }
 }
 
-void WojFFT_Radix2::freqMagnCalc_ComplexOut               (std::complex<float> fftOutput, int freqBin)
+void PajFFT_Radix2::freqMagnCalc_ComplexOut               (std::complex<float> fftOutput, int freqBin)
 {
     if(freqBin<lEndScale  ||  freqBin>tEndScale)
         wOutputDataC->at(freqBin) = cZero;
@@ -546,7 +546,7 @@ void WojFFT_Radix2::freqMagnCalc_ComplexOut               (std::complex<float> f
 }
 
 
-void WojFFT_Radix2::waveAmplitudeCalculator               (std::complex<float> fftOutput, int index)
+void PajFFT_Radix2::waveAmplitudeCalculator               (std::complex<float> fftOutput, int index)
 {
     fftOutput *= phaseRotation;
     
@@ -565,25 +565,25 @@ void WojFFT_Radix2::waveAmplitudeCalculator               (std::complex<float> f
 // == G E T == I N F O R M A T I O N S =====================================================================================================
 // =========================================================================================================================================
 // ==== PUBLIC: ====
-float WojFFT_Radix2::getBufferSize()
+float PajFFT_Radix2::getBufferSize()
 {
     return wBufferSize;
 }
 
 
-float WojFFT_Radix2::getLowEnd()
+float PajFFT_Radix2::getLowEnd()
 {
     return low_End;
 }
 
 
-float WojFFT_Radix2::getTopEnd()
+float PajFFT_Radix2::getTopEnd()
 {
     return top_End;
 }
 
 
-float WojFFT_Radix2::getPhase()
+float PajFFT_Radix2::getPhase()
 {
     return wPhase;
 }

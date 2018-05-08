@@ -73,12 +73,12 @@
   ==============================================================================
  */
 
-#include "WojFFT_fRange.h"
+#include "PajFFT_fRange.h"
 
 // =========================================================================================================================================
 // == C O N S T R U C T O R ==== D E S T R U C T O T =======================================================================================
 // =========================================================================================================================================
-WojFFT_fRange::WojFFT_fRange()
+PajFFT_fRange::PajFFT_fRange()
 {
     fPi = 4.0f * atan(1.0f);
     
@@ -93,7 +93,7 @@ WojFFT_fRange::WojFFT_fRange()
     rememberedForwardOrBackward=true;
 }
 
-WojFFT_fRange::~WojFFT_fRange()
+PajFFT_fRange::~PajFFT_fRange()
 {
     
 }
@@ -108,13 +108,13 @@ WojFFT_fRange::~WojFFT_fRange()
 // == S E T T I N G S ======================================================================================================================
 // =========================================================================================================================================
 // PRIVATE:
-void WojFFT_fRange::setSampleRate                        (float sampleR)
+void PajFFT_fRange::setSampleRate                        (float sampleR)
 {
     wSampleRate = sampleR;
 }
 
 
-void WojFFT_fRange::setBufferSize                        (float bufferS)
+void PajFFT_fRange::setBufferSize                        (float bufferS)
 {
     trueBuffersize = bufferS;
     int correction = log2(bufferS);
@@ -136,7 +136,7 @@ void WojFFT_fRange::setBufferSize                        (float bufferS)
 }
 
 
-void WojFFT_fRange::resetOutputData                      ()
+void PajFFT_fRange::resetOutputData                      ()
 {    
     if(isComplexOutput)
     {
@@ -159,7 +159,7 @@ void WojFFT_fRange::resetOutputData                      ()
 
 
 // PUBLIC:
-void WojFFT_fRange::wSettings                            (float sampleRate, float bufferSize, std::vector<float> &wOutput, bool forwardTRUE_backwardFALSE)
+void PajFFT_fRange::wSettings                            (float sampleRate, float bufferSize, std::vector<float> &wOutput, bool forwardTRUE_backwardFALSE)
 {
     wOutputData = &wOutput;
     isComplexOutput = false;
@@ -186,7 +186,7 @@ void WojFFT_fRange::wSettings                            (float sampleRate, floa
 }
 
 
-void WojFFT_fRange::wSettings                            (float sampleRate, float bufferSize, std::vector<std::complex<float>> &wOutputC, bool forwardTRUE_backwardFALSE)
+void PajFFT_fRange::wSettings                            (float sampleRate, float bufferSize, std::vector<std::complex<float>> &wOutputC, bool forwardTRUE_backwardFALSE)
 {
     wOutputDataC = &wOutputC;
     isComplexOutput = true;
@@ -213,21 +213,21 @@ void WojFFT_fRange::wSettings                            (float sampleRate, floa
 }
 
 
-void WojFFT_fRange::setLowEnd                            (float lowEnd)
+void PajFFT_fRange::setLowEnd                            (float lowEnd)
 {
     low_End = lowEnd;
     freqRangeReindex(low_End, top_End);
 }
 
 
-void WojFFT_fRange::setTopEnd                            (float topEnd)
+void PajFFT_fRange::setTopEnd                            (float topEnd)
 {
     top_End = topEnd;
     freqRangeReindex(low_End, top_End);
 }
 
 
-void WojFFT_fRange::setFreqRange                         (float lowE, float topE)
+void PajFFT_fRange::setFreqRange                         (float lowE, float topE)
 {
     low_End = lowE;
     top_End = topE;
@@ -235,7 +235,7 @@ void WojFFT_fRange::setFreqRange                         (float lowE, float topE
 }
 
 
-void WojFFT_fRange::setZeroPadding                       (bool  trueON_falseOFF)
+void PajFFT_fRange::setZeroPadding                       (bool  trueON_falseOFF)
 {
     if(rememberedForwardOrBackward)
     {
@@ -248,7 +248,7 @@ void WojFFT_fRange::setZeroPadding                       (bool  trueON_falseOFF)
 }
 
 
-void WojFFT_fRange::setOutput                            (std::vector<             float>  &wOutput)
+void PajFFT_fRange::setOutput                            (std::vector<             float>  &wOutput)
 {
     wOutputData = &wOutput;
     isComplexOutput = false;
@@ -256,7 +256,7 @@ void WojFFT_fRange::setOutput                            (std::vector<          
 }
 
 
-void WojFFT_fRange::setOutput                            (std::vector<std::complex<float>> &wOutputC)
+void PajFFT_fRange::setOutput                            (std::vector<std::complex<float>> &wOutputC)
 {
     wOutputDataC = &wOutputC;
     isComplexOutput = true;
@@ -273,7 +273,7 @@ void WojFFT_fRange::setOutput                            (std::vector<std::compl
 // == P R E == C R E A T I O N =============================================================================================================
 // =========================================================================================================================================
 // PRIVATE:
-void WojFFT_fRange::bitReversal                          (float bufS)
+void PajFFT_fRange::bitReversal                          (float bufS)
 {
     bitReversed.resize(bufS);
     
@@ -318,12 +318,12 @@ void WojFFT_fRange::bitReversal                          (float bufS)
 }
 
 
-void WojFFT_fRange::prepareTwiddlesArray                 (int wnkN_Size, bool forwardOrBackward)
+void PajFFT_fRange::prepareTwiddlesArray                 (int wnkN_Size, bool forwardOrBackward)
 {
     wnkN_forw.resize(wnkN_Size);
     if(forwardOrBackward)
     {
-        forwBackChooser=&WojFFT_fRange::freqMagnitudeCalculator;
+        forwBackChooser=&PajFFT_fRange::freqMagnitudeCalculator;
         for(unsigned int i=0; i<wnkN_forw.size(); i++)
         {
             wnkN_forw[i] = twiddleCalculator((float)i);
@@ -331,7 +331,7 @@ void WojFFT_fRange::prepareTwiddlesArray                 (int wnkN_Size, bool fo
     }
     else
     {
-        forwBackChooser=&WojFFT_fRange::waveAmplitudeCalculator;
+        forwBackChooser=&PajFFT_fRange::waveAmplitudeCalculator;
         for(unsigned int i=0; i<wnkN_forw.size(); i++)
         {
             wnkN_forw[i] = twiddleCalculator(-(float)i);
@@ -342,7 +342,7 @@ void WojFFT_fRange::prepareTwiddlesArray                 (int wnkN_Size, bool fo
 }
 
 
-void WojFFT_fRange::prepare_sN0_matrix                   ()
+void PajFFT_fRange::prepare_sN0_matrix                   ()
 {
     sN0.resize(log2(wBufferSize)+1);
     
@@ -355,7 +355,7 @@ void WojFFT_fRange::prepare_sN0_matrix                   ()
 }
 
 
-void WojFFT_fRange::freqRangeReindex                     (float lowE, float topE)
+void PajFFT_fRange::freqRangeReindex                     (float lowE, float topE)
 {
     freqRange.clear();
     wFreqDec.clear();
@@ -411,7 +411,7 @@ void WojFFT_fRange::freqRangeReindex                     (float lowE, float topE
 }
 
 
-void WojFFT_fRange::prepareTwiddlesIndexesMatrix         ()
+void PajFFT_fRange::prepareTwiddlesIndexesMatrix         ()
 {
     std::vector<int> mTemp;
     std::vector<int> pTemp;
@@ -445,7 +445,7 @@ void WojFFT_fRange::prepareTwiddlesIndexesMatrix         ()
 // == F F T == A L G O R I T H M ===========================================================================================================
 // =========================================================================================================================================
 // PUBLIC:
-void WojFFT_fRange::makeFFT                              (std::vector<float> inputSignal)
+void PajFFT_fRange::makeFFT                              (std::vector<float> inputSignal)
 {
     std::vector<float> wBuffer = inputSignal;
     if(resizeInput) wBuffer.push_back(0.0f);
@@ -471,7 +471,7 @@ void WojFFT_fRange::makeFFT                              (std::vector<float> inp
 }
 
 
-void WojFFT_fRange::makeFFT                              (std::vector<std::complex<float>> inputSignalC)
+void PajFFT_fRange::makeFFT                              (std::vector<std::complex<float>> inputSignalC)
 {
     std::vector<std::complex<float>> wBuffer = inputSignalC;
     if(resizeInput) wBuffer.push_back(0.0f);
@@ -506,7 +506,7 @@ void WojFFT_fRange::makeFFT                              (std::vector<std::compl
 // == C A L C U L A T O R S ================================================================================================================
 // =========================================================================================================================================
 // PRIVATE:
-std::complex<float> WojFFT_fRange::twiddleCalculator     (float nXk)
+std::complex<float> PajFFT_fRange::twiddleCalculator     (float nXk)
 {
     std::complex<float> wnk_N_temp;
     if((int)nXk % (int)wBufferSize == 0)
@@ -528,7 +528,7 @@ std::complex<float> WojFFT_fRange::twiddleCalculator     (float nXk)
 }
 
 
-float WojFFT_fRange::freqMagnitudeCalculator             (std::complex<float> fftOutput)
+float PajFFT_fRange::freqMagnitudeCalculator             (std::complex<float> fftOutput)
 {
     float _Re_2;
     float _Im_2;
@@ -540,7 +540,7 @@ float WojFFT_fRange::freqMagnitudeCalculator             (std::complex<float> ff
 }
 
 
-float WojFFT_fRange::waveAmplitudeCalculator             (std::complex<float> fftOutput)
+float PajFFT_fRange::waveAmplitudeCalculator             (std::complex<float> fftOutput)
 {
     return fftOutput.real()/wBufferSize;
 }
@@ -555,17 +555,17 @@ float WojFFT_fRange::waveAmplitudeCalculator             (std::complex<float> ff
 // == G E T == I N F O R M A T I O N S =====================================================================================================
 // =========================================================================================================================================
 // ==== PUBLIC: ====
-float WojFFT_fRange::getBufferSize()
+float PajFFT_fRange::getBufferSize()
 {
     return wBufferSize;
 }
 
-float WojFFT_fRange::getLowEnd    ()
+float PajFFT_fRange::getLowEnd    ()
 {
     return low_End;
 }
 
-float WojFFT_fRange::getTopEnd    ()
+float PajFFT_fRange::getTopEnd    ()
 {
     return top_End;
 }

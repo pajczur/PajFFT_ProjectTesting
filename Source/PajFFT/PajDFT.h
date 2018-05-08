@@ -61,15 +61,15 @@
 
 
 
-class WojDFT
+class PajDFT
 {
     
     // ===========================================================================================================================================
     // == FUNCTIONS ==============================================================================================================================
     // ===========================================================================================================================================
 public:
-    WojDFT();
-    ~WojDFT();
+    PajDFT();
+    ~PajDFT();
     
     
     // == SETTINGS ==================================================================
@@ -109,7 +109,7 @@ private:
     void                freqMagnitudeCalculator  (std::complex<float> fftOutput, int freqBin);
     void                freqMagnCalc_ComplexOut  (std::complex<float> fftOutput, int freqBin);
     void                waveAmplitudeCalculator  (std::complex<float> fftOutput, int index);
-    void      (WojDFT::*forwBackChooser)         (std::complex<float> fftOutput, int freqBinOrIndex);
+    void      (PajDFT::*forwBackChooser)         (std::complex<float> fftOutput, int freqBinOrIndex);
     
     
     

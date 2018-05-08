@@ -12,10 +12,10 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include <vector>
-#include "PajFFT/WojDFT.h"
-#include "PajFFT/WojFFT_MixedRadix.h"
-#include "PajFFT/WojFFT_Radix2.h"
-#include "PajFFT/WojFFT_fRange.h"
+#include "PajFFT/PajDFT.h"
+#include "PajFFT/PajFFT_MixedRadix.h"
+#include "PajFFT/PajFFT_Radix2.h"
+#include "PajFFT/PajFFT_fRange.h"
 #include "Clock.h"
 
 //==============================================================================
@@ -44,12 +44,12 @@ public:
     void setZoomLinear(double startTime, double endTime);
     void setLowEndIndex();
 
-    WojFFT_MixedRadix mixedRadix_FFT;
-    WojFFT_MixedRadix mixedRadix_IFFT;
-    WojFFT_Radix2     radix2_FFT;
-    WojFFT_Radix2     radix2_IFFT;
-    WojDFT            regular_DFT;
-    WojDFT            regular_IDFT;
+    PajFFT_MixedRadix mixedRadix_FFT;
+    PajFFT_MixedRadix mixedRadix_IFFT;
+    PajFFT_Radix2     radix2_FFT;
+    PajFFT_Radix2     radix2_IFFT;
+    PajDFT            regular_DFT;
+    PajDFT            regular_IDFT;
     
     bool dataIsInUse;
     bool dataIsReadyToFFT;

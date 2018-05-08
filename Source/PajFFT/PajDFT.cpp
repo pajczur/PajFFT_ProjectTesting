@@ -52,14 +52,14 @@
  ==============================================================================
  */
 
-#include "WojDFT.h"
+#include "PajDFT.h"
 
 
 // =========================================================================================================================================
 // == C O N S T R U C T O R ==== D E S T R U C T O T =======================================================================================
 // =========================================================================================================================================
 // ==== PUBLIC: ====
-WojDFT::WojDFT()
+PajDFT::PajDFT()
 {
     fPi = 4.0f * atan(1.0f);
 
@@ -83,7 +83,7 @@ WojDFT::WojDFT()
 }
 
 
-WojDFT::~WojDFT()
+PajDFT::~PajDFT()
 {
     
 }
@@ -98,14 +98,14 @@ WojDFT::~WojDFT()
 // =========================================================================================================================================
 
 // ==== PRIVATE: ====
-void WojDFT::setSampleRate                       (float sampleR)
+void PajDFT::setSampleRate                       (float sampleR)
 {
     wSampleRate = sampleR;
     updateFreqRangeScale(low_End, top_End);
 }
 
 
-void WojDFT::setBufferSize                       (float bufferS)
+void PajDFT::setBufferSize                       (float bufferS)
 {
     wBufferSize= bufferS;
     resetOutputData();
@@ -113,7 +113,7 @@ void WojDFT::setBufferSize                       (float bufferS)
 }
 
 
-void WojDFT::resetOutputData                     ()
+void PajDFT::resetOutputData                     ()
 {
     if(isComplexOutput)
     {
@@ -135,14 +135,14 @@ void WojDFT::resetOutputData                     ()
 }
 
 
-void WojDFT::updateFreqRangeScale                (float lEnd, float tEnd)
+void PajDFT::updateFreqRangeScale                (float lEnd, float tEnd)
 {
     setLowEnd(lEnd);
     setTopEnd(tEnd);
 }
 
 
-void WojDFT::set_nk_bounds                       (bool forwardTRUE_backwardFALSE)
+void PajDFT::set_nk_bounds                       (bool forwardTRUE_backwardFALSE)
 {
     if(forwardTRUE_backwardFALSE)
     {
@@ -161,7 +161,7 @@ void WojDFT::set_nk_bounds                       (bool forwardTRUE_backwardFALSE
 }
 
 // ==== PUBLIC: ====
-void WojDFT::wSettings                           (float sampleRate, float bufferSize, std::vector<float> &wOutput, bool forwardTRUE_backwardFALSE)
+void PajDFT::wSettings                           (float sampleRate, float bufferSize, std::vector<float> &wOutput, bool forwardTRUE_backwardFALSE)
 {
     wOutputData = &wOutput;
     isComplexOutput = false;
@@ -183,7 +183,7 @@ void WojDFT::wSettings                           (float sampleRate, float buffer
     set_nk_bounds(rememberedForwardOrBackward);
 }
 
-void WojDFT::wSettings                           (float sampleRate, float bufferSize, std::vector<std::complex<float>> &wOutputC, bool forwardTRUE_backwardFALSE)
+void PajDFT::wSettings                           (float sampleRate, float bufferSize, std::vector<std::complex<float>> &wOutputC, bool forwardTRUE_backwardFALSE)
 {
     wOutputDataC = &wOutputC;
     isComplexOutput = true;
@@ -206,21 +206,21 @@ void WojDFT::wSettings                           (float sampleRate, float buffer
 }
 
 
-void WojDFT::setLowEnd                           (float lowEnd)
+void PajDFT::setLowEnd                           (float lowEnd)
 {
     low_End = lowEnd;
     set_nk_bounds(rememberedForwardOrBackward);
 }
 
 
-void WojDFT::setTopEnd                           (float topEnd)
+void PajDFT::setTopEnd                           (float topEnd)
 {
     top_End = topEnd;
     set_nk_bounds(rememberedForwardOrBackward);
 }
 
 
-void WojDFT::setPhase                            (float phase)
+void PajDFT::setPhase                            (float phase)
 {
     wPhase = phase;
     phaseRotation = pow(imaginary_j, wPhase);
@@ -228,7 +228,7 @@ void WojDFT::setPhase                            (float phase)
 
 
 
-void WojDFT::setWindowing                        (bool wind)
+void PajDFT::setWindowing                        (bool wind)
 {
     isWindowing = wind;
 }
@@ -243,13 +243,13 @@ void WojDFT::setWindowing                        (bool wind)
 // =========================================================================================================================================
 
 // ==== PRIVATE: ====
-void WojDFT::prepareTwiddlesArray                (bool forwardOrBackward)
+void PajDFT::prepareTwiddlesArray                (bool forwardOrBackward)
 {
     wnkN.resize(wBufferSize);
     if(forwardOrBackward)
     {
-        if(isComplexOutput) forwBackChooser=&WojDFT::freqMagnCalc_ComplexOut;
-        else                forwBackChooser=&WojDFT::freqMagnitudeCalculator;
+        if(isComplexOutput) forwBackChooser=&PajDFT::freqMagnCalc_ComplexOut;
+        else                forwBackChooser=&PajDFT::freqMagnitudeCalculator;
         
         for(unsigned int k=0; k<wBufferSize; k++)
         {
@@ -258,7 +258,7 @@ void WojDFT::prepareTwiddlesArray                (bool forwardOrBackward)
     }
     else
     {
-        forwBackChooser=&WojDFT::waveAmplitudeCalculator;
+        forwBackChooser=&PajDFT::waveAmplitudeCalculator;
         for(unsigned int k=0; k<wBufferSize; k++)
         {
             wnkN[k] = twiddleCalculator(-(float)k);
@@ -267,7 +267,7 @@ void WojDFT::prepareTwiddlesArray                (bool forwardOrBackward)
 }
 
 
-void WojDFT::prepareWindowingArray               ()
+void PajDFT::prepareWindowingArray               ()
 {
     windowHann.clear();
     for(int i=0; i<wBufferSize; i++)
@@ -294,7 +294,7 @@ void WojDFT::prepareWindowingArray               ()
 // =========================================================================================================================================
 
 // ==== PUBLIC: ====
-void WojDFT::makeDFT                             (std::vector<float> inputSignal)
+void PajDFT::makeDFT                             (std::vector<float> inputSignal)
 {
     for(int k=kStart; k < kEnd; k++)
     {
@@ -309,7 +309,7 @@ void WojDFT::makeDFT                             (std::vector<float> inputSignal
     }
 }
 
-void WojDFT::makeDFT                             (std::vector<std::complex<float>> inputSignalC)
+void PajDFT::makeDFT                             (std::vector<std::complex<float>> inputSignalC)
 {
     for(int k=kStart; k < kEnd; k++)
     {
@@ -334,7 +334,7 @@ void WojDFT::makeDFT                             (std::vector<std::complex<float
 // =========================================================================================================================================
 
 // ==== PRIVATE: ====
-std::complex<float> WojDFT::twiddleCalculator    (float nXk)
+std::complex<float> PajDFT::twiddleCalculator    (float nXk)
 {
     std::complex<float> wnk_N_temp;
     if((int)(nXk) % (int)wBufferSize == 0)
@@ -356,19 +356,19 @@ std::complex<float> WojDFT::twiddleCalculator    (float nXk)
 }
 
 
-void WojDFT::freqMagnitudeCalculator            (std::complex<float> fftOutput, int freqBin)
+void PajDFT::freqMagnitudeCalculator            (std::complex<float> fftOutput, int freqBin)
 {
     wOutputData->at(freqBin) = pow( (fftOutput.real() * fftOutput.real()) + (fftOutput.imag() * fftOutput.imag()), 0.5f ) / (wBufferSize/2.0f);
 }
 
 
-void WojDFT::freqMagnCalc_ComplexOut             (std::complex<float> fftOutput, int freqBin)
+void PajDFT::freqMagnCalc_ComplexOut             (std::complex<float> fftOutput, int freqBin)
 {
         wOutputDataC->at(freqBin) = fftOutput;
 }
 
 
-void WojDFT::waveAmplitudeCalculator            (std::complex<float> fftOutput, int index)
+void PajDFT::waveAmplitudeCalculator            (std::complex<float> fftOutput, int index)
 {
     fftOutput *= phaseRotation;
     float window;
@@ -390,25 +390,25 @@ void WojDFT::waveAmplitudeCalculator            (std::complex<float> fftOutput, 
 // == G E T == I N F O R M A T I O N S =====================================================================================================
 // =========================================================================================================================================
 // ==== PUBLIC: ====
-float WojDFT::getBufferSize()
+float PajDFT::getBufferSize()
 {
     return wBufferSize;
 }
 
 
-float WojDFT::getLowEnd()
+float PajDFT::getLowEnd()
 {
     return low_End;
 }
 
 
-float WojDFT::getTopEnd()
+float PajDFT::getTopEnd()
 {
     return top_End;
 }
 
 
-float WojDFT::getPhase()
+float PajDFT::getPhase()
 {
     return wPhase;
 }

@@ -79,15 +79,15 @@
 #include <vector>
 #include <algorithm>
 
-class WojFFT_fRange
+class PajFFT_fRange
 {
     
     // ===========================================================================================================================================
     // == FUNCTIONS ==============================================================================================================================
     // ===========================================================================================================================================
 public:
-    WojFFT_fRange();
-    ~WojFFT_fRange();
+    PajFFT_fRange();
+    ~PajFFT_fRange();
 
     
     
@@ -128,7 +128,7 @@ private:
     std::complex<float>    twiddleCalculator        (float nXk);
     float                  freqMagnitudeCalculator  (std::complex<float> fftOutput);
     float                  waveAmplitudeCalculator  (std::complex<float> fftOutput);
-    float (WojFFT_fRange::*forwBackChooser)         (std::complex<float>);
+    float (PajFFT_fRange::*forwBackChooser)         (std::complex<float>);
     
     
     // == GET INFORMATIONS ==========================================================

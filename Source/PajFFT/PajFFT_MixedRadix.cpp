@@ -55,7 +55,7 @@
   ==============================================================================
 */
 
-#include "WojFFT_MixedRadix.h"
+#include "PajFFT_MixedRadix.h"
 
 
 
@@ -66,7 +66,7 @@
 // == C O N S T R U C T O R ==== D E S T R U C T O T =======================================================================================
 // =========================================================================================================================================
 
-WojFFT_MixedRadix::WojFFT_MixedRadix()
+PajFFT_MixedRadix::PajFFT_MixedRadix()
 {
     fPi = 4.0 * atan(1.0);
     wSampleRate = 0.0f;
@@ -93,13 +93,13 @@ WojFFT_MixedRadix::WojFFT_MixedRadix()
 }
 
 
-WojFFT_MixedRadix::~WojFFT_MixedRadix()
+PajFFT_MixedRadix::~PajFFT_MixedRadix()
 {
     
 }
 
 
-void WojFFT_MixedRadix::printRadixDimensionsInTheConsole()
+void PajFFT_MixedRadix::printRadixDimensionsInTheConsole()
 {
     if(!wMixedRadix.empty())
     {
@@ -126,7 +126,7 @@ void WojFFT_MixedRadix::printRadixDimensionsInTheConsole()
 // PRIVATE:
 // == Set sample rate ========================================================================
 // ===========================================================================================
-void WojFFT_MixedRadix::setSampleRate          (float sampleR)
+void PajFFT_MixedRadix::setSampleRate          (float sampleR)
 {
     wSampleRate = sampleR;
     sampleRateConfirm = true;
@@ -138,7 +138,7 @@ void WojFFT_MixedRadix::setSampleRate          (float sampleR)
 
 // == Set buffer size =========================================================================
 // ============================================================================================
-void WojFFT_MixedRadix::setBufferSize          (float bufferS)
+void PajFFT_MixedRadix::setBufferSize          (float bufferS)
 {
     wBufferSize = bufferS;
     bufferSizeConfirm = true;
@@ -151,7 +151,7 @@ void WojFFT_MixedRadix::setBufferSize          (float bufferS)
 
 // == Reseting all data, prepare vectors, and pre calculate all twiddle factors ===============
 // ============================================================================================
-void WojFFT_MixedRadix::resetData              (bool forwBack)
+void PajFFT_MixedRadix::resetData              (bool forwBack)
 {
     if(sampleRateConfirm && bufferSizeConfirm)
     {
@@ -190,7 +190,7 @@ void WojFFT_MixedRadix::resetData              (bool forwBack)
 
 
 
-void WojFFT_MixedRadix::resetOutput                         ()
+void PajFFT_MixedRadix::resetOutput                         ()
 {
     if(isComplexOutput)
     {
@@ -205,7 +205,7 @@ void WojFFT_MixedRadix::resetOutput                         ()
 
 
 
-void WojFFT_MixedRadix::updateFreqRangeScale   (float lEnd, float tEnd)
+void PajFFT_MixedRadix::updateFreqRangeScale   (float lEnd, float tEnd)
 {
     setLowEnd(lEnd);
     setTopEnd(tEnd);
@@ -218,7 +218,7 @@ void WojFFT_MixedRadix::updateFreqRangeScale   (float lEnd, float tEnd)
 // PUBLIC:
 // == Settings == you can choose vector output ================================================
 // ============================================================================================
-void WojFFT_MixedRadix::wSettings         (float sampleRate, float bufferSize, std::vector<float> &wOutput, bool forwardTRUE_backwardFALSE)
+void PajFFT_MixedRadix::wSettings         (float sampleRate, float bufferSize, std::vector<float> &wOutput, bool forwardTRUE_backwardFALSE)
 {
     wOutputData = &wOutput;
     rememberedForwardOrBackward = forwardTRUE_backwardFALSE;
@@ -238,7 +238,7 @@ void WojFFT_MixedRadix::wSettings         (float sampleRate, float bufferSize, s
 
 // == Settings == you can choose complex output ===============================================
 // ============================================================================================
-void WojFFT_MixedRadix::wSettings         (float sampleRate, float bufferSize, std::vector<std::complex<float>> &wOutputC, bool forwardTRUE_backwardFALSE)
+void PajFFT_MixedRadix::wSettings         (float sampleRate, float bufferSize, std::vector<std::complex<float>> &wOutputC, bool forwardTRUE_backwardFALSE)
 {
     wOutputDataC = &wOutputC;
     rememberedForwardOrBackward = forwardTRUE_backwardFALSE;
@@ -259,7 +259,7 @@ void WojFFT_MixedRadix::wSettings         (float sampleRate, float bufferSize, s
 
 
 
-void WojFFT_MixedRadix::setOutputAddress  (std::vector<             float>  &wOutput )
+void PajFFT_MixedRadix::setOutputAddress  (std::vector<             float>  &wOutput )
 {
     wOutputData = &wOutput;
     isComplexOutput = false;
@@ -269,7 +269,7 @@ void WojFFT_MixedRadix::setOutputAddress  (std::vector<             float>  &wOu
 
 
 
-void WojFFT_MixedRadix::setOutputAddress  (std::vector<std::complex<float>> &wOutputC)
+void PajFFT_MixedRadix::setOutputAddress  (std::vector<std::complex<float>> &wOutputC)
 {
     wOutputDataC = &wOutputC;
     isComplexOutput = true;
@@ -280,7 +280,7 @@ void WojFFT_MixedRadix::setOutputAddress  (std::vector<std::complex<float>> &wOu
 
 // == Change radix divider == By default it's 4 ===============================================
 // ============================================================================================
-void WojFFT_MixedRadix::wSetRadixDivider  (int divider)
+void PajFFT_MixedRadix::wSetRadixDivider  (int divider)
 {
     radixDivider = divider;
     
@@ -291,7 +291,7 @@ void WojFFT_MixedRadix::wSetRadixDivider  (int divider)
 
 
 
-void WojFFT_MixedRadix::setLowEnd         (float lowEnd)
+void PajFFT_MixedRadix::setLowEnd         (float lowEnd)
 {
     low_End = lowEnd;
     lEndScale = wBufferSize * (lowEnd/wSampleRate);
@@ -300,7 +300,7 @@ void WojFFT_MixedRadix::setLowEnd         (float lowEnd)
 
 
 
-void WojFFT_MixedRadix::setTopEnd         (float topEnd)
+void PajFFT_MixedRadix::setTopEnd         (float topEnd)
 {
     top_End = topEnd;
     tEndScale = wBufferSize * (topEnd/wSampleRate);
@@ -308,7 +308,7 @@ void WojFFT_MixedRadix::setTopEnd         (float topEnd)
 
 
 
-void WojFFT_MixedRadix::setPhase          (float phase)
+void PajFFT_MixedRadix::setPhase          (float phase)
 {
     wPhase = phase;
     phaseRotation = pow(imaginary_j, wPhase);
@@ -316,7 +316,7 @@ void WojFFT_MixedRadix::setPhase          (float phase)
 
 
 
-void WojFFT_MixedRadix::setWindowing      (bool wind)
+void PajFFT_MixedRadix::setWindowing      (bool wind)
 {
     isWindowing = wind;
 }
@@ -334,7 +334,7 @@ void WojFFT_MixedRadix::setWindowing      (bool wind)
 // PRIVATE:
 // == It creates input indexes matrix ========================================================
 // ===========================================================================================
-void WojFFT_MixedRadix::prepareMatrix                        (int divider)
+void PajFFT_MixedRadix::prepareMatrix                        (int divider)
 {
     if((wMixedRadix.empty()?(int)wBufferSize:tempRadixDimension) % divider == 0)
     {
@@ -398,7 +398,7 @@ void WojFFT_MixedRadix::prepareMatrix                        (int divider)
 
 // == Prepare arrays with components needed to express input and twiddle indexes =============
 // ===========================================================================================
-void WojFFT_MixedRadix::mixedRadixInputAndTwiddleComponents  (int radixStep)
+void PajFFT_MixedRadix::mixedRadixInputAndTwiddleComponents  (int radixStep)
 {
     std::vector<std::vector<int>> tempN0;
     std::vector<std::vector<std::vector<int>>> tempK0;
@@ -437,7 +437,7 @@ void WojFFT_MixedRadix::mixedRadixInputAndTwiddleComponents  (int radixStep)
 
 // == Prepare array that is storing iterators ranges (ends, bounds) for each radix ===========
 // ===========================================================================================
-void WojFFT_MixedRadix::prepareIteratorsBounds               (int radixIterationEnd)
+void PajFFT_MixedRadix::prepareIteratorsBounds               (int radixIterationEnd)
 {
     iteratorsEnd[radixIterationEnd].resize(wRadixSize);
     for(int fft=0; fft<wRadixSize; fft++)
@@ -455,13 +455,13 @@ void WojFFT_MixedRadix::prepareIteratorsBounds               (int radixIteration
 
 
 
-void WojFFT_MixedRadix::prepareTwiddlesArray                 (bool forwardOrBackward)
+void PajFFT_MixedRadix::prepareTwiddlesArray                 (bool forwardOrBackward)
 {
     wnkN_forw.resize(wBufferSize);
     if(forwardOrBackward)
     {
-        if(isComplexOutput) forwBackChooser=&WojFFT_MixedRadix::freqMagnCalc_ComplexOut;
-        else                forwBackChooser=&WojFFT_MixedRadix::freqMagnitudeCalculator;
+        if(isComplexOutput) forwBackChooser=&PajFFT_MixedRadix::freqMagnCalc_ComplexOut;
+        else                forwBackChooser=&PajFFT_MixedRadix::freqMagnitudeCalculator;
         
         for(unsigned int i=0; i<wnkN_forw.size(); i++)
         {
@@ -470,7 +470,7 @@ void WojFFT_MixedRadix::prepareTwiddlesArray                 (bool forwardOrBack
     }
     else
     {
-        forwBackChooser=&WojFFT_MixedRadix::waveAmplitudeCalculator;
+        forwBackChooser=&PajFFT_MixedRadix::waveAmplitudeCalculator;
         
         for(unsigned int i=0; i<wnkN_forw.size(); i++)
         {
@@ -483,7 +483,7 @@ void WojFFT_MixedRadix::prepareTwiddlesArray                 (bool forwardOrBack
 
 
 
-void WojFFT_MixedRadix::prepareWindowingArray               ()
+void PajFFT_MixedRadix::prepareWindowingArray               ()
 {
     windowHann.clear();
     for(int i=0; i<wBufferSize; i++)
@@ -513,7 +513,7 @@ void WojFFT_MixedRadix::prepareWindowingArray               ()
 // PUBLIC:
 // == fft initiation =========================================================================
 // ===========================================================================================
-void WojFFT_MixedRadix::makeFFT         (std::vector<float> inputSignal)
+void PajFFT_MixedRadix::makeFFT         (std::vector<float> inputSignal)
 {
     if(dataPreparedConfirm)
     {
@@ -533,7 +533,7 @@ void WojFFT_MixedRadix::makeFFT         (std::vector<float> inputSignal)
     }
 }
 
-void WojFFT_MixedRadix::makeFFT         (std::vector<std::complex<float>> inputSignal)
+void PajFFT_MixedRadix::makeFFT         (std::vector<std::complex<float>> inputSignal)
 {
     if(dataPreparedConfirm)
     {
@@ -555,7 +555,7 @@ void WojFFT_MixedRadix::makeFFT         (std::vector<std::complex<float>> inputS
 // PRIVATE:
 // == Recursion of DFT for each radix ========================================================
 // ===========================================================================================
-void WojFFT_MixedRadix::dftRecursion    (int fftss, int radStep)
+void PajFFT_MixedRadix::dftRecursion    (int fftss, int radStep)
 {
     int su2 = radStep+1;
     
@@ -577,7 +577,7 @@ void WojFFT_MixedRadix::dftRecursion    (int fftss, int radStep)
 
 // === Regular DFT or iDFT on the last radix step ============================================
 // ===========================================================================================
-void WojFFT_MixedRadix::makeDFT         (int wFFT)
+void PajFFT_MixedRadix::makeDFT         (int wFFT)
 {
     for    (int q=0; q<iteratorsEnd[wRadixSize-1][wFFT]; q++)
     {
@@ -645,7 +645,7 @@ void WojFFT_MixedRadix::makeDFT         (int wFFT)
 // PRIVATE:
 // == Twiddle calculator =====================================================================
 // ===========================================================================================
-std::complex<float> WojFFT_MixedRadix::twiddleCalculator        (float nXk)
+std::complex<float> PajFFT_MixedRadix::twiddleCalculator        (float nXk)
 {
     std::complex<float> wnk_N_temp;
     if((int)nXk % (int)wBufferSize == 0)
@@ -671,7 +671,7 @@ std::complex<float> WojFFT_MixedRadix::twiddleCalculator        (float nXk)
 
 // == Magnitude calculator ===================================================================
 // ===========================================================================================
-void WojFFT_MixedRadix::freqMagnitudeCalculator (std::complex<float> fftOutput, int freqBin)
+void PajFFT_MixedRadix::freqMagnitudeCalculator (std::complex<float> fftOutput, int freqBin)
 {
     if(freqBin<lEndScale  ||  freqBin>tEndScale)
         wOutputData->at(freqBin) = fZero;
@@ -686,7 +686,7 @@ void WojFFT_MixedRadix::freqMagnitudeCalculator (std::complex<float> fftOutput, 
     }
 }
 
-void WojFFT_MixedRadix::freqMagnCalc_ComplexOut (std::complex<float> fftOutput, int freqBin)
+void PajFFT_MixedRadix::freqMagnCalc_ComplexOut (std::complex<float> fftOutput, int freqBin)
 {
     if(freqBin<lEndScale  ||  freqBin>tEndScale)
         wOutputDataC->at(freqBin) = cZero;
@@ -694,7 +694,7 @@ void WojFFT_MixedRadix::freqMagnCalc_ComplexOut (std::complex<float> fftOutput, 
         wOutputDataC->at(freqBin) = fftOutput;
 }
 
-void WojFFT_MixedRadix::waveAmplitudeCalculator (std::complex<float> fftOutput, int index)
+void PajFFT_MixedRadix::waveAmplitudeCalculator (std::complex<float> fftOutput, int index)
 {
     fftOutput *= phaseRotation;
     float window;
@@ -718,43 +718,43 @@ void WojFFT_MixedRadix::waveAmplitudeCalculator (std::complex<float> fftOutput, 
 // == G E T == I N F O R M A T I O N S =====================================================================================================
 // =========================================================================================================================================
 // ==== PUBLIC: ====
-float              WojFFT_MixedRadix::getBufferSize   ()
+float              PajFFT_MixedRadix::getBufferSize   ()
 {
     return wBufferSize;
 }
 
-float              WojFFT_MixedRadix::getSampleRate   ()
+float              PajFFT_MixedRadix::getSampleRate   ()
 {
 //    return wSampleRate;
     return 0;
 }
 
-int                WojFFT_MixedRadix::getRadDivider   ()
+int                PajFFT_MixedRadix::getRadDivider   ()
 {
     return radixDivider;
 }
 
-std::vector<float> WojFFT_MixedRadix::getRadDimensions()
+std::vector<float> PajFFT_MixedRadix::getRadDimensions()
 {
     return wMixedRadix;
 }
 
-bool               WojFFT_MixedRadix::isForward       ()
+bool               PajFFT_MixedRadix::isForward       ()
 {
     return rememberedForwardOrBackward;
 }
 
-float              WojFFT_MixedRadix::getLowEnd       ()
+float              PajFFT_MixedRadix::getLowEnd       ()
 {
     return low_End;
 }
 
-float              WojFFT_MixedRadix::getTopEnd       ()
+float              PajFFT_MixedRadix::getTopEnd       ()
 {
     return top_End;
 }
 
-float              WojFFT_MixedRadix::getPhase        ()
+float              PajFFT_MixedRadix::getPhase        ()
 {
     return wPhase;
 }
