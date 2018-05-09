@@ -81,6 +81,7 @@ OBJECTS_APP := \
   $(JUCE_OBJDIR)/Display_Logarithmic_f197c883.o \
   $(JUCE_OBJDIR)/Display_Linear_55b8ebeb.o \
   $(JUCE_OBJDIR)/CalculateDTFT_8f6aeb25.o \
+  $(JUCE_OBJDIR)/GraphAnalyser_9d2edaae.o \
   $(JUCE_OBJDIR)/Clock_6670f06f.o \
   $(JUCE_OBJDIR)/include_juce_audio_basics_8a4e984a.o \
   $(JUCE_OBJDIR)/include_juce_audio_devices_63111d02.o \
@@ -171,6 +172,11 @@ $(JUCE_OBJDIR)/Display_Linear_55b8ebeb.o: ../../Source/Display_Linear.cpp
 $(JUCE_OBJDIR)/CalculateDTFT_8f6aeb25.o: ../../Source/CalculateDTFT.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
 	@echo "Compiling CalculateDTFT.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/GraphAnalyser_9d2edaae.o: ../../Source/GraphAnalyser.cpp
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling GraphAnalyser.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/Clock_6670f06f.o: ../../Source/Clock.cpp

@@ -128,6 +128,7 @@ void PajFFT_Radix2::setSampleRate                          (float sampleR)
 void PajFFT_Radix2::setBufferSize                          (float bufferS)
 {
     trueBuffersize = bufferS;
+
     int correction = log2(bufferS);
     wBufferSize= pow(2, correction);
     

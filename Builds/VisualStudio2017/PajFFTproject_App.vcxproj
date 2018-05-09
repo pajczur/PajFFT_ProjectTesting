@@ -14,7 +14,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{0D5D897B-CCA5-BA01-C80E-B7201E34D92E}</ProjectGuid>
+    <ProjectGuid>{73915911-AFB6-8360-F9F7-8170F5F8846B}</ProjectGuid>
     <PlatformToolset>v141</PlatformToolset>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -161,6 +161,7 @@
     <ClCompile Include="..\..\Source\Display_Logarithmic.cpp"/>
     <ClCompile Include="..\..\Source\Display_Linear.cpp"/>
     <ClCompile Include="..\..\Source\CalculateDTFT.cpp"/>
+    <ClCompile Include="..\..\Source\GraphAnalyser.cpp"/>
     <ClCompile Include="..\..\Source\Clock.cpp"/>
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_basics\buffers\juce_AudioChannelSet.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
@@ -607,6 +608,9 @@
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_core\containers\juce_PropertySet.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\JuceLibraryCode\modules\juce_core\containers\juce_SparseSet.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_core\containers\juce_Variant.cpp">
@@ -1834,6 +1838,7 @@
     <ClInclude Include="..\..\Source\Display_Logarithmic.h"/>
     <ClInclude Include="..\..\Source\Display_Linear.h"/>
     <ClInclude Include="..\..\Source\CalculateDTFT.h"/>
+    <ClInclude Include="..\..\Source\GraphAnalyser.h"/>
     <ClInclude Include="..\..\Source\Clock.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_audio_basics\buffers\juce_AudioChannelSet.h"/>
@@ -2460,6 +2465,7 @@
     <ClInclude Include="..\..\..\..\..\..\..\Applications\JUCE\modules\juce_opengl\juce_opengl.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_video\capture\juce_CameraDevice.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_video\native\juce_android_CameraDevice.h"/>
+    <ClInclude Include="..\..\JuceLibraryCode\modules\juce_video\native\juce_ios_CameraDevice.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_video\native\juce_mac_CameraDevice.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_video\native\juce_mac_Video.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_video\native\juce_win32_CameraDevice.h"/>

@@ -87,13 +87,13 @@ void Display_Linear::sliderValueChanged (Slider *slider)
         lowEnd = wZoom.getMinValue();
         topEnd = wZoom.getMaxValue();
         repaint();
-        calculator_FFT->setZoomLinear(wZoom.getMinValue(), wZoom.getMaxValue());
+        graphAnalyser->setZoomLinear(wZoom.getMinValue(), wZoom.getMaxValue());
         //        wZoom.setMinValue(wMid-((wMax-wMin)/2.0));
         //        wZoom.setMaxValue(wMid+((wMax-wMin)/2.0));
     }
 }
 
-void Display_Linear::setFFTcalc(CalculateDTFT &fftCalc)
+void Display_Linear::setFFTcalc(GraphAnalyser &graph)
 {
-    calculator_FFT = &fftCalc;
+    graphAnalyser = &graph;
 }

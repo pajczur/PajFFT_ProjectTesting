@@ -79,22 +79,22 @@ void AudioPlayer::changeState (TransportState newState)
         
         switch (state)
         {
-            case Stopped:                           // [3]
+            case Stopped:
                 stopButton.setEnabled (false);
                 playButton.setEnabled (true);
                 transportSource.setPosition (0.0);
                 break;
                 
-            case Starting:                          // [4]
+            case Starting:
                 playButton.setEnabled (false);
                 transportSource.start();
                 break;
                 
-            case Playing:                           // [5]
+            case Playing:
                 stopButton.setEnabled (true);
                 break;
                 
-            case Stopping:                          // [6]
+            case Stopping:
                 transportSource.stop();
                 break;
         }
@@ -104,20 +104,20 @@ void AudioPlayer::changeState (TransportState newState)
 void AudioPlayer::openButtonClicked()
 {
     FileChooser chooser ("Select a Wave file to play...",
-                         File::nonexistent,
-                         "*.wav, *.mp3");                                        // [7]
+                         File(),
+                         "*.wav; *.aif; *.mp3; *.m4a; *.wmv");
     
-    if (chooser.browseForFileToOpen())                                    // [8]
+    if (chooser.browseForFileToOpen())
     {
-        auto file = chooser.getResult();                                  // [9]
-        auto* reader = formatManager.createReaderFor (file);              // [10]
+        auto file = chooser.getResult();
+        auto* reader = formatManager.createReaderFor (file);
         
         if (reader != nullptr)
         {
-            std::unique_ptr<AudioFormatReaderSource> newSource (new AudioFormatReaderSource (reader, true)); // [11]
-            transportSource.setSource (newSource.get(), 0, nullptr, reader->sampleRate);                     // [12]
-            playButton.setEnabled (true);                                                                    // [13]
-            readerSource.reset (newSource.release());                                                        // [14]
+            std::unique_ptr<AudioFormatReaderSource> newSource (new AudioFormatReaderSource (reader, true));
+            transportSource.setSource (newSource.get(), 0, nullptr, reader->sampleRate);
+            playButton.setEnabled (true);
+            readerSource.reset (newSource.release());
         }
     }
 }

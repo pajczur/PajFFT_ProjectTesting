@@ -55,6 +55,8 @@ add_library( ${BINARY_NAME}
     "../../../Source/Display_Linear.h"
     "../../../Source/CalculateDTFT.cpp"
     "../../../Source/CalculateDTFT.h"
+    "../../../Source/GraphAnalyser.cpp"
+    "../../../Source/GraphAnalyser.h"
     "../../../Source/Clock.cpp"
     "../../../Source/Clock.h"
     "../../../JuceLibraryCode/modules/juce_audio_basics/audio_play_head/juce_AudioPlayHead.h"
@@ -429,6 +431,7 @@ add_library( ${BINARY_NAME}
     "../../../JuceLibraryCode/modules/juce_core/containers/juce_ReferenceCountedArray.h"
     "../../../JuceLibraryCode/modules/juce_core/containers/juce_ScopedValueSetter.h"
     "../../../JuceLibraryCode/modules/juce_core/containers/juce_SortedSet.h"
+    "../../../JuceLibraryCode/modules/juce_core/containers/juce_SparseSet.cpp"
     "../../../JuceLibraryCode/modules/juce_core/containers/juce_SparseSet.h"
     "../../../JuceLibraryCode/modules/juce_core/containers/juce_Variant.cpp"
     "../../../JuceLibraryCode/modules/juce_core/containers/juce_Variant.h"
@@ -1272,6 +1275,7 @@ add_library( ${BINARY_NAME}
     "../../../JuceLibraryCode/modules/juce_video/capture/juce_CameraDevice.cpp"
     "../../../JuceLibraryCode/modules/juce_video/capture/juce_CameraDevice.h"
     "../../../JuceLibraryCode/modules/juce_video/native/juce_android_CameraDevice.h"
+    "../../../JuceLibraryCode/modules/juce_video/native/juce_ios_CameraDevice.h"
     "../../../JuceLibraryCode/modules/juce_video/native/juce_mac_CameraDevice.h"
     "../../../JuceLibraryCode/modules/juce_video/native/juce_mac_Video.h"
     "../../../JuceLibraryCode/modules/juce_video/native/juce_win32_CameraDevice.h"
@@ -1312,6 +1316,7 @@ set_source_files_properties("../../../Source/AudioPlayer.h" PROPERTIES HEADER_FI
 set_source_files_properties("../../../Source/Display_Logarithmic.h" PROPERTIES HEADER_FILE_ONLY TRUE)
 set_source_files_properties("../../../Source/Display_Linear.h" PROPERTIES HEADER_FILE_ONLY TRUE)
 set_source_files_properties("../../../Source/CalculateDTFT.h" PROPERTIES HEADER_FILE_ONLY TRUE)
+set_source_files_properties("../../../Source/GraphAnalyser.h" PROPERTIES HEADER_FILE_ONLY TRUE)
 set_source_files_properties("../../../Source/Clock.h" PROPERTIES HEADER_FILE_ONLY TRUE)
 set_source_files_properties("../../../JuceLibraryCode/modules/juce_audio_basics/audio_play_head/juce_AudioPlayHead.h" PROPERTIES HEADER_FILE_ONLY TRUE)
 set_source_files_properties("../../../JuceLibraryCode/modules/juce_audio_basics/buffers/juce_AudioChannelSet.cpp" PROPERTIES HEADER_FILE_ONLY TRUE)
@@ -1685,6 +1690,7 @@ set_source_files_properties("../../../JuceLibraryCode/modules/juce_core/containe
 set_source_files_properties("../../../JuceLibraryCode/modules/juce_core/containers/juce_ReferenceCountedArray.h" PROPERTIES HEADER_FILE_ONLY TRUE)
 set_source_files_properties("../../../JuceLibraryCode/modules/juce_core/containers/juce_ScopedValueSetter.h" PROPERTIES HEADER_FILE_ONLY TRUE)
 set_source_files_properties("../../../JuceLibraryCode/modules/juce_core/containers/juce_SortedSet.h" PROPERTIES HEADER_FILE_ONLY TRUE)
+set_source_files_properties("../../../JuceLibraryCode/modules/juce_core/containers/juce_SparseSet.cpp" PROPERTIES HEADER_FILE_ONLY TRUE)
 set_source_files_properties("../../../JuceLibraryCode/modules/juce_core/containers/juce_SparseSet.h" PROPERTIES HEADER_FILE_ONLY TRUE)
 set_source_files_properties("../../../JuceLibraryCode/modules/juce_core/containers/juce_Variant.cpp" PROPERTIES HEADER_FILE_ONLY TRUE)
 set_source_files_properties("../../../JuceLibraryCode/modules/juce_core/containers/juce_Variant.h" PROPERTIES HEADER_FILE_ONLY TRUE)
@@ -2528,6 +2534,7 @@ set_source_files_properties("../../../../../../../../Applications/JUCE/modules/j
 set_source_files_properties("../../../JuceLibraryCode/modules/juce_video/capture/juce_CameraDevice.cpp" PROPERTIES HEADER_FILE_ONLY TRUE)
 set_source_files_properties("../../../JuceLibraryCode/modules/juce_video/capture/juce_CameraDevice.h" PROPERTIES HEADER_FILE_ONLY TRUE)
 set_source_files_properties("../../../JuceLibraryCode/modules/juce_video/native/juce_android_CameraDevice.h" PROPERTIES HEADER_FILE_ONLY TRUE)
+set_source_files_properties("../../../JuceLibraryCode/modules/juce_video/native/juce_ios_CameraDevice.h" PROPERTIES HEADER_FILE_ONLY TRUE)
 set_source_files_properties("../../../JuceLibraryCode/modules/juce_video/native/juce_mac_CameraDevice.h" PROPERTIES HEADER_FILE_ONLY TRUE)
 set_source_files_properties("../../../JuceLibraryCode/modules/juce_video/native/juce_mac_Video.h" PROPERTIES HEADER_FILE_ONLY TRUE)
 set_source_files_properties("../../../JuceLibraryCode/modules/juce_video/native/juce_win32_CameraDevice.h" PROPERTIES HEADER_FILE_ONLY TRUE)

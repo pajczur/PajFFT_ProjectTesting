@@ -120,12 +120,12 @@ void OscInterface::updateToggleState(Button* button, int waveIdentifier)
     {
         case 0:
             oscillator->selectWave(0);
-            if(calculator_FFT->isTimerRunning())
-            {
-                calculator_FFT->stopTimer();
-                calculator_FFT->fftGraph.clear();
-                calculator_FFT->repaint();
-            }
+//            if(calculator_FFT->isTimerRunning())
+//            {
+//                calculator_FFT->stopTimer();
+//                calculator_FFT->fftGraph.clear();
+//                calculator_FFT->repaint();
+//            }
             break;
         case 1:
             oscillator->selectWave(1);
@@ -153,9 +153,9 @@ void OscInterface::updateToggleState(Button* button, int waveIdentifier)
     }
 }
 
-void OscInterface::settings(WavesGen &waveGenerator, CalculateDTFT &graph, double sampRate)
+void OscInterface::settings(WavesGen &waveGenerator, CalculateDTFT &fftCalc, double sampRate)
 {
-    calculator_FFT = &graph;
+    calculator_FFT = &fftCalc;
     oscillator = &waveGenerator;
     
     wPitchBand.setRange(0, sampRate/2.0, 1.0);

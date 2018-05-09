@@ -1,7 +1,7 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2017
 
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PajFFTproject - App", "PajFFTproject_App.vcxproj", "{0D5D897B-CCA5-BA01-C80E-B7201E34D92E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PajFFTproject - App", "PajFFTproject_App.vcxproj", "{73915911-AFB6-8360-F9F7-8170F5F8846B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -9,10 +9,10 @@ Global
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{0D5D897B-CCA5-BA01-C80E-B7201E34D92E}.Debug|x64.ActiveCfg = Debug|x64
-		{0D5D897B-CCA5-BA01-C80E-B7201E34D92E}.Debug|x64.Build.0 = Debug|x64
-		{0D5D897B-CCA5-BA01-C80E-B7201E34D92E}.Release|x64.ActiveCfg = Release|x64
-		{0D5D897B-CCA5-BA01-C80E-B7201E34D92E}.Release|x64.Build.0 = Release|x64
+		{73915911-AFB6-8360-F9F7-8170F5F8846B}.Debug|x64.ActiveCfg = Debug|x64
+		{73915911-AFB6-8360-F9F7-8170F5F8846B}.Debug|x64.Build.0 = Debug|x64
+		{73915911-AFB6-8360-F9F7-8170F5F8846B}.Release|x64.ActiveCfg = Release|x64
+		{73915911-AFB6-8360-F9F7-8170F5F8846B}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

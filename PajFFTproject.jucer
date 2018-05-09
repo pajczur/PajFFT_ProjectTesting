@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT name="PajFFTproject" projectType="guiapp" jucerVersion="5.3.1"
+<JUCERPROJECT name="PajFFTproject" projectType="guiapp" jucerVersion="5.3.2"
               companyName="Pajczur Company" companyCopyright="Pajczur Company"
-              bundleIdentifier="com.pajczurcompany.PajFFTproject">
+              bundleIdentifier="com.pajczurcompany.PajFFTproject" id="Owg32u">
   <MAINGROUP id="ACkfm9" name="PajFFTproject">
     <GROUP id="{0A6B6ACA-BE6D-F128-9279-CDDF90AB5AEB}" name="Source">
       <GROUP id="{7FC05475-7400-5EC2-80BC-351C13991B0F}" name="PajFFT">
@@ -44,6 +44,9 @@
       <FILE id="xJymXN" name="CalculateDTFT.cpp" compile="1" resource="0"
             file="Source/CalculateDTFT.cpp"/>
       <FILE id="KQOssp" name="CalculateDTFT.h" compile="0" resource="0" file="Source/CalculateDTFT.h"/>
+      <FILE id="uGkz3N" name="GraphAnalyser.cpp" compile="1" resource="0"
+            file="Source/GraphAnalyser.cpp"/>
+      <FILE id="zl9RXm" name="GraphAnalyser.h" compile="0" resource="0" file="Source/GraphAnalyser.h"/>
       <FILE id="PEfut1" name="Clock.cpp" compile="1" resource="0" file="Source/Clock.cpp"/>
       <FILE id="a9GKKq" name="Clock.h" compile="0" resource="0" file="Source/Clock.h"/>
     </GROUP>

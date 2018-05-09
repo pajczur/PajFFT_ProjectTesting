@@ -16,6 +16,7 @@
 #include "Display_Logarithmic.h"
 #include "Display_Linear.h"
 #include "CalculateDTFT.h"
+#include "GraphAnalyser.h"
 #include "Clock.h"
 #include <vector>
 
@@ -60,6 +61,7 @@ private:
     AudioBuffer<float> tempBuff;
     
 
+    GraphAnalyser graphAnalyser;
     FFTInterface fftInterface;
     OscInterface oscInterface;
     WavesGen oscillator;
@@ -86,14 +88,13 @@ private:
     
     Label fftTimeElapsedLabel;
     Label fftTimeElapsedInfo;
-    Label fftTimeElapsedLabel2;
-    Label fftTimeElapsedInfo2;
     
     bool hearFFTinversedSignal;
     std::vector<float> signalToFFT;
     int fftOutputIndex;
     double fPi;
-    bool oneOfTwo=true;
+    
+    
     
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)

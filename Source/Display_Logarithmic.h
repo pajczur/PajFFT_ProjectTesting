@@ -11,7 +11,7 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "CalculateDTFT.h"
+#include "GraphAnalyser.h"
 
 //==============================================================================
 /*
@@ -30,7 +30,7 @@ public:
     int getDisplayMargXLeft();
     int getDisplayMargYTop();
     void setNyquist(double nyquistFreq);
-    void setFFTcalc(CalculateDTFT &fftCalc);
+    void setFFTcalc(GraphAnalyser &graph);
     
 //    void set
 
@@ -87,7 +87,7 @@ private:
     float margYTop;
     
     Slider wZoom;
-    CalculateDTFT *calculator_FFT;
+    GraphAnalyser *graphAnalyser;
     
     float _winX;
     float _winY;

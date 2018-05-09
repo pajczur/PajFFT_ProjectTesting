@@ -362,14 +362,14 @@ void Display_Logarithmic::sliderValueChanged (Slider *slider)
         lowEnd = wZoom.getMinValue();
         topEnd = wZoom.getMaxValue();
         repaint();
-        calculator_FFT->setZoomLogar(wZoom.getMinValue(), wZoom.getMaxValue());
+        graphAnalyser->setZoomLogar(wZoom.getMinValue(), wZoom.getMaxValue());
         
 //        wZoom.setMinValue(wMid-((wMax-wMin)/2.0));
 //        wZoom.setMaxValue(wMid+((wMax-wMin)/2.0));
     }
 }
 
-void Display_Logarithmic::setFFTcalc(CalculateDTFT &fftCalc)
+void Display_Logarithmic::setFFTcalc(GraphAnalyser &graph)
 {
-    calculator_FFT = &fftCalc;
+    graphAnalyser = &graph;
 }

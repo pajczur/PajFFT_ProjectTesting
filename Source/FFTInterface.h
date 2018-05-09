@@ -14,6 +14,7 @@
 #include "CalculateDTFT.h"
 #include "WavesGen.h"
 #include "OscInterface.h"
+#include "GraphAnalyser.h"
 #include <string>
 
 //==============================================================================
@@ -26,9 +27,18 @@ class FFTInterface    : public Component,
 public:
     FFTInterface(AudioAppComponent *wAudioApp);
     ~FFTInterface();
+    
+    void wSettings(CalculateDTFT &fftCalc, OscInterface &osPan, GraphAnalyser &graph);
+    
+    void paint (Graphics&) override;
+    void resized() override;
+    
     void sliderValueChanged (Slider *slider) override;
     void labelTextChanged (Label *labelThatHasChanged) override;
-    void wSettings(CalculateDTFT &graph, OscInterface &osPan);
+    
+    void updateToggleState(Button* button, int fftIdentifier);
+    void updateToggleZeroPad(Button* button, int fftIdentifier);
+    
     void setSampleRate(double sample_rate);
     
     void setOFF_fft();
@@ -38,70 +48,71 @@ public:
     void setInverse_fft();
     void setWindowing();
 
-    void paint (Graphics&) override;
-    void resized() override;
-    void stopEverything();
-    
-    void updateToggleState(Button* button, int fftIdentifier);
-    void updateToggleZeroPad(Button* button, int fftIdentifier);
+    void refresh();
 
-    double bufferForFRange;
-    double rememberedBuffer;
-    double remembered_fRangeBuffer;
-    double remembered_matrixEBuffer;
+    
+    
+    
+    
+    double            rememberedBuffer;
 private:
-    double newBufferSize;
-    double wSampleRate;
-    Label fftBufSizeEdit;
-    Label fftBufSize;
-    Rectangle<int> bufferBox;
-    CalculateDTFT *calculator_FFT;
-    OscInterface *oscPan;
-    
-    ToggleButton selectMatrixFFT;
-    Label matrixFFTLabel;
-    const int matrixFFT_ID=1;
-    
-    ToggleButton selectRadix2FFT;
-    Label radix2FFTLabel;
-    const int radix2FFT_ID=2;
-    
-    ToggleButton selectRegDFT;
-    Label regDFTLabel;
-    const int regDFT_ID=3;
-    
-    TextButton turnOFF;
-    const int turnOFF_ID=0;
-    int waveSelectorButtons=1;
-public:
-    ToggleButton wInverseFFT;
-    const int wInverse_ID = 4;
-private:
-    ToggleButton zeroPaddingRad2;
-    TextEditor zerosInfo;
-    string setZerosInfo(int use, int bufSize, int zero);
-    
-    ToggleButton winHann;
-    const int winHann_ID=5;
-    
-    Slider setLowEnd;
-    Slider setTopEnd;
-    Slider setPhase;
-    Label wPhase;
-
-    Label lowtopInfo;
-    
-    Label matrixSize;
-    Label matrixDivider;
-    Label divideClickInfo;
-    Rectangle<int> matSizeBox;
-    Rectangle<int> matDiviBox;
-    
-    string lEndText(int lEnd);
-    string tEndText(int tEnd);
-    string matrixDim();
-    
+    CalculateDTFT     *calculator_FFT;
+    GraphAnalyser     *graphAnalyser;
+    OscInterface      *oscPan;
     AudioAppComponent *wAudioApplication;
+    
+    double            newBufferSize;
+    double            wSampleRate;
+    
+    
+    Label             fftBufSizeEdit;
+    Label             fftBufSizeEditDescript;
+    Rectangle<int>    fftBufSizeEditBox;
+    
+    ToggleButton      selectMatrixFFT;
+    Label             matrixFFTLabel;
+    const int         matrixFFT_ID=1;
+    
+    ToggleButton      selectRadix2FFT;
+    Label             radix2FFTLabel;
+    const int         radix2FFT_ID=2;
+    
+    ToggleButton      selectRegDFT;
+    Label             regDFTLabel;
+    const int         regDFT_ID=3;
+    
+public:
+    ToggleButton      wInverseFFT;
+    const int         wInverse_ID = 4;
+    
+private:
+    TextButton        turnOFF;
+    const int         turnOFF_ID=0;
+    int               fftSelectorButtons=1;
+
+    ToggleButton      zeroPadding;
+    TextEditor        zerosPaddingDescript;
+    string            setZerosInfo          (int use, int bufSize, int zero);
+    
+    ToggleButton      winHann;
+    const int         winHann_ID=5;
+    
+    Slider            filterSetLowEnd;
+    Slider            filterSetTopEnd;
+    Label             filtersDescript;
+    
+    Slider            setPhase;
+    Label             setPhaseLabel;
+
+    
+    Label             matrixDividerEdit;
+    Label             matrixDividerEditDescript;
+    Rectangle<int>    matrixDividerEditBox;
+    
+    Label             matrixSizeInfo;
+    Rectangle<int>    matrixSizeInfoBox;
+
+    string            matrixDimToString();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FFTInterface)
 };
