@@ -39,6 +39,41 @@ void Display_Logarithmic::paint (Graphics& g)
         _winX = getWidth() - margXLeft - margXRight;
         _winY = getHeight() - margYBot - margYTop;
         
+//        g.setColour(Colours::lightblue);
+//        float temporaryHz1 = (log10(2368.652344f)     - log10(lowEnd)) / (log10(topEnd) - log10(lowEnd));
+//        float temporaryHz2 = (log10(2390.185547f)     - log10(lowEnd)) / (log10(topEnd) - log10(lowEnd));
+//        float temporaryHz3 = (log10(2411.718750f)     - log10(lowEnd)) / (log10(topEnd) - log10(lowEnd));
+//        float temporaryHz4 = (log10(2433.251953f)     - log10(lowEnd)) / (log10(topEnd) - log10(lowEnd));
+//        float temporaryHz5 = (log10(2454.785156f)     - log10(lowEnd)) / (log10(topEnd) - log10(lowEnd));
+//        if(temporaryHz1 < 1.0f && temporaryHz1 > 0.0f) {
+//            g.drawLine((temporaryHz1 * _winX)+margXLeft, margYTop, (temporaryHz1 * _winX)+margXLeft, margYTop+ _winY, lineThickness);
+//            g.drawText("2368.652344",    11.0f + (temporaryHz1*_winX),    getHeight()-margYBot, 100, 20, Justification::centred);
+//        }
+//        
+//        if(temporaryHz2 < 1.0f && temporaryHz2 > 0.0f) {
+//            g.drawLine((temporaryHz2 * _winX)+margXLeft, margYTop, (temporaryHz2 * _winX)+margXLeft, margYTop+ _winY, lineThickness);
+//            g.drawText("2390.185547",    11.0f + (temporaryHz2*_winX),    getHeight()-margYBot, 100, 20, Justification::centred);
+//        }
+//
+//        
+//        if(temporaryHz3 < 1.0f && temporaryHz3 > 0.0f) {
+//            g.drawLine((temporaryHz3 * _winX)+margXLeft, margYTop, (temporaryHz3 * _winX)+margXLeft, margYTop+ _winY, lineThickness);
+//            g.drawText("2411.718750",    11.0f + (temporaryHz3*_winX),    getHeight()-margYBot, 100, 20, Justification::centred);
+//        }
+//
+//        
+//        if(temporaryHz4 < 1.0f && temporaryHz4 > 0.0f) {
+//            g.drawLine((temporaryHz4 * _winX)+margXLeft, margYTop, (temporaryHz4 * _winX)+margXLeft, margYTop+ _winY, lineThickness);
+//            g.drawText("2433.251953",    11.0f + (temporaryHz4*_winX),    getHeight()-margYBot, 100, 20, Justification::centred);
+//        }
+//
+//        
+//        if(temporaryHz5 < 1.0f && temporaryHz5 > 0.0f) {
+//            g.drawLine((temporaryHz5 * _winX)+margXLeft, margYTop, (temporaryHz5 * _winX)+margXLeft, margYTop+ _winY, lineThickness);
+//            g.drawText("2454.785156",    11.0f + (temporaryHz5*_winX),    getHeight()-margYBot, 100, 20, Justification::centred);
+//        }
+
+        
         scale1Hz     = (log10(1.0f)     - log10(lowEnd)) / (log10(topEnd) - log10(lowEnd));
         scale2Hz     = (log10(2.0f)     - log10(lowEnd)) / (log10(topEnd) - log10(lowEnd));
         scale3Hz     = (log10(3.0f)     - log10(lowEnd)) / (log10(topEnd) - log10(lowEnd));

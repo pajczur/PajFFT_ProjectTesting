@@ -626,7 +626,6 @@ void FFTInterface::setON_regular_DFT        ()
         calculator_FFT->resetOutputData();
         calculator_FFT->selectFFT(3);
         graphAnalyser->setLowEndIndex();
-//        graphAnalyser->repaint();
         repaint();
         
         if(!graphAnalyser->isTimerRunning())
@@ -680,25 +679,6 @@ void FFTInterface::setInverse_fft           ()
     }
 
     refresh();
-    
-//    if(selectMatrixFFT.getToggleState())
-//    {
-//        calculator_FFT->wOutput = &calculator_FFT->outRealMixed;
-//        calculator_FFT->resetOutputData();
-//        calculator_FFT->dataIsInUse = false;
-//    }
-//    else if(selectRadix2FFT.getToggleState())
-//    {
-//        calculator_FFT->wOutput = &calculator_FFT->outRealRadix2;
-//        calculator_FFT->resetOutputData();
-//        calculator_FFT->dataIsInUse = false;
-//    }
-//    else if(selectRegDFT.getToggleState())
-//    {
-//        calculator_FFT->wOutput = &calculator_FFT->outRealDFT;
-//        calculator_FFT->resetOutputData();
-//        calculator_FFT->dataIsInUse = false;
-//    }
 }
 
 void FFTInterface::setWindowing             ()

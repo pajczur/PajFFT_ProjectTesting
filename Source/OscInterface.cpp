@@ -158,7 +158,7 @@ void OscInterface::settings(WavesGen &waveGenerator, CalculateDTFT &fftCalc, dou
     calculator_FFT = &fftCalc;
     oscillator = &waveGenerator;
     
-    wPitchBand.setRange(0, sampRate/2.0, 1.0);
+    wPitchBand.setRange(0, sampRate/2.0, 0.000001);
     wPitchBand.setValue(172.0);
     wPitchBand.setSkewFactorFromMidPoint(1000);
 }

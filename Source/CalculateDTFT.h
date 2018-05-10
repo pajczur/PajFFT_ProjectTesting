@@ -18,6 +18,10 @@
 #include "PajFFT/PajFFT_fRange.h"
 #include "Clock.h"
 
+
+#define M_PI 3.14159265358979323846
+#define MAX_FRAME_LENGTH 8192
+
 //==============================================================================
 /*
 */
@@ -38,13 +42,14 @@ public:
     void setNewBufSize(double new_buf_size);
     void setRadix2BuffSize(double buf_size);
 
-
     PajFFT_MixedRadix mixedRadix_FFT;
     PajFFT_MixedRadix mixedRadix_IFFT;
     PajFFT_Radix2     radix2_FFT;
     PajFFT_Radix2     radix2_IFFT;
     PajDFT            regular_DFT;
     PajDFT            regular_IDFT;
+    
+    void smbPitchShift(float pitchShift, long numSampsToProcess, long fftFrameSize, long osamp, float sampleRate, float *indata, float *outdata);
     
     bool dataIsInUse;
     bool dataIsReadyToFFT;
@@ -74,7 +79,6 @@ private:
     
     
     float timeElapsed=0.0f;
-    
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CalculateDTFT)
 };
