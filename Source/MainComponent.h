@@ -33,24 +33,26 @@ public:
     ~MainComponent();
     
     void timerCallback() override;
+    void updateToggleState(Button* button, int buttonID);
 
     //==============================================================================
     void prepareToPlay (int samplesPerBlockExpected, double sampleRate) override;
     void getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill) override;
     void releaseResources() override;
-    void fft_defaultSettings();
 
-    //==============================================================================
-    void paint (Graphics& g) override;
-    void resized() override;
     
+    //==============================================================================
     void playWaveGen(const AudioSourceChannelInfo& bufferToFill);
     void playInversedFFTWaveGen(const AudioSourceChannelInfo& bufferToFill);
     
     void playIAudioFile(const AudioSourceChannelInfo& bufferToFill);
     void playInversedFFTAudioFile(const AudioSourceChannelInfo& bufferToFill);
     
-    void updateToggleState(Button* button, int buttonID);
+    //==============================================================================
+    void paint (Graphics& g) override;
+    void resized() override;
+    void fft_defaultSettings();
+    void calculateTime();
 
     Display_Logarithmic display_logarithmic;
     Display_Linear      display_linear;
@@ -82,7 +84,6 @@ private:
     int playerOrOscillatorButtons=1;
     bool playerOrOscillat;
     
-    void calculateTime();
     int fftTimeElapsed=0;
     int bufferCounter=0;
     

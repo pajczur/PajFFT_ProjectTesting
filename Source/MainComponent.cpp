@@ -64,6 +64,40 @@ MainComponent::~MainComponent()
     shutdownAudio();
 }
 
+void MainComponent::timerCallback()
+{
+    if(bufferCounter!=0 && fftTimeElapsed!=0)
+    {
+        int avarage = fftTimeElapsed/bufferCounter;
+        fftTimeElapsedLabel.setText(to_string(avarage), dontSendNotification);
+        bufferCounter = 0;
+        fftTimeElapsed = 0;
+    }
+}
+
+void MainComponent::updateToggleState(Button* button, int buttonID)
+{
+    switch (buttonID)
+    {
+        case 1:
+            playerOrOscillat = false;
+            wAudioPlayer.setControlsVisible(false);
+            oscInterface.setControlsVisible(true);
+            break;
+            
+        case 2:
+            playerOrOscillat = true;
+            wAudioPlayer.setControlsVisible(true);
+            oscInterface.setControlsVisible(false);
+            break;
+            
+        default:
+            return;
+    }
+}
+
+
+
 //==============================================================================
 void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRate)
 {
@@ -104,6 +138,7 @@ void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
             playInversedFFTWaveGen(bufferToFill); // Will never be executed until I repair playInversedFFT
         }
     }
+    
     calculateTime();
 }
 
@@ -116,75 +151,9 @@ void MainComponent::releaseResources()
     // For more details, see the help for AudioProcessor::releaseResources()
 }
 
+
+
 //==============================================================================
-void MainComponent::paint (Graphics& g)
-{
-    g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
-    
-    if(!fftInterface.wInverseFFT.getToggleState())
-    {
-        hearFFTinversedSignal = false;
-        display_linear.setVisible(false);
-        addAndMakeVisible(&display_logarithmic);
-    }
-    else
-    {
-        hearFFTinversedSignal = true; // Set to true if ready playInverseFFT...
-        display_logarithmic.setVisible(false);
-        addAndMakeVisible(&display_linear);
-    }
-
-}
-
-void MainComponent::resized()
-{
-
-    display_logarithmic.setBounds           (150, 0, 700, 400);
-    graphAnalyser.setBounds      (display_logarithmic.getDisplayMargXLeft()+150, display_logarithmic.getDisplayMargYTop(), graphAnalyser.getWidth(), graphAnalyser.getHeight());
-    display_linear.setBounds                (150, 0, 700, 400);
-    oscInterface.setBounds(10, 10, 130, 410);
-    fftInterface.setBounds((getWidth()/2) + 5, 430, 485, 160);
-    wAudioPlayer.setBounds(10, 430, 485, 160);
-
-    fftTimeElapsedInfo.setBounds(getWidth()-130, 10, 120, 60);
-    fftTimeElapsedLabel.setBounds(getWidth()-130, 70, 120, 30);
-    
-    selectOscill.setBounds(12, 12, 25, 25);
-    selectPlayer.setBounds(12, 432, 25, 25);
-    
-}
-
-void MainComponent::fft_defaultSettings()
-{
-    fftInterface.setSampleRate(wSampleRate);
-    fftInterface.rememberedBuffer = wBufferSize;
-    
-    oscillator.setSampleRate(wSampleRate);
-    oscillator.selectWave(0);
-    oscillator.setFrequency(440.0);
-    oscillator.setAmplitude(1.0);
-    oscInterface.settings(oscillator, calculator_FFT, wSampleRate);
-    
-    display_logarithmic.setNyquist(wSampleRate/2.0);
-    display_logarithmic.repaint();
-    
-    display_linear.setSampRate(wSampleRate);
-    display_linear.repaint();
-    
-    graphAnalyser.setSampleRate(wSampleRate);
-    calculator_FFT.setNewBufSize(wBufferSize);
-    calculator_FFT.mixedRadix_FFT.wSettings(wSampleRate, wBufferSize, calculator_FFT.outRealMixed, true);
-
-    calculator_FFT.radix2_FFT.wSettings(wSampleRate, wBufferSize, calculator_FFT.outRealRadix2, true);
-    calculator_FFT.setRadix2BuffSize(wBufferSize);
-    
-    calculator_FFT.regular_DFT.wSettings(wSampleRate, wBufferSize, calculator_FFT.outRealDFT, true);
-    graphAnalyser.setSampleRate(wSampleRate);
-    graphAnalyser.setNewBufSize(wBufferSize);
-
-    graphAnalyser.setFFT_DataSource(calculator_FFT);
-}
-
 void MainComponent::playWaveGen(const AudioSourceChannelInfo& bufferToFill)
 {
     oscillator.playWave(*bufferToFill.buffer, bufferToFill.numSamples, bufferToFill.startSample);
@@ -231,7 +200,6 @@ void MainComponent::playIAudioFile(const AudioSourceChannelInfo& bufferToFill)
     }
 }
 
-
 void MainComponent::playInversedFFTAudioFile(const AudioSourceChannelInfo& bufferToFill)
 {
     const AudioSourceChannelInfo tempAudioSource(&tempBuff, bufferToFill.startSample, bufferToFill.numSamples);
@@ -263,42 +231,80 @@ void MainComponent::playInversedFFTAudioFile(const AudioSourceChannelInfo& buffe
     }
 }
 
-
-void MainComponent::updateToggleState(Button* button, int buttonID)
-{
-    switch (buttonID)
-    {
-        case 1:
-            playerOrOscillat = false;
-            wAudioPlayer.setControlsVisible(false);
-            oscInterface.setControlsVisible(true);
-            break;
-            
-        case 2:
-            playerOrOscillat = true;
-            wAudioPlayer.setControlsVisible(true);
-            oscInterface.setControlsVisible(false);
-            break;
-
-        default:
-            return;
-    }
-}
-
-
 void MainComponent::calculateTime()
 {
     bufferCounter++;
     fftTimeElapsed += calculator_FFT.timeElapsed;
 }
 
-void MainComponent::timerCallback()
+
+
+//==============================================================================
+void MainComponent::paint (Graphics& g)
 {
-    if(bufferCounter!=0 && fftTimeElapsed!=0)
+    g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
+    
+    if(!fftInterface.wInverseFFT.getToggleState())
     {
-        int avarage = fftTimeElapsed/bufferCounter;
-        fftTimeElapsedLabel.setText(to_string(avarage), dontSendNotification);
-        bufferCounter = 0;
-        fftTimeElapsed = 0;
+        hearFFTinversedSignal = false;
+        display_linear.setVisible(false);
+        addAndMakeVisible(&display_logarithmic);
     }
+    else
+    {
+        hearFFTinversedSignal = true; // Set to true if ready playInverseFFT...
+        display_logarithmic.setVisible(false);
+        addAndMakeVisible(&display_linear);
+    }
+    
 }
+
+void MainComponent::resized()
+{
+    
+    display_logarithmic.setBounds           (150, 0, 700, 400);
+    graphAnalyser.setBounds      (display_logarithmic.getDisplayMargXLeft()+150, display_logarithmic.getDisplayMargYTop(), graphAnalyser.getWidth(), graphAnalyser.getHeight());
+    display_linear.setBounds                (150, 0, 700, 400);
+    oscInterface.setBounds(10, 10, 130, 410);
+    fftInterface.setBounds((getWidth()/2) + 5, 430, 485, 160);
+    wAudioPlayer.setBounds(10, 430, 485, 160);
+    
+    fftTimeElapsedInfo.setBounds(getWidth()-130, 10, 120, 60);
+    fftTimeElapsedLabel.setBounds(getWidth()-130, 70, 120, 30);
+    
+    selectOscill.setBounds(12, 12, 25, 25);
+    selectPlayer.setBounds(12, 432, 25, 25);
+    
+}
+
+void MainComponent::fft_defaultSettings()
+{
+    fftInterface.setSampleRate(wSampleRate);
+    fftInterface.rememberedBuffer = wBufferSize;
+    
+    oscillator.setSampleRate(wSampleRate);
+    oscillator.selectWave(0);
+    oscillator.setFrequency(440.0);
+    oscillator.setAmplitude(1.0);
+    oscInterface.settings(oscillator, calculator_FFT, wSampleRate);
+    
+    display_logarithmic.setNyquist(wSampleRate/2.0);
+    display_logarithmic.repaint();
+    
+    display_linear.setSampRate(wSampleRate);
+    display_linear.repaint();
+    
+    graphAnalyser.setSampleRate(wSampleRate);
+    calculator_FFT.setNewBufSize(wBufferSize);
+    calculator_FFT.mixedRadix_FFT.wSettings(wSampleRate, wBufferSize, calculator_FFT.outRealMixed, true);
+    
+    calculator_FFT.radix2_FFT.wSettings(wSampleRate, wBufferSize, calculator_FFT.outRealRadix2, true);
+    calculator_FFT.setRadix2BuffSize(wBufferSize);
+    
+    calculator_FFT.regular_DFT.wSettings(wSampleRate, wBufferSize, calculator_FFT.outRealDFT, true);
+    graphAnalyser.setSampleRate(wSampleRate);
+    graphAnalyser.setNewBufSize(wBufferSize);
+    
+    graphAnalyser.setFFT_DataSource(calculator_FFT);
+}
+
