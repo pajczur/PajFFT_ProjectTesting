@@ -53,10 +53,22 @@ MainComponent::MainComponent() : fftInterface(this)
     fftTimeElapsedInfo.setJustificationType(Justification::centred);
     fftTimeElapsedInfo.setText("Time needs to calc FFT forw or forw AND back, in micro sec", dontSendNotification);
     
+    addAndMakeVisible(&wPitchShift);
+    wPitchShift.setSliderStyle(Slider::SliderStyle::LinearVertical);
+    wPitchShift.setRange(0.5, 2.0, 0.167);
+    wPitchShift.setSkewFactorFromMidPoint(1.0);
+    wPitchShift.setValue(1.0);
+    wPitchShift.setTextBoxStyle(Slider::TextBoxBelow, false, 50, 25);
+    wPitchShiftLabel.setText("Pitch Shift", dontSendNotification);
+    wPitchShiftLabel.setJustificationType(Justification::centredBottom);
+    wPitchShiftLabel.attachToComponent(&wPitchShift, false);
+    wPitchShift.addListener(this);
+    
+    
     startTimer(1000);
     
     // specify the number of input and output channels that we want to open
-    setAudioChannels (2, 2);
+    setAudioChannels (1, 1);
 }
 
 MainComponent::~MainComponent()
@@ -96,6 +108,15 @@ void MainComponent::updateToggleState(Button* button, int buttonID)
     }
 }
 
+void MainComponent::sliderValueChanged (Slider *slider)
+{
+    if(slider == &wPitchShift)
+    {
+        calculator_FFT.wPitchShift = wPitchShift.getValue();
+    }
+}
+
+
 
 
 //==============================================================================
@@ -124,7 +145,7 @@ void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
         }
         else
         {
-            playInversedFFTAudioFile(bufferToFill); // Will never be executed until I repair playInversedFFTAudioFile
+            playInversedFFTAudioFile(bufferToFill);
         }
     }
     else
@@ -135,7 +156,7 @@ void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
         }
         else
         {
-            playInversedFFTWaveGen(bufferToFill); // Will never be executed until I repair playInversedFFT
+            playInversedFFTWaveGen(bufferToFill);
         }
     }
     
@@ -185,7 +206,8 @@ void MainComponent::playInversedFFTWaveGen(const AudioSourceChannelInfo& bufferT
             fftOutputIndex = 1;
         }
         
-        windowing = calculator_FFT.wOutput->at(fftOutputIndex-1);
+//        windowing = calculator_FFT.wOutput->at(fftOutputIndex-1);
+        windowing = calculator_FFT.wOutputF[fftOutputIndex-1];
         
         bufferToFill.buffer->addSample(0, sample, windowing);
     }
@@ -225,7 +247,8 @@ void MainComponent::playInversedFFTAudioFile(const AudioSourceChannelInfo& buffe
             fftOutputIndex = 1;
         }
 
-        windowing = calculator_FFT.wOutput->at(fftOutputIndex-1);
+//        windowing = calculator_FFT.wOutput->at(fftOutputIndex-1);
+        windowing = calculator_FFT.wOutputF[fftOutputIndex-1];
 
         bufferToFill.buffer->addSample(0, sample, windowing);
     }
@@ -271,6 +294,7 @@ void MainComponent::resized()
     
     fftTimeElapsedInfo.setBounds(getWidth()-130, 10, 120, 60);
     fftTimeElapsedLabel.setBounds(getWidth()-130, 70, 120, 30);
+    wPitchShift.setBounds(getWidth()-100, 150, 60, 150);
     
     selectOscill.setBounds(12, 12, 25, 25);
     selectPlayer.setBounds(12, 432, 25, 25);

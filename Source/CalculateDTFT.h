@@ -18,8 +18,6 @@
 #include "PajFFT/PajFFT_fRange.h"
 #include "Clock.h"
 
-
-#define M_PI 3.14159265358979323846
 #define MAX_FRAME_LENGTH 8192
 
 //==============================================================================
@@ -50,6 +48,7 @@ public:
     PajDFT            regular_IDFT;
     
     void smbPitchShift(float pitchShift, long numSampsToProcess, long fftFrameSize, long osamp, float sampleRate, float *indata, float *outdata);
+    void smbFft(float *fftBuffer, long fftFrameSize, long sign);
     
     bool dataIsInUse;
     bool dataIsReadyToFFT;
@@ -68,6 +67,7 @@ private:
     int fftType=0;
 
     std::vector<float>              *wOutput;
+    float wOutputF[8192];
     
     std::vector<float>               outRealMixed;
     std::vector<float>               outRealRadix2;
@@ -75,10 +75,16 @@ private:
     
     std::vector<std::complex<float>> outCompMixed;
     std::vector<std::complex<float>> outCompRadix2;
+    std::vector<std::complex<float>> outCompRadix22;
     std::vector<std::complex<float>> outCompDFT;
     
     
     float timeElapsed=0.0f;
+    float wPitchShift;
+    float *inppp;
+    float outpp[8192];
+    PajFFT_Radix2     tempRadix2_FFT;
+    PajFFT_Radix2     tempRadix2_IFFT;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CalculateDTFT)
 };

@@ -139,7 +139,7 @@ void WavesGen::playWave(AudioBuffer<float> &outputBuffer, float bufSize, int sta
         double voice = oscillator(waveType) * amplitude;
         
         outputBuffer.addSample(0, startSample, voice);
-        outputBuffer.addSample(1, startSample, voice);
+//        outputBuffer.addSample(1, startSample, voice);
         startSample++;
         phase += frequency;
     }
