@@ -40,7 +40,6 @@ void GraphAnalyser::resized()
 
 void GraphAnalyser::timerCallback()
 {
-    /*
     if(!dataSource->wOutput->empty())
     {
         fftGraph.clear();
@@ -56,7 +55,6 @@ void GraphAnalyser::timerCallback()
 
         repaint();
     }
-    */
 }
 
 

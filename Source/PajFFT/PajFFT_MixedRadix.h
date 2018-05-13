@@ -79,8 +79,7 @@ private:
     void resetOutput                         ();
     void updateFreqRangeScale                (float lEnd, float tEnd);
 public:
-    void wSettings                           (float sampleRate, float bufferSize, std::vector<             float>  &wOutput,  bool forwardTRUE_backwardFALSE);
-    void wSettings                           (float sampleRate, float bufferSize, std::vector<std::complex<float>> &wOutputC, bool forwardTRUE_backwardFALSE);
+    void wSettings                           (float sampleRate, float bufferSize,  bool forwardTRUE_backwardFALSE);
     void setOutputAddress                    (std::vector<             float>  &wOutput );
     void setOutputAddress                    (std::vector<std::complex<float>> &wOutputC);
     void wSetRadixDivider                    (int   divider);
@@ -108,15 +107,21 @@ private:
 public:
     void makeFFT                             (std::vector<             float>  inputSignal);
     void makeFFT                             (std::vector<std::complex<float>> inputSignal);
+    void makeFFT                             (std::vector<std::complex<float>> inputSignal, std::vector<std::complex<float>> &wOutputC);
+    void makeFFT                             (std::vector<             float>  inputSignal, std::vector<std::complex<float>> &wOutputC);
     
     
     
     // == CALCULATORS =================================================
 private:
     std::complex<float>         twiddleCalculator        (float nXk);
+public:
     void                        freqMagnitudeCalculator  (std::complex<float> fftOutput, int freqBin);
+    float                       freqMagnitudeCalc        (std::complex<float> fftOutput, int freqBin);
     void                        freqMagnCalc_ComplexOut  (std::complex<float> fftOutput, int freqBin);
     void                        waveAmplitudeCalculator  (std::complex<float> fftOutput, int index);
+    float                       waveEnvelopeCalc         (std::complex<float> fftOutput, int index);
+    float                       phaseCalculator          (std::complex<float> fftOutput, int index);
     void   (PajFFT_MixedRadix::*forwBackChooser)         (std::complex<float> fftOutput, int freqBinOrIndex);
   
     
@@ -179,7 +184,7 @@ private:
     bool rememberedForwardOrBackward;
     bool isWindowing;
     
-    bool isComplexOutput;
+//    bool isComplexOutput;
 public:
     std::vector<             float>  *wOutputData;
     std::vector<std::complex<float>> *wOutputDataC;

@@ -55,7 +55,7 @@ MainComponent::MainComponent() : fftInterface(this)
     
     addAndMakeVisible(&wPitchShift);
     wPitchShift.setSliderStyle(Slider::SliderStyle::LinearVertical);
-    wPitchShift.setRange(0.5, 2.0, 0.167);
+    wPitchShift.setRange(0.5, 2.0, 0.01);
     wPitchShift.setSkewFactorFromMidPoint(1.0);
     wPitchShift.setValue(1.0);
     wPitchShift.setTextBoxStyle(Slider::TextBoxBelow, false, 50, 25);
@@ -206,8 +206,8 @@ void MainComponent::playInversedFFTWaveGen(const AudioSourceChannelInfo& bufferT
             fftOutputIndex = 1;
         }
         
-//        windowing = calculator_FFT.wOutput->at(fftOutputIndex-1);
-        windowing = calculator_FFT.wOutputF[fftOutputIndex-1];
+        windowing = calculator_FFT.wOutput->at(fftOutputIndex-1);
+//        windowing = calculator_FFT.wOutputF[fftOutputIndex-1];
         
         bufferToFill.buffer->addSample(0, sample, windowing);
     }
@@ -247,8 +247,8 @@ void MainComponent::playInversedFFTAudioFile(const AudioSourceChannelInfo& buffe
             fftOutputIndex = 1;
         }
 
-//        windowing = calculator_FFT.wOutput->at(fftOutputIndex-1);
-        windowing = calculator_FFT.wOutputF[fftOutputIndex-1];
+        windowing = calculator_FFT.wOutput->at(fftOutputIndex-1);
+//        windowing = calculator_FFT.wOutputF[fftOutputIndex-1];
 
         bufferToFill.buffer->addSample(0, sample, windowing);
     }
@@ -320,7 +320,8 @@ void MainComponent::fft_defaultSettings()
     
     graphAnalyser.setSampleRate(wSampleRate);
     calculator_FFT.setNewBufSize(wBufferSize);
-    calculator_FFT.mixedRadix_FFT.wSettings(wSampleRate, wBufferSize, calculator_FFT.outRealMixed, true);
+    calculator_FFT.setSampleRate(wSampleRate);
+    calculator_FFT.mixedRadix_FFT.wSettings(wSampleRate, wBufferSize, true);
     
     calculator_FFT.radix2_FFT.wSettings(wSampleRate, wBufferSize, calculator_FFT.outRealRadix2, true);
     calculator_FFT.setRadix2BuffSize(wBufferSize);

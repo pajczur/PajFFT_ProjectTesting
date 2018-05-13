@@ -177,11 +177,12 @@ void FFTInterface::sliderValueChanged       (Slider *slider)
     {
         if(selectMatrixFFT.getToggleState())
         {
-            calculator_FFT->mixedRadix_FFT.setLowEnd(filterSetLowEnd.getValue());
+            calculator_FFT->setLowEnd(filterSetLowEnd.getValue());
+            
             if(filterSetLowEnd.getValue()+11.0 > filterSetTopEnd.getValue())
             {
                 filterSetTopEnd.setValue(filterSetLowEnd.getValue()+10.0);
-                calculator_FFT->mixedRadix_FFT.setTopEnd(filterSetTopEnd.getValue());
+                calculator_FFT->setTopEnd(filterSetTopEnd.getValue());
             }
             if(round(filterSetLowEnd.getValue()*(calculator_FFT->mixedRadix_FFT.getBufferSize()/wSampleRate))>=0)
             {
@@ -196,10 +197,13 @@ void FFTInterface::sliderValueChanged       (Slider *slider)
         else if(selectRadix2FFT.getToggleState())
         {
             calculator_FFT->radix2_FFT.setLowEnd(filterSetLowEnd.getValue());
+            calculator_FFT->setLowEnd(filterSetLowEnd.getValue());
+            
             if(filterSetLowEnd.getValue()+11.0 > filterSetTopEnd.getValue())
             {
                 filterSetTopEnd.setValue(filterSetLowEnd.getValue()+10.0);
                 calculator_FFT->radix2_FFT.setTopEnd(filterSetTopEnd.getValue());
+                calculator_FFT->setTopEnd(filterSetTopEnd.getValue());
             }
             if(round(filterSetLowEnd.getValue()*(calculator_FFT->radix2_FFT.getBufferSize()/wSampleRate))>=0)
             {
@@ -214,10 +218,13 @@ void FFTInterface::sliderValueChanged       (Slider *slider)
         else if(selectRegDFT.getToggleState())
         {
             calculator_FFT->regular_DFT.setLowEnd(filterSetLowEnd.getValue());
+            calculator_FFT->setLowEnd(filterSetLowEnd.getValue());
+            
             if(filterSetLowEnd.getValue()+11.0 > filterSetTopEnd.getValue())
             {
                 filterSetTopEnd.setValue(filterSetLowEnd.getValue()+10.0);
                 calculator_FFT->regular_DFT.setTopEnd(filterSetTopEnd.getValue());
+                calculator_FFT->setTopEnd(filterSetTopEnd.getValue());
             }
             if(round(filterSetLowEnd.getValue()*(calculator_FFT->regular_DFT.getBufferSize()/wSampleRate))>=0)
             {
@@ -239,11 +246,13 @@ void FFTInterface::sliderValueChanged       (Slider *slider)
     {
         if(selectMatrixFFT.getToggleState())
         {
-            calculator_FFT->mixedRadix_FFT.setTopEnd(filterSetTopEnd.getValue());
+            calculator_FFT->setTopEnd(filterSetTopEnd.getValue());
+            
             if(filterSetTopEnd.getValue()-11.0 < filterSetLowEnd.getValue())
             {
                 filterSetLowEnd.setValue(filterSetTopEnd.getValue()-10.0);
                 calculator_FFT->mixedRadix_FFT.setLowEnd(filterSetLowEnd.getValue());
+                calculator_FFT->setLowEnd(filterSetLowEnd.getValue());
             }
             if(round(filterSetTopEnd.getValue()*(calculator_FFT->mixedRadix_FFT.getBufferSize()/wSampleRate))<=(wSampleRate/2.0))
             {
@@ -257,10 +266,13 @@ void FFTInterface::sliderValueChanged       (Slider *slider)
         else if(selectRadix2FFT.getToggleState())
         {
             calculator_FFT->radix2_FFT.setTopEnd(filterSetTopEnd.getValue());
+            calculator_FFT->setTopEnd(filterSetTopEnd.getValue());
+            
             if(filterSetTopEnd.getValue()-11.0 < filterSetLowEnd.getValue())
             {
                 filterSetLowEnd.setValue(filterSetTopEnd.getValue()-10.0);
                 calculator_FFT->radix2_FFT.setLowEnd(filterSetLowEnd.getValue());
+                calculator_FFT->setLowEnd(filterSetLowEnd.getValue());
             }
             if(round(filterSetTopEnd.getValue()*(calculator_FFT->radix2_FFT.getBufferSize()/wSampleRate))<=(wSampleRate/2.0))
             {
@@ -274,10 +286,13 @@ void FFTInterface::sliderValueChanged       (Slider *slider)
         else if(selectRegDFT.getToggleState())
         {
             calculator_FFT->regular_DFT.setTopEnd(filterSetTopEnd.getValue());
+            calculator_FFT->setTopEnd(filterSetTopEnd.getValue());
+            
             if(filterSetTopEnd.getValue()-11.0 < filterSetLowEnd.getValue())
             {
                 filterSetLowEnd.setValue(filterSetTopEnd.getValue()-10.0);
                 calculator_FFT->regular_DFT.setLowEnd(filterSetLowEnd.getValue());
+                calculator_FFT->setLowEnd(filterSetLowEnd.getValue());
             }
             if(round(filterSetTopEnd.getValue()*(calculator_FFT->regular_DFT.getBufferSize()/wSampleRate))<=(wSampleRate/2.0))
             {
@@ -333,8 +348,8 @@ void FFTInterface::labelTextChanged         (Label *labelThatHasChanged)
         
         if(wInverseFFT.getToggleState())
         {
-            calculator_FFT->mixedRadix_FFT.wSettings(wSampleRate, newBufferSize, calculator_FFT->outCompMixed, true);
-            calculator_FFT->mixedRadix_IFFT.wSettings(wSampleRate, newBufferSize, calculator_FFT->outRealMixed, false);
+            calculator_FFT->mixedRadix_FFT.wSettings(wSampleRate, newBufferSize, true);
+            calculator_FFT->mixedRadix_IFFT.wSettings(wSampleRate, newBufferSize, false);
             calculator_FFT->radix2_FFT.wSettings(wSampleRate, newBufferSize, calculator_FFT->outCompRadix2, true);
             calculator_FFT->radix2_IFFT.wSettings(wSampleRate, newBufferSize, calculator_FFT->outRealRadix2, false);
             calculator_FFT->regular_DFT.wSettings(wSampleRate, newBufferSize, calculator_FFT->outCompDFT, true);
@@ -343,7 +358,7 @@ void FFTInterface::labelTextChanged         (Label *labelThatHasChanged)
         }
         else
         {
-            calculator_FFT->mixedRadix_FFT.wSettings(wSampleRate, newBufferSize, calculator_FFT->outRealMixed, true);
+            calculator_FFT->mixedRadix_FFT.wSettings(wSampleRate, newBufferSize, true);
             calculator_FFT->radix2_FFT.wSettings(wSampleRate, newBufferSize, calculator_FFT->outRealRadix2, true);
             calculator_FFT->regular_DFT.wSettings(wSampleRate, newBufferSize, calculator_FFT->outRealDFT, true);
         }
@@ -359,13 +374,13 @@ void FFTInterface::labelTextChanged         (Label *labelThatHasChanged)
         {
             calculator_FFT->mixedRadix_FFT.wSetRadixDivider(matrixDividerEdit.getText().getIntValue());
             calculator_FFT->mixedRadix_IFFT.wSetRadixDivider(matrixDividerEdit.getText().getIntValue());
-            calculator_FFT->mixedRadix_FFT.wSettings(wSampleRate, rememberedBuffer, calculator_FFT->outCompMixed, true);
-            calculator_FFT->mixedRadix_IFFT.wSettings(wSampleRate, rememberedBuffer, calculator_FFT->outRealMixed, false);
+            calculator_FFT->mixedRadix_FFT.wSettings(wSampleRate, rememberedBuffer, true);
+            calculator_FFT->mixedRadix_IFFT.wSettings(wSampleRate, rememberedBuffer, false);
         }
         else
         {
             calculator_FFT->mixedRadix_FFT.wSetRadixDivider(matrixDividerEdit.getText().getIntValue());
-            calculator_FFT->mixedRadix_FFT.wSettings(wSampleRate, rememberedBuffer, calculator_FFT->outRealMixed, true);
+            calculator_FFT->mixedRadix_FFT.wSettings(wSampleRate, rememberedBuffer, true);
         }
         matrixSizeInfo.setText(matrixDimToString(), dontSendNotification);
     }
@@ -457,12 +472,12 @@ void FFTInterface::updateToggleZeroPad      (Button* button, int fftIdentifier)
 void FFTInterface::setSampleRate            (double sample_rate)
 {
     wSampleRate = sample_rate;
-    filterSetLowEnd.setRange(0.0, wSampleRate/2.0, 1.0);
+    filterSetLowEnd.setRange(0.0, wSampleRate/1.0, 1.0);
     filterSetLowEnd.setValue(0.0);
     filterSetLowEnd.setSkewFactorFromMidPoint(1000);
     
-    filterSetTopEnd.setRange(0.0, wSampleRate/2.0, 1.0);
-    filterSetTopEnd.setValue(wSampleRate/2.0);
+    filterSetTopEnd.setRange(0.0, wSampleRate/1.0, 1.0);
+    filterSetTopEnd.setValue(wSampleRate/1.0);
     filterSetTopEnd.setSkewFactorFromMidPoint(1000);
 }
 
@@ -540,6 +555,7 @@ void FFTInterface::setON_matrixfft          ()
             graphAnalyser->startTimer(40);
         
         calculator_FFT->dataIsInUse = false;
+        calculator_FFT->mixedRadix_FFT.setTopEnd(44100);
     }
 }
 
@@ -650,8 +666,11 @@ void FFTInterface::setInverse_fft           ()
         graphAnalyser->isForward = false;
         
         double tempBuff1 = calculator_FFT->mixedRadix_FFT.getBufferSize();
-        calculator_FFT->mixedRadix_FFT.wSettings(wSampleRate, tempBuff1, calculator_FFT->outCompMixed, true);
-        calculator_FFT->mixedRadix_IFFT.wSettings(wSampleRate, tempBuff1, calculator_FFT->outRealMixed, false);
+        calculator_FFT->mixedRadix_FFT.wSettings(wSampleRate, tempBuff1, true);
+        calculator_FFT->mixedRadix_IFFT.wSettings(wSampleRate, tempBuff1, false);
+        calculator_FFT->mixedRadix_FFT.setTopEnd(44100);
+        calculator_FFT->mixedRadix_IFFT.setTopEnd(44100);
+
 
         double tempBuff2 = calculator_FFT->radix2_FFT.getBufferSize();
         calculator_FFT->radix2_FFT.wSettings(wSampleRate, rememberedBuffer, calculator_FFT->outCompRadix2, true);
@@ -670,7 +689,7 @@ void FFTInterface::setInverse_fft           ()
         graphAnalyser->isForward = true;
         
         double tempBuff1 = calculator_FFT->mixedRadix_FFT.getBufferSize();
-        calculator_FFT->mixedRadix_FFT.wSettings(wSampleRate, tempBuff1, calculator_FFT->outRealMixed, true);
+        calculator_FFT->mixedRadix_FFT.wSettings(wSampleRate, tempBuff1, true);
         
         calculator_FFT->radix2_FFT.wSettings(wSampleRate, rememberedBuffer, calculator_FFT->outRealRadix2, true);
         

@@ -23,7 +23,7 @@
 //==============================================================================
 /*
 */
-class CalculateDTFT   /* : public Timer*/
+class CalculateDTFT
 {
 public:
     CalculateDTFT();
@@ -33,12 +33,12 @@ public:
     void setInputData(std::vector<float> &inp);
     void setOutputData(std::vector<float> &outp);
     
-//    void timerCallback() override;
 
     void fftCalc();
     
     void setNewBufSize(double new_buf_size);
     void setRadix2BuffSize(double buf_size);
+    void setSampleRate(float sampR);
 
     PajFFT_MixedRadix mixedRadix_FFT;
     PajFFT_MixedRadix mixedRadix_IFFT;
@@ -46,9 +46,8 @@ public:
     PajFFT_Radix2     radix2_IFFT;
     PajDFT            regular_DFT;
     PajDFT            regular_IDFT;
-    
-    void smbPitchShift(float pitchShift, long numSampsToProcess, long fftFrameSize, long osamp, float sampleRate, float *indata, float *outdata);
-    void smbFft(float *fftBuffer, long fftFrameSize, long sign);
+
+    void smbPitchShift2(float pitchShift, long numSampsToProcess, long fftFrameSize, long osamp, float sampleRate, std::vector<std::complex<float>> indata, std::vector<float> &outdata);
     
     bool dataIsInUse;
     bool dataIsReadyToFFT;
@@ -62,7 +61,8 @@ private:
     double radix2BuffSize;
 
 private:
-    std::vector<float> inputData;
+    std::vector<float>               inputData;
+    std::vector<std::complex<float>> inputDataC;
  public:
     int fftType=0;
 
@@ -70,6 +70,7 @@ private:
     float wOutputF[8192];
     
     std::vector<float>               outRealMixed;
+    std::vector<float>               dupek;
     std::vector<float>               outRealRadix2;
     std::vector<float>               outRealDFT;
     
@@ -78,13 +79,46 @@ private:
     std::vector<std::complex<float>> outCompRadix22;
     std::vector<std::complex<float>> outCompDFT;
     
+    float wSampleRate;
+    
+    float topEnd;
+    float lowEnd;
+    void setLowEnd(float lowE);
+    void setTopEnd(float topE);
     
     float timeElapsed=0.0f;
     float wPitchShift;
-    float *inppp;
+    float inppp[8192];
     float outpp[8192];
     PajFFT_Radix2     tempRadix2_FFT;
     PajFFT_Radix2     tempRadix2_IFFT;
+    
+    int indeX;
+    
+    int dupsko=0;
+    
+    
+    // ===================== //
+    // ==== PITCH SHIFT ==== //
+    
+    std::vector<std::complex<float>> gInFIFO;
+    std::vector<std::complex<float>> gOutFIFO;
+    std::vector<std::complex<float>> gFFTworksp;
+    std::vector<std::complex<float>> outPP;
+    std::vector<std::complex<float>> outPP2; 
+    float gLastPhase[MAX_FRAME_LENGTH/2+1];
+    float gSumPhase[MAX_FRAME_LENGTH/2+1];
+    float gOutputAccum[2*MAX_FRAME_LENGTH];
+    float gAnaFreq[MAX_FRAME_LENGTH];
+    float gAnaMagn[MAX_FRAME_LENGTH];
+    float gSynFreq[MAX_FRAME_LENGTH];
+    float gSynMagn[MAX_FRAME_LENGTH];
+    long gRover = false, gInit = false;
+    float magn, phase, tmp, window, real, imag;
+    double freqPerBin, expct;
+    long qpd, index, inFifoLatency, stepSize, fftFrameSize2;
+    
+    
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CalculateDTFT)
 };
