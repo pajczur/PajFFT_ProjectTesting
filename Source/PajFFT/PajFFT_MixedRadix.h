@@ -102,8 +102,8 @@ private:
     void dftRecursion                        (int fftss, int radStep, std::vector<std::complex<float>> &twiddle);
     void makeDFT                             (int wFFT, std::vector<std::complex<float>> &twiddle);
 public:
-    void makeFFT                             (std::vector<std::complex<float>> inputSignal, std::vector<std::complex<float>> &wOutputC, bool isForward);
-    void makeFFT                             (std::vector<             float>  inputSignal, std::vector<std::complex<float>> &wOutputC, bool isForward);
+    void makeFFT                             (std::vector<std::complex<float>> inputSignal, std::vector<std::complex<float>> &wOutputC, bool isForwardOrNot);
+    void makeFFT                             (std::vector<             float>  inputSignal, std::vector<std::complex<float>> &wOutputC, bool isForwardOrNot);
     
     
     
@@ -141,6 +141,7 @@ private:
     
     float wSampleRate;
     float wBufferSize;
+    float wBufNyquist;
     float low_End;
     float top_End;
     float lEndScale;
@@ -174,6 +175,7 @@ private:
     bool bufferSizeConfirm;
 //    bool rememberedForwardOrBackward;
     bool isWindowing;
+    bool isForward;
     
 //    bool isComplexOutput;
 public:

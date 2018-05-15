@@ -18,7 +18,7 @@
 #include "PajFFT/PajFFT_fRange.h"
 #include "Clock.h"
 
-#define MAX_FRAME_LENGTH 8192
+#define MAX_FRAME_LENGTH 44100
 
 //==============================================================================
 /*
@@ -41,22 +41,23 @@ public:
     void setSampleRate(float sampR);
 
     PajFFT_MixedRadix mixedRadix_FFT;
-//    PajFFT_MixedRadix mixedRadix_IFFT;
-    PajFFT_Radix2     radix2_FFT;
-    PajFFT_Radix2     radix2_IFFT;
-    PajDFT            regular_DFT;
-    PajDFT            regular_IDFT;
+    
+//    PajFFT_Radix2     radix2_FFT;
+//    PajFFT_Radix2     radix2_IFFT;
+//    PajDFT            regular_DFT;
+//    PajDFT            regular_IDFT;
 
     void smbPitchShift2(float pitchShift, long numSampsToProcess, long fftFrameSize, long osamp, float sampleRate, std::vector<std::complex<float>> indata, std::vector<float> &outdata);
     
     bool dataIsReadyToFFT;
     bool isForward;
+    bool isPitchON;
     
     void selectFFT(int identifier);
     void resetOutputData();
     
-private:
     double newBufferSize;
+private:
     double radix2BuffSize;
 
 private:
@@ -64,8 +65,6 @@ private:
     std::vector<std::complex<float>> inputDataC;
  public:
     int fftType=0;
-
-    std::vector<float>              *wOutput;
     
     std::vector<float>               outRealMixed;
     std::vector<float>               outRealRadix2;

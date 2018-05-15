@@ -139,6 +139,7 @@ void PajFFT_MixedRadix::setSampleRate          (float sampleR)
 void PajFFT_MixedRadix::setBufferSize          (float bufferS)
 {
     wBufferSize = bufferS;
+    wBufNyquist = wBufferSize/2.0f;
     bufferSizeConfirm = true;
 
 }
@@ -195,8 +196,8 @@ void PajFFT_MixedRadix::wSettings         (float sampleRate, float bufferSize)
 {
     if(top_End == 0.0f)
     {
-        low_End = 0.0f;
-        top_End = sampleRate;
+        setLowEnd(0.0f);
+        setTopEnd(sampleRate/2.0);
     }
     
     setBufferSize(bufferSize);
@@ -287,7 +288,7 @@ void PajFFT_MixedRadix::prepareMatrix                        (int divider)
             {
                 matrixChecker *= wMixedRadix[i];
             }
-            //            std::cout << "MAT chcker " << matrixChecker << std::endl;
+
             if(matrixChecker!=wBufferSize)
             {
                 wMixedRadix.insert(wMixedRadix.begin(), (float)(wBufferSize/matrixChecker));
@@ -402,7 +403,6 @@ void PajFFT_MixedRadix::prepareTwiddlesArray                 ()
 
 void PajFFT_MixedRadix::prepareWindowingArray               ()
 {
-    std::cout << wBufferSize << std::endl;
     windowHann.clear();
     for(int i=0; i<wBufferSize; ++i)
     {
@@ -424,10 +424,11 @@ void PajFFT_MixedRadix::prepareWindowingArray               ()
 // PUBLIC:
 // == fft initiation =========================================================================
 // ===========================================================================================
-void PajFFT_MixedRadix::makeFFT         (std::vector<std::complex<float>> inputSignal, std::vector<std::complex<float>> &wOutputC, bool isForward)
+void PajFFT_MixedRadix::makeFFT         (std::vector<std::complex<float>> inputSignal, std::vector<std::complex<float>> &wOutputC, bool isForwardOrNot)
 {
-    std::vector<std::complex<float>>& wnkN = isForward?wnkN_forw:wnkN_back;
-        
+    std::vector<std::complex<float>>& wnkN = isForwardOrNot?wnkN_forw:wnkN_back;
+    isForward=isForwardOrNot;
+    
     wOutputData = &wOutputC;
     if(dataPreparedConfirm)
     {
@@ -444,9 +445,10 @@ void PajFFT_MixedRadix::makeFFT         (std::vector<std::complex<float>> inputS
     }
 }
 
-void PajFFT_MixedRadix::makeFFT         (std::vector<float> inputSignal, std::vector<std::complex<float>> &wOutputC, bool isForward)
+void PajFFT_MixedRadix::makeFFT         (std::vector<float> inputSignal, std::vector<std::complex<float>> &wOutputC, bool isForwardOrNot)
 {
-    std::vector<std::complex<float>>& wnkN = isForward?wnkN_forw:wnkN_back;
+    std::vector<std::complex<float>>& wnkN = isForwardOrNot?wnkN_forw:wnkN_back;
+    isForward=isForwardOrNot;
     
     wOutputData = &wOutputC;
     if(dataPreparedConfirm)
@@ -542,7 +544,11 @@ void PajFFT_MixedRadix::makeDFT         (int wFFT, std::vector<std::complex<floa
             {
                 ggg += xNo[x]*(*iteratorsPointer[x-1]);
             }
-            wOutputData->at(ggg) = temp;
+            
+            if(isForward   &&   ggg>=wBufNyquist)
+                wOutputData->at(ggg) = 0.0f;
+            else
+                wOutputData->at(ggg) = temp;
         }
     }
 }
