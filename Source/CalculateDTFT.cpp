@@ -15,13 +15,9 @@
 CalculateDTFT::CalculateDTFT()
 {
     inputData.clear();
-    dataIsInUse = false;
     dataIsReadyToFFT = false;
     isForward = true;
     wPitchShift = 1.0f;
-    memset(inppp, 0, 8192);
-    memset(outpp, 0, 8192);
-    memset(wOutputF, 0, 8192);
     indeX = 0;
 }
 
@@ -34,12 +30,10 @@ void CalculateDTFT::setInputData(AudioBuffer<float> &inp)
     for(int i=0; i<inp.getNumSamples(); i++)
     {
         inputDataC[indeX] = inp.getSample(0, i);
-//        inppp[indeX] = inp.getSample(0, i);
         indeX++;
 
         if(indeX == (fftType!=2 ? newBufferSize : radix2BuffSize) )
         {
-            dataIsInUse = true;
             fftCalc();
         }
     }
@@ -50,14 +44,12 @@ void CalculateDTFT::setInputData(std::vector<float> &inp)
     for(int i=0; i<inp.size(); i++)
     {
         inputDataC[indeX] = inp[i];
-//        inppp[indeX] = inp[i];
         indeX++;
 
         if(indeX == (fftType!=2 ? newBufferSize : radix2BuffSize) )
         {
             if(!inputData.empty())
             {
-                dataIsInUse = true;
                 fftCalc();
             }
         }
@@ -71,6 +63,8 @@ void CalculateDTFT::setOutputData(std::vector<float> &outp)
 
 void CalculateDTFT::fftCalc()
 {
+    if(dataIsReadyToFFT)
+    {
         Clock _time;
     
         switch (fftType)
@@ -79,7 +73,7 @@ void CalculateDTFT::fftCalc()
                 return;
                 
             case 1:
-                smbPitchShift2(wPitchShift, newBufferSize, newBufferSize, 4, 44100.0f, inputDataC, outRealMixed);
+                smbPitchShift2(wPitchShift, newBufferSize, newBufferSize, 5, 44100.0f, inputDataC, outRealMixed);
                 break;
                 
             case 2:
@@ -89,12 +83,6 @@ void CalculateDTFT::fftCalc()
                 break;
                 
             case 3:
-//                smbPitchShift(wPitchShift, 512, 8192, 4, 44100.0f, inppp, wOutputF);
-//                for(int i=0; i<8192; i++)
-//                {
-//                    wOutput->at(i) = outpp[i];
-//                }
-                
                 regular_DFT.makeDFT(inputData);
                 if(!isForward)
                     regular_IDFT.makeDFT(outCompDFT);
@@ -108,8 +96,11 @@ void CalculateDTFT::fftCalc()
 //        std::cout << _time.secondsElapsed() << std::endl;
         timeElapsed = _time.secondsElapsed();
         indeX = 0;
-        dataIsInUse = false;
-    if(dupsko >= newBufferSize-1) dupsko = 0;
+    }
+    else
+    {
+        return;
+    }
 }
 
 void CalculateDTFT::setNewBufSize(double new_buf_size)
@@ -133,7 +124,6 @@ void CalculateDTFT::resetOutputData()
     inputData.resize(newBufferSize);
     inputDataC.resize(newBufferSize);
     outRealMixed.resize(newBufferSize);
-    dupek.resize(newBufferSize);
     
     
     gInFIFO.resize(MAX_FRAME_LENGTH);
@@ -198,25 +188,22 @@ void CalculateDTFT::smbPitchShift2(float pitchShift, long numSampsToProcess, lon
             
             /* do windowing and re,im interleave */
             for (long k = 0; k < fftFrameSize;k++) {
-                window = -.5*cos(2.*M_PI*(double)k/(double)fftFrameSize)+.5;
-                gFFTworksp[k] = gInFIFO[k] * window;
+                gFFTworksp[k] = mixedRadix_FFT.windowing(gInFIFO[k], k);
+//                window = -.5*cos(2.*M_PI*(double)k/(double)fftFrameSize)+.5;
+//                gFFTworksp[k] = gInFIFO[k] * window;
             }
             
             
             /* ***************** ANALYSIS ******************* */
             /* do transform */
-            mixedRadix_FFT.makeFFT(gFFTworksp, outPP);
+            mixedRadix_FFT.makeFFT(gFFTworksp, outPP, true);
             
             /* this is the analysis step */
             for (long k = 0; k <= fftFrameSize2; k++) {
                 
-                /* de-interlace FFT buffer */
-                real = outPP[k].real();
-                imag = outPP[k].imag();
-                
                 /* compute magnitude and phase */
-                magn = 2.*sqrt(real*real + imag*imag);
-                phase = atan2(imag,real);
+                magn = 2.0*mixedRadix_FFT.freqMagnitudeCalc(outPP[k], k);
+                phase = mixedRadix_FFT.phaseCalculator(outPP[k], k);
                 
                 /* compute phase difference */
                 tmp = phase - gLastPhase[k];
@@ -287,18 +274,14 @@ void CalculateDTFT::smbPitchShift2(float pitchShift, long numSampsToProcess, lon
             for (long k = fftFrameSize+2; k < 2*fftFrameSize; k++) gFFTworksp[k] = 0.0f;
             
             /* do inverse transform */
-//            smbFft(gFFTworksp, fftFrameSize, 1);
-            mixedRadix_IFFT.makeFFT(gFFTworksp, outPP2);
-            //            tempRadix2_IFFT.makeFFT(gFFTworksp);
+            mixedRadix_FFT.makeFFT(gFFTworksp, outPP2, false);
             
             
             /* do windowing and add to output accumulator */
             for(long k=0; k < fftFrameSize; k++) {
-                window = -.5*cos(2.*M_PI*(double)k/(double)fftFrameSize)+.5;
-
-//                gOutputAccum[k] += 2.*window*gFFTworksp[2*k]/(fftFrameSize2*osamp);
-                gOutputAccum[k] += 2.*window*outPP2[k].real()/(fftFrameSize2*osamp);
+                gOutputAccum[k] += 2.0*mixedRadix_FFT.waveEnvelopeCalc(outPP2[k], k, osamp);
             }
+            
             for (long k = 0; k < stepSize; k++) gOutFIFO[k] = gOutputAccum[k];
             
             /* shift accumulator */

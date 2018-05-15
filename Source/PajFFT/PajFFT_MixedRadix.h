@@ -75,13 +75,10 @@ public:
 private:
     void setSampleRate                       (float sampleR);
     void setBufferSize                       (float bufferS);
-    void resetData                           (bool  forwBack);
-    void resetOutput                         ();
-    void updateFreqRangeScale                (float lEnd, float tEnd);
+    void resetData                           ();
+
 public:
-    void wSettings                           (float sampleRate, float bufferSize,  bool forwardTRUE_backwardFALSE);
-    void setOutputAddress                    (std::vector<             float>  &wOutput );
-    void setOutputAddress                    (std::vector<std::complex<float>> &wOutputC);
+    void wSettings                           (float sampleRate, float bufferSize);
     void wSetRadixDivider                    (int   divider);
     void setLowEnd                           (float lowEnd);
     void setTopEnd                           (float topEnd);
@@ -95,20 +92,18 @@ private:
     void prepareMatrix                       (int  divider);
     void mixedRadixInputAndTwiddleComponents (int  radixStep);
     void prepareIteratorsBounds              (int  radixIterationEnd);
-    void prepareTwiddlesArray                (bool forwardOrBackward);
+    void prepareTwiddlesArray                ();
     void prepareWindowingArray               ();
     
     
     
     // == FFT ALGORITHM ===============================================
 private:
-    void dftRecursion                        (int fftss, int radStep);
-    void makeDFT                             (int wFFT);
+    void dftRecursion                        (int fftss, int radStep, std::vector<std::complex<float>> &twiddle);
+    void makeDFT                             (int wFFT, std::vector<std::complex<float>> &twiddle);
 public:
-    void makeFFT                             (std::vector<             float>  inputSignal);
-    void makeFFT                             (std::vector<std::complex<float>> inputSignal);
-    void makeFFT                             (std::vector<std::complex<float>> inputSignal, std::vector<std::complex<float>> &wOutputC);
-    void makeFFT                             (std::vector<             float>  inputSignal, std::vector<std::complex<float>> &wOutputC);
+    void makeFFT                             (std::vector<std::complex<float>> inputSignal, std::vector<std::complex<float>> &wOutputC, bool isForward);
+    void makeFFT                             (std::vector<             float>  inputSignal, std::vector<std::complex<float>> &wOutputC, bool isForward);
     
     
     
@@ -116,14 +111,11 @@ public:
 private:
     std::complex<float>         twiddleCalculator        (float nXk);
 public:
-    void                        freqMagnitudeCalculator  (std::complex<float> fftOutput, int freqBin);
-    float                       freqMagnitudeCalc        (std::complex<float> fftOutput, int freqBin);
-    void                        freqMagnCalc_ComplexOut  (std::complex<float> fftOutput, int freqBin);
-    void                        waveAmplitudeCalculator  (std::complex<float> fftOutput, int index);
-    float                       waveEnvelopeCalc         (std::complex<float> fftOutput, int index);
-    float                       phaseCalculator          (std::complex<float> fftOutput, int index);
-    void   (PajFFT_MixedRadix::*forwBackChooser)         (std::complex<float> fftOutput, int freqBinOrIndex);
-  
+    float                       freqMagnitudeCalc        (std::complex<float> fftOutput, long freqBin);
+    float                       waveEnvelopeCalc         (std::complex<float> fftOutput, long index, long overLap);
+    float                       phaseCalculator          (std::complex<float> fftOutput, long index);
+    std::complex<float>         windowing                (std::complex<float> dataToWindowing, long index);
+    float                       windowing                (float dataToWindowing, long index);
     
     
     // == GET INFORMATIONS ==========================================================
@@ -132,7 +124,6 @@ public:
     float              getSampleRate   ();
     int                getRadDivider   ();
     std::vector<float> getRadDimensions();
-    bool               isForward       ();
     float              getLowEnd       ();
     float              getTopEnd       ();
     float              getPhase        ();
@@ -181,11 +172,10 @@ private:
     bool dataPreparedConfirm;
     bool sampleRateConfirm;
     bool bufferSizeConfirm;
-    bool rememberedForwardOrBackward;
+//    bool rememberedForwardOrBackward;
     bool isWindowing;
     
 //    bool isComplexOutput;
 public:
-    std::vector<             float>  *wOutputData;
-    std::vector<std::complex<float>> *wOutputDataC;
+    std::vector<std::complex<float>> *wOutputData;
 };

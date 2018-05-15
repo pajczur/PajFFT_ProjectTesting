@@ -101,7 +101,27 @@ FFTInterface::~FFTInterface()
 {
 }
 
-
+void FFTInterface::timerCallback()
+{
+    stopTimer();
+    
+    if(clickedButton==turnOFF_ID)
+    {
+        setOFF_fft();
+    }
+    else if (clickedButton==matrixFFT_ID)
+    {
+        setON_matrixfft();
+    }
+    
+    
+    
+    else if (clickedButton==wInverse_ID)
+    {
+        setInverse_fft();
+    }
+    
+}
 
 
 
@@ -314,7 +334,7 @@ void FFTInterface::sliderValueChanged       (Slider *slider)
     {
         if(selectMatrixFFT.getToggleState())
         {
-            calculator_FFT->mixedRadix_IFFT.setPhase(setPhase.getValue());
+            calculator_FFT->mixedRadix_FFT.setPhase(setPhase.getValue());
         }
         else if(selectRadix2FFT.getToggleState())
         {
@@ -329,8 +349,9 @@ void FFTInterface::sliderValueChanged       (Slider *slider)
 
 void FFTInterface::labelTextChanged         (Label *labelThatHasChanged)
 {
-    calculator_FFT->dataIsInUse = true;
+//    calculator_FFT->calculatorIsBusy = true;
     calculator_FFT->dataIsReadyToFFT = false;
+    calculator_FFT->fftType = 0;
     
     
     
@@ -348,8 +369,7 @@ void FFTInterface::labelTextChanged         (Label *labelThatHasChanged)
         
         if(wInverseFFT.getToggleState())
         {
-            calculator_FFT->mixedRadix_FFT.wSettings(wSampleRate, newBufferSize, true);
-            calculator_FFT->mixedRadix_IFFT.wSettings(wSampleRate, newBufferSize, false);
+            calculator_FFT->mixedRadix_FFT.wSettings(wSampleRate, newBufferSize);
             calculator_FFT->radix2_FFT.wSettings(wSampleRate, newBufferSize, calculator_FFT->outCompRadix2, true);
             calculator_FFT->radix2_IFFT.wSettings(wSampleRate, newBufferSize, calculator_FFT->outRealRadix2, false);
             calculator_FFT->regular_DFT.wSettings(wSampleRate, newBufferSize, calculator_FFT->outCompDFT, true);
@@ -358,7 +378,7 @@ void FFTInterface::labelTextChanged         (Label *labelThatHasChanged)
         }
         else
         {
-            calculator_FFT->mixedRadix_FFT.wSettings(wSampleRate, newBufferSize, true);
+            calculator_FFT->mixedRadix_FFT.wSettings(wSampleRate, newBufferSize);
             calculator_FFT->radix2_FFT.wSettings(wSampleRate, newBufferSize, calculator_FFT->outRealRadix2, true);
             calculator_FFT->regular_DFT.wSettings(wSampleRate, newBufferSize, calculator_FFT->outRealDFT, true);
         }
@@ -373,14 +393,12 @@ void FFTInterface::labelTextChanged         (Label *labelThatHasChanged)
         if(wInverseFFT.getToggleState())
         {
             calculator_FFT->mixedRadix_FFT.wSetRadixDivider(matrixDividerEdit.getText().getIntValue());
-            calculator_FFT->mixedRadix_IFFT.wSetRadixDivider(matrixDividerEdit.getText().getIntValue());
-            calculator_FFT->mixedRadix_FFT.wSettings(wSampleRate, rememberedBuffer, true);
-            calculator_FFT->mixedRadix_IFFT.wSettings(wSampleRate, rememberedBuffer, false);
+            calculator_FFT->mixedRadix_FFT.wSettings(wSampleRate, rememberedBuffer);
         }
         else
         {
             calculator_FFT->mixedRadix_FFT.wSetRadixDivider(matrixDividerEdit.getText().getIntValue());
-            calculator_FFT->mixedRadix_FFT.wSettings(wSampleRate, rememberedBuffer, true);
+            calculator_FFT->mixedRadix_FFT.wSettings(wSampleRate, rememberedBuffer);
         }
         matrixSizeInfo.setText(matrixDimToString(), dontSendNotification);
     }
@@ -397,23 +415,31 @@ void FFTInterface::updateToggleState        (Button* button, int fftIdentifier)
     switch (fftIdentifier)
     {
         case 0:
-            setOFF_fft();
+            calculator_FFT->selectFFT(0);
+            clickedButton = turnOFF_ID;
+            startTimer(ceil((calculator_FFT->timeElapsed/1000.0f)*10.0f));
             break;
             
         case 1:
-            setON_matrixfft();
+            calculator_FFT->selectFFT(0);
+            clickedButton = matrixFFT_ID;
+            startTimer(ceil((calculator_FFT->timeElapsed/1000.0f)*10.0f));
             break;
             
         case 2:
+            calculator_FFT->selectFFT(0);
             setON_radix2fft();
             break;
             
         case 3:
+            calculator_FFT->selectFFT(0);
             setON_regular_DFT();
             break;
             
         case 4:
-            setInverse_fft();
+            calculator_FFT->selectFFT(0);
+            clickedButton = wInverse_ID;
+            startTimer(ceil((calculator_FFT->timeElapsed/1000.0f)*10.0f));
             break;
             
         case 5:
@@ -487,6 +513,7 @@ void FFTInterface::setSampleRate            (double sample_rate)
 
 void FFTInterface::setOFF_fft               ()
 {
+
     if(graphAnalyser->isTimerRunning())
         graphAnalyser->stopTimer();
     
@@ -505,7 +532,6 @@ void FFTInterface::setOFF_fft               ()
     wInverseFFT.setVisible(false);
     filtersDescript.setVisible(false);
 
-    calculator_FFT->selectFFT(0);
     repaint();
 }
 
@@ -513,7 +539,7 @@ void FFTInterface::setON_matrixfft          ()
 {
     if(selectMatrixFFT.getToggleState())
     {
-        calculator_FFT->selectFFT(0);
+        
         
         zerosPaddingDescript.setVisible(false);
         zeroPadding.setVisible(false);
@@ -536,7 +562,6 @@ void FFTInterface::setON_matrixfft          ()
         
         filterSetLowEnd.setValue(calculator_FFT->mixedRadix_FFT.getLowEnd());
         filterSetTopEnd.setValue(calculator_FFT->mixedRadix_FFT.getTopEnd());
-        setPhase.setValue(calculator_FFT->mixedRadix_IFFT.getPhase());
 
         
         double tempBuf = calculator_FFT->mixedRadix_FFT.getBufferSize();
@@ -547,15 +572,16 @@ void FFTInterface::setON_matrixfft          ()
         
         calculator_FFT->wOutput = &calculator_FFT->outRealMixed;
         calculator_FFT->resetOutputData();
-        calculator_FFT->selectFFT(1);
         graphAnalyser->setLowEndIndex();
         repaint();
         
         if(!graphAnalyser->isTimerRunning())
             graphAnalyser->startTimer(40);
         
-        calculator_FFT->dataIsInUse = false;
         calculator_FFT->mixedRadix_FFT.setTopEnd(44100);
+        
+        calculator_FFT->dataIsReadyToFFT = true;
+        calculator_FFT->selectFFT(1);
     }
 }
 
@@ -603,7 +629,7 @@ void FFTInterface::setON_radix2fft          ()
         if(!graphAnalyser->isTimerRunning())
             graphAnalyser->startTimer(40);
         
-        calculator_FFT->dataIsInUse = false;
+//        calculator_FFT->calculatorIsBusy = false;
     }
 }
 
@@ -647,13 +673,13 @@ void FFTInterface::setON_regular_DFT        ()
         if(!graphAnalyser->isTimerRunning())
             graphAnalyser->startTimer(40);
         
-        calculator_FFT->dataIsInUse = false;
+//        calculator_FFT->calculatorIsBusy = false;
     }
 }
 
 void FFTInterface::setInverse_fft           ()
 {
-    calculator_FFT->dataIsInUse = true;
+//    calculator_FFT->calculatorIsBusy = true;
     calculator_FFT->dataIsReadyToFFT = false;
     
     
@@ -661,15 +687,13 @@ void FFTInterface::setInverse_fft           ()
     {
         addAndMakeVisible(&winHann);
         addAndMakeVisible(&setPhase);
-        
         calculator_FFT->isForward = false;
         graphAnalyser->isForward = false;
+        std::cout << "inverse" << std::endl;
         
         double tempBuff1 = calculator_FFT->mixedRadix_FFT.getBufferSize();
-        calculator_FFT->mixedRadix_FFT.wSettings(wSampleRate, tempBuff1, true);
-        calculator_FFT->mixedRadix_IFFT.wSettings(wSampleRate, tempBuff1, false);
+        calculator_FFT->mixedRadix_FFT.wSettings(wSampleRate, tempBuff1);
         calculator_FFT->mixedRadix_FFT.setTopEnd(44100);
-        calculator_FFT->mixedRadix_IFFT.setTopEnd(44100);
 
 
         double tempBuff2 = calculator_FFT->radix2_FFT.getBufferSize();
@@ -687,9 +711,10 @@ void FFTInterface::setInverse_fft           ()
         
         calculator_FFT->isForward = true;
         graphAnalyser->isForward = true;
-        
+        std::cout << "forward" << std::endl;
+
         double tempBuff1 = calculator_FFT->mixedRadix_FFT.getBufferSize();
-        calculator_FFT->mixedRadix_FFT.wSettings(wSampleRate, tempBuff1, true);
+        calculator_FFT->mixedRadix_FFT.wSettings(wSampleRate, tempBuff1);
         
         calculator_FFT->radix2_FFT.wSettings(wSampleRate, rememberedBuffer, calculator_FFT->outRealRadix2, true);
         
@@ -704,13 +729,11 @@ void FFTInterface::setWindowing             ()
 {
     if(winHann.getToggleState())
     {
-        calculator_FFT->mixedRadix_IFFT.setWindowing(true);
         calculator_FFT->regular_IDFT.setWindowing(true);
         calculator_FFT->radix2_IFFT.setWindowing(true);
     }
     else
     {
-        calculator_FFT->mixedRadix_IFFT.setWindowing(false);
         calculator_FFT->regular_IDFT.setWindowing(false);
         calculator_FFT->radix2_IFFT.setWindowing(false);
     }

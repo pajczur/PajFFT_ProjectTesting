@@ -40,19 +40,28 @@ void GraphAnalyser::resized()
 
 void GraphAnalyser::timerCallback()
 {
-    if(!dataSource->wOutput->empty())
+    if(dataSource->fftType != 0)
     {
-        fftGraph.clear();
-        
-        if(!isForward)
+        if(!dataSource->wOutput->empty())
         {
-            drawLinearGraph();
-        }
-        else
-        {
-            drawLogarGraph3();
-        }
+            fftGraph.clear();
+            
+            if(!isForward)
+            {
+                drawLinearGraph();
+            }
+            else
+            {
+                drawLogarGraph3();
+            }
 
+            repaint();
+        }
+    }
+    else
+    {
+        if(!fftGraph.isEmpty())
+            fftGraph.clear();
         repaint();
     }
 }

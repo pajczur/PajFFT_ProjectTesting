@@ -99,6 +99,9 @@ private:
     Slider wPitchShift;
     Label wPitchShiftLabel;
     
+    ToggleButton pitchShiftON;
+    const int pitchShiftON_ID=3;
+    
     
     
 

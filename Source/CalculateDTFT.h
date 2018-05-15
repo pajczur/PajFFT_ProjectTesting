@@ -41,7 +41,7 @@ public:
     void setSampleRate(float sampR);
 
     PajFFT_MixedRadix mixedRadix_FFT;
-    PajFFT_MixedRadix mixedRadix_IFFT;
+//    PajFFT_MixedRadix mixedRadix_IFFT;
     PajFFT_Radix2     radix2_FFT;
     PajFFT_Radix2     radix2_IFFT;
     PajDFT            regular_DFT;
@@ -49,7 +49,6 @@ public:
 
     void smbPitchShift2(float pitchShift, long numSampsToProcess, long fftFrameSize, long osamp, float sampleRate, std::vector<std::complex<float>> indata, std::vector<float> &outdata);
     
-    bool dataIsInUse;
     bool dataIsReadyToFFT;
     bool isForward;
     
@@ -67,10 +66,8 @@ private:
     int fftType=0;
 
     std::vector<float>              *wOutput;
-    float wOutputF[8192];
     
     std::vector<float>               outRealMixed;
-    std::vector<float>               dupek;
     std::vector<float>               outRealRadix2;
     std::vector<float>               outRealDFT;
     
@@ -88,19 +85,13 @@ private:
     
     float timeElapsed=0.0f;
     float wPitchShift;
-    float inppp[8192];
-    float outpp[8192];
-    PajFFT_Radix2     tempRadix2_FFT;
-    PajFFT_Radix2     tempRadix2_IFFT;
     
     int indeX;
-    
-    int dupsko=0;
     
     
     // ===================== //
     // ==== PITCH SHIFT ==== //
-    
+    // ===================== //
     std::vector<std::complex<float>> gInFIFO;
     std::vector<std::complex<float>> gOutFIFO;
     std::vector<std::complex<float>> gFFTworksp;
@@ -114,7 +105,7 @@ private:
     float gSynFreq[MAX_FRAME_LENGTH];
     float gSynMagn[MAX_FRAME_LENGTH];
     long gRover = false, gInit = false;
-    float magn, phase, tmp, window, real, imag;
+    float magn, phase, window, tmp, real, imag;
     double freqPerBin, expct;
     long qpd, index, inFifoLatency, stepSize, fftFrameSize2;
     

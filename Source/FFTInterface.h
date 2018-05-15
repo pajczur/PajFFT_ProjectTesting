@@ -22,11 +22,14 @@
 */
 class FFTInterface    : public Component,
                         public Label::Listener,
-                        public Slider::Listener
+                        public Slider::Listener,
+                        public Timer
 {
 public:
     FFTInterface(AudioAppComponent *wAudioApp);
     ~FFTInterface();
+    
+    void timerCallback() override;
     
     void wSettings(CalculateDTFT &fftCalc, OscInterface &osPan, GraphAnalyser &graph);
     
@@ -80,6 +83,8 @@ private:
     ToggleButton      selectRegDFT;
     Label             regDFTLabel;
     const int         regDFT_ID=3;
+    
+    int               clickedButton;
     
 public:
     ToggleButton      wInverseFFT;
