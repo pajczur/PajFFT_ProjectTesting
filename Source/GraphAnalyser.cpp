@@ -172,3 +172,9 @@ void GraphAnalyser::setFFT_DataSource(CalculateDTFT &fftData)
 {
     dataSource = &fftData;
 }
+
+void GraphAnalyser::clearDisplay()
+{
+    fftGraph.clear();
+    repaint();
+}

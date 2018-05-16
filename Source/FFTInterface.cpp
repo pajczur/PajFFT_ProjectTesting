@@ -108,6 +108,17 @@ FFTInterface::~FFTInterface()
 {
 }
 
+
+void FFTInterface::wSettings                (CalculateDTFT &fftCalc, OscInterface &osPan, GraphAnalyser &graph, AudioPlayer &player, WavesGen &oscill)
+{
+    calculator_FFT = &fftCalc;
+    oscPan = &osPan;
+    graphAnalyser = &graph;
+    audioPlayer = &player;
+    oscillator = &oscill;
+}
+
+
 void FFTInterface::timerCallback()
 {
     stopTimer();
@@ -165,15 +176,6 @@ void FFTInterface::timerCallback()
     
 }
 
-
-
-void FFTInterface::wSettings                (CalculateDTFT &fftCalc, OscInterface &osPan, GraphAnalyser &graph, AudioPlayer &player)
-{
-    calculator_FFT = &fftCalc;
-    oscPan = &osPan;
-    graphAnalyser = &graph;
-    audioPlayer = &player;
-}
 
 
 
@@ -309,9 +311,10 @@ void FFTInterface::sliderValueChanged       (Slider *slider)
 
 void FFTInterface::labelTextChanged         (Label *labelThatHasChanged)
 {
-//    calculator_FFT->calculatorIsBusy = true;
     calculator_FFT->dataIsReadyToFFT = false;
     calculator_FFT->fftType = 0;
+    rememberedWaveType = oscillator->getWaveType();
+    oscillator->selectWave(0);
     pauseGetNextAudioBlock = true;
     
     
@@ -342,37 +345,50 @@ void FFTInterface::updateToggleState        (Button* button, int fftIdentifier)
 {
     switch (fftIdentifier)
     {
-        case 0:
+        case 0: // FFT OFF
             calculator_FFT->selectFFT(0);
+            if(graphAnalyser->isTimerRunning())
+                graphAnalyser->stopTimer();
             whatIsChanged_ID = turnOFF_ID;
             startTimer(ceil((calculator_FFT->timeElapsed/1000.0f)*10.0f));
             break;
             
-        case 1:
+        case 1: // MIXED RADIX
+            rememberedWaveType=oscillator->getWaveType();
+            oscillator->selectWave(0);
             calculator_FFT->selectFFT(0);
             whatIsChanged_ID = selectMatrixFFT_ID;
             startTimer(ceil((calculator_FFT->timeElapsed/1000.0f)*10.0f));
             break;
             
-        case 2:
-            calculator_FFT->selectFFT(0);
+        case 2: // RADIX-2
+//            rememberedWaveType=oscillator->getWaveType();
+//            oscillator->selectWave(0);
+//            calculator_FFT->selectFFT(0);
 //            whatIsChanged_ID = selectRadix2FFT_ID;
 //            setON_radix2fft();
             break;
             
-        case 3:
-            calculator_FFT->selectFFT(0);
+        case 3: // REGULAR DFT
+//            rememberedWaveType=oscillator->getWaveType();
+//            oscillator->selectWave(0);
+//            calculator_FFT->selectFFT(0);
 //            whatIsChanged_ID = selectRegDFT_ID;
 //            setON_regular_DFT();
             break;
             
-        case 4:
+        case 4: // INVERSE
+            rememberedWaveType=oscillator->getWaveType();
+            oscillator->selectWave(0);
             calculator_FFT->selectFFT(0);
             whatIsChanged_ID = wInverse_ID;
             startTimer(ceil((calculator_FFT->timeElapsed/1000.0f)*10.0f));
             break;
             
         case 5:
+//            rememberedWaveType=oscillator->getWaveType();
+//            oscillator->selectWave(0);
+//            calculator_FFT->selectFFT(0);
 //            setWindowing();
             break;
             
@@ -444,9 +460,7 @@ void FFTInterface::setSampleRate            (double sample_rate)
 
 void FFTInterface::setOFF_fft               ()
 {
-
-    if(graphAnalyser->isTimerRunning())
-        graphAnalyser->stopTimer();
+    graphAnalyser->clearDisplay();
     
     matrixDividerEdit.setVisible(false);
     matrixSizeInfo.setVisible(false);
@@ -504,7 +518,6 @@ void FFTInterface::setON_matrixfft          ()
         
         
         calculator_FFT->resetOutputData();
-//        calculator_FFT->wOutput = &calculator_FFT->outRealMixed;
         graphAnalyser->setLowEndIndex();
         repaint();
         
@@ -513,6 +526,7 @@ void FFTInterface::setON_matrixfft          ()
 
         pauseGetNextAudioBlock = false;
         calculator_FFT->dataIsReadyToFFT = true;
+        oscillator->selectWave(rememberedWaveType);
         calculator_FFT->selectFFT(1);
     }
 }

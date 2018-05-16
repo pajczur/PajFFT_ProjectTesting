@@ -36,6 +36,7 @@ public:
     
     void drawLinearGraph();
     void drawLogarGraph3();
+    void clearDisplay();
     
 
 private:

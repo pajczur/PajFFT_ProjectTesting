@@ -154,7 +154,6 @@ void PajFFT_MixedRadix::resetData              ()
     if(sampleRateConfirm && bufferSizeConfirm)
     {
         prepareWindowingArray();
-        
         /* Prepare matrix dimensions */
         wMixedRadix.clear();
         prepareMatrix(radixDivider);
@@ -171,11 +170,11 @@ void PajFFT_MixedRadix::resetData              ()
         {
             iteratorsPointer[i] = &iteratorsStore[i];
         }
-        
+
         /* Prepare array of iterators ends */
         iteratorsEnd.resize(wRadixSize);
         prepareIteratorsBounds(0);
-        
+
         /* Precalculations of all twiddles W = exp(-i*2*M_PI*n*k / N) */
         prepareTwiddlesArray();
 
@@ -202,7 +201,7 @@ void PajFFT_MixedRadix::wSettings         (float sampleRate, float bufferSize)
     
     setBufferSize(bufferSize);
     setSampleRate(sampleRate);
-    
+
     resetData();
 }
 
@@ -406,7 +405,7 @@ void PajFFT_MixedRadix::prepareWindowingArray               ()
     windowHann.clear();
     for(int i=0; i<wBufferSize; ++i)
     {
-        float windowSample = -.5*cos(2.*M_PI*(double)i/(double)wBufferSize)+.5;
+        float windowSample = -0.5*cos(2.*M_PI*(double)i/(double)wBufferSize)+0.5;
         windowHann.push_back(windowSample);
     }
 }

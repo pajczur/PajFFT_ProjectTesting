@@ -98,7 +98,8 @@ private:
     std::vector<std::complex<float>> outPP2; 
     float gLastPhase[MAX_FRAME_LENGTH/2+1];
     float gSumPhase[MAX_FRAME_LENGTH/2+1];
-    float gOutputAccum[2*MAX_FRAME_LENGTH];
+//    float gOutputAccum[2*MAX_FRAME_LENGTH];
+float gOutputAccum[MAX_FRAME_LENGTH];
     float gAnaFreq[MAX_FRAME_LENGTH];
     float gAnaMagn[MAX_FRAME_LENGTH];
     float gSynFreq[MAX_FRAME_LENGTH];

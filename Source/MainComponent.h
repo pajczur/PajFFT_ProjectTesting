@@ -103,7 +103,7 @@ private:
     const int pitchShiftON_ID=3;
     
     
+    long tempp=0;
     
-
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

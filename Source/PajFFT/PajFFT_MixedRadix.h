@@ -180,4 +180,5 @@ private:
 //    bool isComplexOutput;
 public:
     std::vector<std::complex<float>> *wOutputData;
+    
 };

@@ -32,7 +32,7 @@ public:
     
     void timerCallback() override;
     
-    void wSettings(CalculateDTFT &fftCalc, OscInterface &osPan, GraphAnalyser &graph, AudioPlayer &player);
+    void wSettings(CalculateDTFT &fftCalc, OscInterface &osPan, GraphAnalyser &graph, AudioPlayer &player, WavesGen &oscill);
     
     void paint (Graphics&) override;
     void resized() override;
@@ -65,6 +65,8 @@ private:
     OscInterface      *oscPan;
     AudioAppComponent *wAudioApplication;
     AudioPlayer       *audioPlayer;
+    WavesGen          *oscillator;
+    int                rememberedWaveType;
     
     double            newBufferSize;
     double            wSampleRate;
