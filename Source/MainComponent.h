@@ -25,7 +25,7 @@
     This component lives inside our window, and this is where you should put all
     your controls and content.
 */
-class MainComponent   : public AudioAppComponent, private Timer
+class MainComponent   : public AudioAppComponent, private Timer, private Slider::Listener
 {
 public:
     //==============================================================================
@@ -34,6 +34,7 @@ public:
     
     void timerCallback() override;
     void updateToggleState(Button* button, int buttonID);
+    void sliderValueChanged (Slider *slider) override;
 
     //==============================================================================
     void prepareToPlay (int samplesPerBlockExpected, double sampleRate) override;
@@ -94,6 +95,12 @@ private:
     std::vector<float> signalToFFT;
     int fftOutputIndex;
     double fPi;
+    
+    Slider wPitchShift;
+    Label wPitchShiftLabel;
+    
+    ToggleButton pitchShiftON;
+    const int pitchShiftON_ID=3;
     
     
     

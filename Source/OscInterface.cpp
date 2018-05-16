@@ -120,12 +120,6 @@ void OscInterface::updateToggleState(Button* button, int waveIdentifier)
     {
         case 0:
             oscillator->selectWave(0);
-//            if(calculator_FFT->isTimerRunning())
-//            {
-//                calculator_FFT->stopTimer();
-//                calculator_FFT->fftGraph.clear();
-//                calculator_FFT->repaint();
-//            }
             break;
         case 1:
             oscillator->selectWave(1);
@@ -158,7 +152,7 @@ void OscInterface::settings(WavesGen &waveGenerator, CalculateDTFT &fftCalc, dou
     calculator_FFT = &fftCalc;
     oscillator = &waveGenerator;
     
-    wPitchBand.setRange(0, sampRate/2.0, 1.0);
+    wPitchBand.setRange(0, sampRate/2.0, 0.000001);
     wPitchBand.setValue(172.0);
     wPitchBand.setSkewFactorFromMidPoint(1000);
 }
@@ -168,13 +162,6 @@ void OscInterface::setControlsVisible(bool areVisible)
 {
     if(areVisible)
     {
-//        addAndMakeVisible(&wPitchBand);
-//        addAndMakeVisible(&wAmplitude);
-//        addAndMakeVisible(&selectSinWave);
-//        addAndMakeVisible(&selectSawWave);
-//        addAndMakeVisible(&selectSqrWave);
-//        addAndMakeVisible(&selectWhiteNoise);
-//        addAndMakeVisible(&wMuteButton);
         wPitchBand.setVisible(true);
         wAmplitude.setVisible(true);
         selectSinWave.setVisible(true);

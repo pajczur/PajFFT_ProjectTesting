@@ -27,7 +27,7 @@ void GraphAnalyser::paint (Graphics& g)
 {
     g.setColour (Colours::red);
     
-    if(!fftGraph.isEmpty())
+    if(!fftGraph.isEmpty() && dataSource->fftType != 0)
     {
         g.strokePath(fftGraph, PathStrokeType(2));
     }
@@ -40,73 +40,78 @@ void GraphAnalyser::resized()
 
 void GraphAnalyser::timerCallback()
 {
-    if(!dataSource->wOutput->empty())
+    if(dataSource->fftType != 0)
     {
-        fftGraph.clear();
-        
-        if(!isForward)
+        if(!dataSource->outRealMixed.empty())
         {
-            drawLinearGraph();
-        }
-        else
-        {
-            drawLogarGraph3();
-        }
+            fftGraph.clear();
+            
+            if(!isForward)
+            {
+                drawLinearGraph();
+            }
+            else
+            {
+                drawLogarGraph3();
+            }
 
-        repaint();
+            repaint();
+        }
+    }
+    else
+    {
+        stopTimer();
+        if(!fftGraph.isEmpty())
+        {
+            fftGraph.clear();
+            repaint();
+        }
     }
 }
 
 
 void GraphAnalyser::drawLinearGraph()
 {
-    if(dataSource->wOutput->size()>1)
+    int startPoint = (int)timeStart%(int)(newBufferSize-1);
+    fftGraph.startNewSubPath(0, -(dataSource->outRealMixed[startPoint] * zero_dB/2.0) + (zero_dB/2.0));
+    
+    double avarage = 0.0;
+    for(float i=timeStart+1.0; i<=wSampleRate; i++)
     {
-        fftGraph.startNewSubPath(0, -(dataSource->wOutput->at((int)timeStart%(dataSource->wOutput->size()-1)) * zero_dB/2.0) + (zero_dB/2.0));
+        avarage += dataSource->outRealMixed[(int)i%(int)(newBufferSize-1)];
         
-        double avarage = 0.0;
-        for(float i=timeStart+1.0; i<=wSampleRate; i++)
+        if(fmod(round(i), linearDivider)==0)
         {
-            avarage += dataSource->wOutput->at((int)i%(dataSource->wOutput->size()-1));
-            
-            if(fmod(round(i), linearDivider)==0)
-            {
-                avarage = avarage/linearDivider;
-                double wCurrent   = dispWidth * ((i)-timeStart);
-                fftGraph.lineTo(wCurrent, -(avarage * zero_dB/2.0) + (zero_dB/2.0));
-                avarage = 0.0;
-            }
+            avarage = avarage/linearDivider;
+            double wCurrent   = dispWidth * ((i)-timeStart);
+            fftGraph.lineTo(wCurrent, -(avarage * zero_dB/2.0) + (zero_dB/2.0));
+            avarage = 0.0;
         }
     }
-    else return;
 }
 
 void GraphAnalyser::drawLogarGraph3()
 {
-    if(dataSource->wOutput->size()>1)
+    fftGraph.startNewSubPath(0, -(dataSource->outRealMixed[low_End_index] * zero_dB) + zero_dB);
+
+    float tempCurr=0.0;
+
+    for(float i=low_End_index+1.0f; i<=buffNyquist; i++)
     {
-        fftGraph.startNewSubPath(0, -(dataSource->wOutput->at(low_End_index) * zero_dB) + zero_dB);
 
-        float tempCurr=0.0;
+        double wBefore    = dispLogScale * (log10((i-1.0)*logScaleWidth1) - log10(low_End));
+        double wCurrent   = dispLogScale * (log10((i-0.0)*logScaleWidth1) - log10(low_End));
 
-        for(float i=low_End_index+1.0f; i<=dataSource->wOutput->size()/2.0f; i++)
+        tempCurr+=dataSource->outRealMixed[i];
+
+        if(round(wCurrent) != round(wBefore))
         {
+            fftGraph.lineTo(wCurrent, -(tempCurr * zero_dB) + zero_dB);
 
-            double wBefore    = dispLogScale * (log10((i-1.0)*logScaleWidth1) - log10(low_End));
-            double wCurrent   = dispLogScale * (log10((i-0.0)*logScaleWidth1) - log10(low_End));
+            tempCurr=0.0;
 
-            tempCurr+=dataSource->wOutput->at(i);
-
-            if(round(wCurrent) != round(wBefore))
-            {
-                fftGraph.lineTo(wCurrent, -(tempCurr * zero_dB) + zero_dB);
-
-                tempCurr=0.0;
-
-            }
         }
     }
-    else return;
 }
 
 void GraphAnalyser::setSampleRate(double sample_rate)
@@ -127,6 +132,7 @@ void GraphAnalyser::setSampleRate(double sample_rate)
 void GraphAnalyser::setNewBufSize(double new_buf_size)
 {
     newBufferSize = new_buf_size;
+    buffNyquist = newBufferSize/2.0;
     low_End_index = round(low_End * ( newBufferSize / wSampleRate));
     top_End_index = round(top_End * ( newBufferSize / wSampleRate));
     //    dispResol = ((maxResolution>=(newBufferSize/2.0))?(newBufferSize/2.0):maxResolution);

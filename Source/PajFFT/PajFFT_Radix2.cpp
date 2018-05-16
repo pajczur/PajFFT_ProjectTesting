@@ -390,11 +390,6 @@ void PajFFT_Radix2::makeFFT                                (std::vector<float> i
         else
             lastStepFFT(radix2);
     }
-    
-//    for(int i=0; i<wOutputDataC->size(); i++)
-//    {
-//        std::cout << i << "   " << wOutputDataC->at(i) << std::endl;
-//    }
 }
 
 void PajFFT_Radix2::makeFFT                                (std::vector<std::complex<float>> inputSignalC)
@@ -402,11 +397,6 @@ void PajFFT_Radix2::makeFFT                                (std::vector<std::com
     std::vector<std::complex<float>> wBuffer = inputSignalC;
 
     if(resizeInput) wBuffer.push_back(0.0f);
-    
-//    for(int i=0; i<wBuffer.size(); i++)
-//    {
-//        std::cout << i << "   " << wBuffer[i] << std::endl;
-//    }
     
     for(int radix2=0; radix2<sN0.size(); radix2++)
     {
@@ -542,8 +532,6 @@ void PajFFT_Radix2::freqMagnCalc_ComplexOut               (std::complex<float> f
         wOutputDataC->at(freqBin) = cZero;
     else
         wOutputDataC->at(freqBin) = fftOutput;
-    
-//    std::cout << freqBin << "   " << wOutputDataC->at(freqBin) << std::endl;
 }
 
 

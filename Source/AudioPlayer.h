@@ -38,12 +38,14 @@ private:
         Stopping
     };
     
+public:
     void changeState (TransportState newState);
+    
     void openButtonClicked();
     void playButtonClicked();
     void stopButtonClicked();
     
-    
+private:
     TextButton openButton;
     TextButton playButton;
     TextButton stopButton;

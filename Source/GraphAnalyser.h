@@ -46,6 +46,7 @@ private:
     double newBufferSize;
     double radix2BuffSize;
     double nyquist;
+    double buffNyquist;
     float maxResolution;
     
     double dispResol;
