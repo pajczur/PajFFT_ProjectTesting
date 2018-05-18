@@ -76,6 +76,7 @@ void CalculateDTFT::fftCalc()
             case 1:
                 if(!isPitchON)
                 {
+//                    std::cout << "dup" << std::endl;
                     if(isForward)
                     {
                         mixedRadix_FFT.makeFFT(inputDataC, inputDataC, true);
@@ -86,16 +87,29 @@ void CalculateDTFT::fftCalc()
                     }
                     else
                     {
-                        mixedRadix_FFT.makeFFT(inputDataC, inputDataC, true);
-                        mixedRadix_FFT.makeFFT(inputDataC, inputDataC, false);
-                        for(long i=0; i<newBufferSize; i++)
+                        if(isWindowed)
                         {
-                            outRealMixed[i] = mixedRadix_FFT.waveEnvelopeCalc(inputDataC[i], i, 1);
+                            makeFFT_WindowOverlap(newBufferSize, 4, 44100.0f, inputDataC, outRealMixed);
+//                    std::cout << "aaa " << mixedRadix_FFT.getTopEnd() << std::endl;
+//                            smbPitchShift(wPitchShift, newBufferSize, 4, 44100.0f, inputDataC, outRealMixed);
+                        }
+                        else
+                        {
+                            mixedRadix_FFT.makeFFT(inputDataC, inputDataC, true);
+                            mixedRadix_FFT.makeFFT(inputDataC, inputDataC, false);
+                            for(long i=0; i<newBufferSize; i++)
+                            {
+                                outRealMixed[i] = mixedRadix_FFT.waveEnvelopeCalc(inputDataC[i], i, 1);
+                            }
                         }
                     }
                 }
                 else
-                    smbPitchShift2(wPitchShift, newBufferSize, newBufferSize, 4, 44100.0f, inputDataC, outRealMixed);
+                {
+//                    std::cout << "dupex" << std::endl;
+//                    std::cout << "ccc " << mixedRadix_FFT.getTopEnd() << std::endl;
+                    smbPitchShift(wPitchShift, newBufferSize, 4, 44100.0f, inputDataC, outRealMixed);
+                }
                 break;
                 
             case 2:
@@ -187,7 +201,7 @@ void CalculateDTFT::resetOutputData()
 }
 
 
-void CalculateDTFT::smbPitchShift2(float pitchShift, long numSampsToProcess, long fftFrameSize, long osamp, float sampleRate, std::vector<std::complex<float>> indata, std::vector<float> &outdata)
+void CalculateDTFT::smbPitchShift(float pitchShift, long fftFrameSize, long osamp, float sampleRate, std::vector<std::complex<float>> indata, std::vector<float> &outdata)
 /*
  Routine smbPitchShift(). See top of file for explanation
  Purpose: doing pitch shifting while maintaining duration using the Short
@@ -206,7 +220,7 @@ void CalculateDTFT::smbPitchShift2(float pitchShift, long numSampsToProcess, lon
 
     
     /* main processing loop */
-    for (int i = 0; i < numSampsToProcess; i++){
+    for (int i = 0; i < fftFrameSize; i++){
         
         /* As long as we have not yet collected enough data just read in */
         gInFIFO[gRover] = indata[i];
@@ -326,6 +340,126 @@ void CalculateDTFT::smbPitchShift2(float pitchShift, long numSampsToProcess, lon
         }
     }
 }
+
+void CalculateDTFT::makeFFT_WindowOverlap(long fftFrameSize, long osamp, float sampleRate, std::vector<std::complex<float>> indata, std::vector<float> &outdata)
+{
+    gRover=false;
+    fftFrameSize2 = fftFrameSize/2;
+    stepSize = fftFrameSize/osamp;
+    freqPerBin = sampleRate/(double)fftFrameSize;
+    expct = 2.*M_PI*(double)stepSize/(double)fftFrameSize;
+    inFifoLatency = fftFrameSize-stepSize;
+    if (gRover == false) gRover = inFifoLatency;
+    
+    for (int i = 0; i < fftFrameSize; i++){
+
+        gInFIFO[gRover] = indata[i];
+        outdata[i] = gOutFIFO[gRover-inFifoLatency].real();
+        gRover++;
+        
+        if (gRover >= fftFrameSize) {
+            gRover = inFifoLatency;
+
+            for (long k = 0; k < fftFrameSize; k++)
+            {
+                gFFTworksp[k] = mixedRadix_FFT.windowing(gInFIFO[k], k);
+            }
+            
+            mixedRadix_FFT.makeFFT(gFFTworksp, gFFTworksp, true);
+            
+            for (long k = 0; k <= fftFrameSize2; k++) {
+                
+                /* compute magnitude and phase */
+                magn = 2.0*mixedRadix_FFT.freqMagnitudeCalc(gFFTworksp[k], k);
+                phase = mixedRadix_FFT.phaseCalculator(gFFTworksp[k], k);
+                
+                /* compute phase difference */
+                tmp = phase - gLastPhase[k];
+                gLastPhase[k] = phase;
+                
+                /* subtract expected phase difference */
+                tmp -= (double)k*expct;
+                
+                /* map delta phase into +/- Pi interval */
+                qpd = tmp/M_PI;
+                if (qpd >= 0) qpd += qpd&1;
+                else          qpd -= qpd&1;
+                tmp -= M_PI*(double)qpd;
+                
+                /* get deviation from bin frequency from the +/- Pi interval */
+                tmp = osamp*tmp/(2.*M_PI);
+                
+                /* compute the k-th partials' true frequency */
+                tmp = (double)k*freqPerBin + tmp*freqPerBin;
+                
+                /* store magnitude and true frequency in analysis arrays */
+                gAnaMagn[k] = magn;
+                gAnaFreq[k] = tmp;
+            }
+            
+            memset(gSynMagn, 0, fftFrameSize*sizeof(float));
+            memset(gSynFreq, 0, fftFrameSize*sizeof(float));
+            for (long k = 0; k <= fftFrameSize2; k++) {
+                index = k*1.0f;
+                if (index <= fftFrameSize2) {
+                    gSynMagn[index] += gAnaMagn[k];
+                    gSynFreq[index] = gAnaFreq[k] * 1.0f;
+                }
+            }
+            
+            for (long k = 0; k <= fftFrameSize2; k++) {
+                
+                /* get magnitude and true frequency from synthesis arrays */
+                //                                                                                    magn = 2.0*mixedRadix_FFT.freqMagnitudeCalc(gFFTworksp[k], k);
+                
+                magn = gSynMagn[k];
+                tmp = gSynFreq[k];
+                
+                /* subtract bin mid frequency */
+                tmp -= (double)k*freqPerBin;
+                
+                /* get bin deviation from freq deviation */
+                tmp /= freqPerBin;
+                
+                /* take osamp into account */
+                tmp = 2.*M_PI*tmp/osamp;
+                
+                /* add the overlap phase advance back in */
+                tmp += (double)k*expct;
+                
+                /* accumulate delta phase to get bin phase */
+                gSumPhase[k] += tmp;
+                phase = gSumPhase[k];
+                //                                                                                    phase = 0.0f;
+                
+                /* get real and imag part and re-interleave */
+                gFFTworksp[k].real(magn*cos(phase));
+                gFFTworksp[k].imag(magn*sin(phase));
+            }
+            
+            /* zero negative frequencies */
+            for (long k = fftFrameSize2+1; k < fftFrameSize; k++) gFFTworksp[k] = 0.0f;
+            
+            /* do inverse transform */
+            mixedRadix_FFT.makeFFT(gFFTworksp, outPP2, false);
+            
+            
+            /* do windowing and add to output accumulator */
+            for(long k=0; k < fftFrameSize; k++) {
+                gOutputAccum[k] += 2.0*mixedRadix_FFT.waveEnvelopeCalc(outPP2[k], k, osamp);
+            }
+            
+            for (long k = 0; k < stepSize; k++) gOutFIFO[k] = gOutputAccum[k];
+            
+            /* shift accumulator */
+            memmove(gOutputAccum, gOutputAccum+stepSize, fftFrameSize*sizeof(float));
+            
+            /* move input FIFO */
+            for (long k = 0; k < inFifoLatency; k++) gInFIFO[k] = gInFIFO[k+stepSize];
+        }
+    }
+}
+
 
 
 void CalculateDTFT::setSampleRate(float sampR)

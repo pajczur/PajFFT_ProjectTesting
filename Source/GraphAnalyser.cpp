@@ -40,6 +40,7 @@ void GraphAnalyser::resized()
 
 void GraphAnalyser::timerCallback()
 {
+    
     if(dataSource->fftType != 0)
     {
         if(!dataSource->outRealMixed.empty())
@@ -67,6 +68,7 @@ void GraphAnalyser::timerCallback()
             repaint();
         }
     }
+    
 }
 
 

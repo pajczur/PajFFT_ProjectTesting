@@ -91,6 +91,8 @@ private:
 public:
     ToggleButton      wInverseFFT;
     const int         wInverse_ID = 4;
+    bool              rememberInvWasClicked;
+    Label             alreadyInversed;
     
 private:
     TextButton        turnOFF;
@@ -101,9 +103,13 @@ private:
 //    TextEditor        zerosPaddingDescript;
 //    string            setZerosInfo          (int use, int bufSize, int zero);
     
-//    ToggleButton      winHann;
-//    const int         winHann_ID=5;
+    const int         winHann_ID=5;
+public:
+    ToggleButton      wWindowBut;
+    Label             alreadyWindow;
+    bool              remembereWinWasClicked;
     
+private:
     Slider            filterSetLowEnd;
     Slider            filterSetTopEnd;
     Label             filtersDescript;

@@ -152,6 +152,7 @@
     <ClCompile Include="..\..\Source\PajFFT\PajFFT_fRange.cpp"/>
     <ClCompile Include="..\..\Source\PajFFT\PajFFT_MixedRadix.cpp"/>
     <ClCompile Include="..\..\Source\PajFFT\PajFFT_Radix2.cpp"/>
+    <ClCompile Include="..\..\Source\PajFFT\PajFFT_HandyFunc.cpp"/>
     <ClCompile Include="..\..\Source\Main.cpp"/>
     <ClCompile Include="..\..\Source\MainComponent.cpp"/>
     <ClCompile Include="..\..\Source\FFTInterface.cpp"/>
@@ -1830,6 +1831,7 @@
     <ClInclude Include="..\..\Source\PajFFT\PajFFT_fRange.h"/>
     <ClInclude Include="..\..\Source\PajFFT\PajFFT_MixedRadix.h"/>
     <ClInclude Include="..\..\Source\PajFFT\PajFFT_Radix2.h"/>
+    <ClInclude Include="..\..\Source\PajFFT\PajFFT_HandyFunc.h"/>
     <ClInclude Include="..\..\Source\MainComponent.h"/>
     <ClInclude Include="..\..\Source\FFTInterface.h"/>
     <ClInclude Include="..\..\Source\OscInterface.h"/>

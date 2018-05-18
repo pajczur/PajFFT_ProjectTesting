@@ -46,6 +46,11 @@ FFTInterface::FFTInterface(AudioAppComponent *wAudioApp)
     
     wInverseFFT.onClick = [this] { updateToggleState(&wInverseFFT, wInverse_ID); };
     wInverseFFT.setButtonText("INVERSE");
+    addAndMakeVisible(&alreadyInversed);
+    alreadyInversed.setVisible(false);
+    alreadyInversed.setJustificationType(Justification::centredTop);
+    alreadyInversed.setEditable(false);
+    alreadyInversed.setText("Forw FFT->\nPitct shift->\nBack FFT", dontSendNotification);
 
     addAndMakeVisible(&turnOFF);
     turnOFF.setButtonText("OFF");
@@ -73,6 +78,8 @@ FFTInterface::FFTInterface(AudioAppComponent *wAudioApp)
     filterSetTopEnd.setTextValueSuffix(" Hz");
     filterSetTopEnd.addListener(this);
     
+    addAndMakeVisible(&setPhase);
+    setPhase.setVisible(false);
     setPhaseLabel.setText("Phase", dontSendNotification);
     setPhaseLabel.setJustificationType(Justification::centredBottom);
     setPhaseLabel.attachToComponent(&setPhase, false);
@@ -83,10 +90,18 @@ FFTInterface::FFTInterface(AudioAppComponent *wAudioApp)
     setPhase.setRange(0.0, 8.0, 0.01);
     setPhase.setValue(0.0);
     
-/*
-    winHann.setButtonText("Hann Window");
-    winHann.onClick = [this] { updateToggleState(&winHann, winHann_ID); };
-*/
+
+    addAndMakeVisible(&wWindowBut);
+    wWindowBut.setVisible(false);
+    wWindowBut.setButtonText("Windowing & overlap");
+    wWindowBut.onClick = [this] { updateToggleState(&wWindowBut, winHann_ID); };
+    
+    addAndMakeVisible(&alreadyWindow);
+    alreadyWindow.setVisible(false);
+    alreadyWindow.setJustificationType(Justification::centredTop);
+    alreadyWindow.setEditable(false);
+    alreadyWindow.setText("Signal windowed & overlaped (Hann)", dontSendNotification);
+
     
     filtersDescript.setEditable(false);
     filtersDescript.setJustificationType(Justification::centred);
@@ -101,7 +116,6 @@ FFTInterface::FFTInterface(AudioAppComponent *wAudioApp)
     matrixDividerEditDescript.setJustificationType(Justification::centredLeft);
     
     pauseGetNextAudioBlock = false;
-    
 }
 
 FFTInterface::~FFTInterface()
@@ -174,6 +188,21 @@ void FFTInterface::timerCallback()
         refresh();
     }
     
+    
+    else if(whatIsChanged_ID==winHann_ID)
+    {
+        if(wWindowBut.getToggleState())
+        {
+            calculator_FFT->isWindowed = true;
+            calculator_FFT->mixedRadix_FFT.setWindowing(true);
+        }
+        else
+        {
+            calculator_FFT->isWindowed = false;
+            calculator_FFT->mixedRadix_FFT.setWindowing(false);
+        }
+        refresh();
+    }
 }
 
 
@@ -209,10 +238,13 @@ void FFTInterface::resized                  ()
 
     filterSetLowEnd.setBounds            (200, 87, 70, 50);
     filterSetTopEnd.setBounds            (290, 87, 70, 50);
-    filtersDescript.setBounds            (185, 135, 210, 25);
+    filtersDescript.setBounds            (175, 135, 210, 25);
     
-    setPhase.setBounds                   (390, (getHeight()/2)-50, 90, 90);
-//    winHann.setBounds                    (410, getHeight()-33, 55, 25);
+    setPhase.setBounds                   (390, (getHeight()/2)-55, 80, 80);
+    wWindowBut.setBounds                    (385, getHeight()-50, 90, 50);
+    
+    alreadyWindow.setColour              (Label::textColourId, Colours::red);
+    alreadyWindow.setBounds              (380, getHeight()-50, 100, 60);
 
 
     matrixDividerEditBox.setBounds       (200, 3, 30, 25);
@@ -230,6 +262,9 @@ void FFTInterface::resized                  ()
 //    selectRegDFT.changeWidthToFitText();
     
     wInverseFFT.setBounds                (85, 125, 80, 30);
+    
+    alreadyInversed.setColour            (Label::textColourId, Colours::red);
+    alreadyInversed.setBounds            (65, 110, 125, 60);
 }
 
 
@@ -382,13 +417,17 @@ void FFTInterface::updateToggleState        (Button* button, int fftIdentifier)
             oscillator->selectWave(0);
             calculator_FFT->selectFFT(0);
             whatIsChanged_ID = wInverse_ID;
+            rememberInvWasClicked = wInverseFFT.getToggleState();
             startTimer(ceil((calculator_FFT->timeElapsed/1000.0f)*10.0f));
             break;
             
-        case 5:
-//            rememberedWaveType=oscillator->getWaveType();
-//            oscillator->selectWave(0);
-//            calculator_FFT->selectFFT(0);
+        case 5: // WINDOWING & OVERLAPING
+            rememberedWaveType=oscillator->getWaveType();
+            oscillator->selectWave(0);
+            calculator_FFT->selectFFT(0);
+            whatIsChanged_ID = winHann_ID;
+            remembereWinWasClicked=wWindowBut.getToggleState();
+            startTimer(ceil((calculator_FFT->timeElapsed/1000.0f)*10.0f));
 //            setWindowing();
             break;
             
@@ -466,6 +505,9 @@ void FFTInterface::setOFF_fft               ()
     matrixSizeInfo.setVisible(false);
     matrixDividerEditDescript.setVisible(false);
     selectMatrixFFT.setToggleState(false, NotificationType::dontSendNotification);
+    alreadyInversed.setVisible(false);
+    alreadyWindow.setVisible(false);
+    wWindowBut.setVisible(false);
     
 /*
     selectRadix2FFT.setToggleState(false, NotificationType::dontSendNotification);
@@ -498,7 +540,7 @@ void FFTInterface::setON_matrixfft          ()
         addAndMakeVisible(&filterSetLowEnd);
         addAndMakeVisible(&filterSetTopEnd);
         addAndMakeVisible(&filtersDescript);
-        filtersDescript.setText("Works only with Pitch Shift", dontSendNotification);
+        filtersDescript.setText("Works only with windowing", dontSendNotification);
         
         addAndMakeVisible(&matrixDividerEdit);
         addAndMakeVisible(&matrixSizeInfo);
@@ -630,18 +672,21 @@ void FFTInterface::setInverse_fft           ()
 {
     if(wInverseFFT.getToggleState())
     {
-//        addAndMakeVisible(&winHann);
-        addAndMakeVisible(&setPhase);
+        wWindowBut.setVisible(true);
+        setPhase.setVisible(true);
         calculator_FFT->isForward = false;
         graphAnalyser->isForward = false;
+        alreadyWindow.setVisible(false);
+        alreadyWindow.setVisible(false);
     }
     else
     {
-//        winHann.setVisible(false);
+        wWindowBut.setVisible(false);
         setPhase.setVisible(false);
-        
         calculator_FFT->isForward = true;
         graphAnalyser->isForward = true;
+        alreadyWindow.setVisible(false);
+        alreadyWindow.setVisible(false);
     }
 
     refresh();

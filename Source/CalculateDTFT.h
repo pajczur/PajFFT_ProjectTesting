@@ -47,7 +47,8 @@ public:
 //    PajDFT            regular_DFT;
 //    PajDFT            regular_IDFT;
 
-    void smbPitchShift2(float pitchShift, long numSampsToProcess, long fftFrameSize, long osamp, float sampleRate, std::vector<std::complex<float>> indata, std::vector<float> &outdata);
+    void smbPitchShift(float pitchShift, long fftFrameSize, long osamp, float sampleRate, std::vector<std::complex<float>> indata, std::vector<float> &outdata);
+    void makeFFT_WindowOverlap(long fftFrameSize, long osamp, float sampleRate, std::vector<std::complex<float>> indata, std::vector<float> &outdata);
     
     bool dataIsReadyToFFT;
     bool isForward;
@@ -84,6 +85,7 @@ private:
     
     float timeElapsed=0.0f;
     float wPitchShift;
+    bool isWindowed;
     
     int indeX;
     
@@ -99,7 +101,7 @@ private:
     float gLastPhase[MAX_FRAME_LENGTH/2+1];
     float gSumPhase[MAX_FRAME_LENGTH/2+1];
 //    float gOutputAccum[2*MAX_FRAME_LENGTH];
-float gOutputAccum[MAX_FRAME_LENGTH];
+    float gOutputAccum[MAX_FRAME_LENGTH];
     float gAnaFreq[MAX_FRAME_LENGTH];
     float gAnaMagn[MAX_FRAME_LENGTH];
     float gSynFreq[MAX_FRAME_LENGTH];

@@ -13,6 +13,7 @@
 		087A2984A5151302215AB920 /* include_juce_gui_basics.mm in Sources */ = {isa = PBXBuildFile; fileRef = DC14102204CEEF14EF7F12D9 /* include_juce_gui_basics.mm */; };
 		1C4B9F76E2A0085D3B571869 /* PajFFT_MixedRadix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 02E96FA25D442C6C6C0C165C /* PajFFT_MixedRadix.cpp */; };
 		1CE314EAD4206C669D36463A /* Display_Logarithmic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6A5644C33E73525BD5A4E54D /* Display_Logarithmic.cpp */; };
+		1E38AA3346F3E7DE5CA9FF3B /* PajFFT_HandyFunc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E7B4B9B2178858069315C4EC /* PajFFT_HandyFunc.cpp */; };
 		1F31F519160631E9D391AB52 /* include_juce_audio_processors.mm in Sources */ = {isa = PBXBuildFile; fileRef = C067867018CE46454AD23569 /* include_juce_audio_processors.mm */; };
 		21CB3E0C4521485A0A780F3A /* RecentFilesMenuTemplate.nib in Resources */ = {isa = PBXBuildFile; fileRef = 15234066DB5D277215FFEAD2 /* RecentFilesMenuTemplate.nib */; };
 		272DCFA7F57A4FA1B6766641 /* include_juce_audio_utils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 32FDAE8049881EBCD5FA3EAA /* include_juce_audio_utils.mm */; };
@@ -125,7 +126,9 @@
 		DAC55AFF5A313DAE60BDF388 /* JuceHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = JuceHeader.h; path = ../../JuceLibraryCode/JuceHeader.h; sourceTree = SOURCE_ROOT; };
 		DC14102204CEEF14EF7F12D9 /* include_juce_gui_basics.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_gui_basics.mm; path = ../../JuceLibraryCode/include_juce_gui_basics.mm; sourceTree = SOURCE_ROOT; };
 		E58231C933D15AA40B924922 /* include_juce_data_structures.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_data_structures.mm; path = ../../JuceLibraryCode/include_juce_data_structures.mm; sourceTree = SOURCE_ROOT; };
+		E7B4B9B2178858069315C4EC /* PajFFT_HandyFunc.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = PajFFT_HandyFunc.cpp; path = ../../Source/PajFFT/PajFFT_HandyFunc.cpp; sourceTree = SOURCE_ROOT; };
 		EB371E4B37BFDCC6A9D7D9C7 /* AppConfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AppConfig.h; path = ../../JuceLibraryCode/AppConfig.h; sourceTree = SOURCE_ROOT; };
+		EE40528FAA4FE3D88CFA3363 /* PajFFT_HandyFunc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PajFFT_HandyFunc.h; path = ../../Source/PajFFT/PajFFT_HandyFunc.h; sourceTree = SOURCE_ROOT; };
 		F6B38E895559C93504509604 /* PajDFT.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PajDFT.h; path = ../../Source/PajFFT/PajDFT.h; sourceTree = SOURCE_ROOT; };
 		FAFFB31B75F9D3CBD49C0933 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
 		FF4DDEAE52D083EF3E3C2C32 /* CalculateDTFT.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CalculateDTFT.h; path = ../../Source/CalculateDTFT.h; sourceTree = SOURCE_ROOT; };
@@ -176,6 +179,8 @@
 				0D44411A9C3A0CE3A676ADD4 /* PajFFT_MixedRadix.h */,
 				97D0647E425D80F311DB0FF8 /* PajFFT_Radix2.cpp */,
 				0FBC5EBF14293C9DEE8D8644 /* PajFFT_Radix2.h */,
+				E7B4B9B2178858069315C4EC /* PajFFT_HandyFunc.cpp */,
+				EE40528FAA4FE3D88CFA3363 /* PajFFT_HandyFunc.h */,
 			);
 			name = PajFFT;
 			sourceTree = "<group>";
@@ -390,6 +395,7 @@
 				E13CEC1048837E3532B04E1E /* PajFFT_fRange.cpp in Sources */,
 				1C4B9F76E2A0085D3B571869 /* PajFFT_MixedRadix.cpp in Sources */,
 				6B92C1049DDA8C40D918A5A8 /* PajFFT_Radix2.cpp in Sources */,
+				1E38AA3346F3E7DE5CA9FF3B /* PajFFT_HandyFunc.cpp in Sources */,
 				44F47A6D8AD27F2061585CFE /* Main.cpp in Sources */,
 				E190EEEA34B97E179770C642 /* MainComponent.cpp in Sources */,
 				A86CB56F670DE1090DF2D530 /* FFTInterface.cpp in Sources */,

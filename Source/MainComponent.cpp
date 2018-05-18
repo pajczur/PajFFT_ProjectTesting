@@ -13,6 +13,7 @@
 //==============================================================================
 MainComponent::MainComponent() : fftInterface(this)
 {
+    
     setSize (1000, 600);
     fPi = 4.0 * atan(1.0);
     fftOutputIndex = 0;
@@ -74,6 +75,7 @@ MainComponent::MainComponent() : fftInterface(this)
     startTimer(1000);
     
     // specify the number of input and output channels that we want to open
+    
     setAudioChannels (1, 1);
 }
 
@@ -115,11 +117,33 @@ void MainComponent::updateToggleState(Button* button, int buttonID)
             if(pitchShiftON.getToggleState())
             {
                 calculator_FFT.mixedRadix_FFT.setWindowing(true);
+                
+                fftInterface.wInverseFFT.setToggleState(true, dontSendNotification);
+                fftInterface.setInverse_fft();
+                fftInterface.wInverseFFT.setBounds(85+2000, 125+2000, 80, 30);
+                fftInterface.alreadyInversed.setVisible(true);
+                
+                fftInterface.alreadyWindow.setVisible(true);
+                fftInterface.wWindowBut.setVisible(false);
+                
                 calculator_FFT.isPitchON = true;
             }
             else
             {
-                calculator_FFT.mixedRadix_FFT.setWindowing(false);
+                calculator_FFT.mixedRadix_FFT.setWindowing(fftInterface.remembereWinWasClicked);
+                fftInterface.alreadyWindow.setVisible(false);
+
+                fftInterface.wInverseFFT.setToggleState(fftInterface.rememberInvWasClicked, dontSendNotification);
+                fftInterface.setInverse_fft();
+
+                fftInterface.alreadyInversed.setVisible(false);
+                fftInterface.wInverseFFT.setBounds(85, 125, 80, 30);
+
+                if(fftInterface.wInverseFFT.getToggleState())
+                    fftInterface.wWindowBut.setVisible(true);
+                else
+                    fftInterface.wWindowBut.setVisible(false);
+
                 calculator_FFT.isPitchON = false;
             }
             
@@ -147,6 +171,7 @@ void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRat
     wAudioPlayer.transportSource.prepareToPlay(samplesPerBlockExpected, sampleRate);
     tempBuff.setSize(2, samplesPerBlockExpected);
     fft_defaultSettings();
+    std::cout << "buff " << samplesPerBlockExpected << std::endl;
 }
 
 void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill)
@@ -185,7 +210,7 @@ void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
     }
     else
     {
-        fftOutputIndex=0;
+//        fftOutputIndex=0;
         bufferToFill.clearActiveBufferRegion();
         return;
     }
@@ -196,9 +221,10 @@ void MainComponent::releaseResources()
 {
     wAudioPlayer.transportSource.releaseResources();
     
-    // This will be called when the audio device stops, or when it is being
-    // restarted due to a setting change.
-    // For more details, see the help for AudioProcessor::releaseResources()
+//    AudioDeviceManager::AudioDeviceSetup currentAudioSetup;
+//    deviceManager.getAudioDeviceSetup (currentAudioSetup);
+//    currentAudioSetup.bufferSize = 1024;
+//    deviceManager.setAudioDeviceSetup (currentAudioSetup, true);
 }
 
 
@@ -218,6 +244,7 @@ void MainComponent::playWaveGen(const AudioSourceChannelInfo& bufferToFill)
 void MainComponent::playInversedFFTWaveGen(const AudioSourceChannelInfo& bufferToFill)
 {
     oscillator.prepareWave(signalToFFT, bufferToFill.numSamples, bufferToFill.startSample);
+    
     if(calculator_FFT.fftType !=0)
     {
         calculator_FFT.setInputData(signalToFFT);
@@ -244,7 +271,7 @@ void MainComponent::playInversedFFTWaveGen(const AudioSourceChannelInfo& bufferT
     }
     else
     {
-        fftOutputIndex=0;
+//        fftOutputIndex=0;
         for(int sample = bufferToFill.startSample; sample<bufferToFill.buffer->getNumSamples(); sample++)
         {
             bufferToFill.buffer->addSample(0, sample, signalToFFT[sample]);

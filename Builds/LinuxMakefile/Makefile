@@ -72,6 +72,7 @@ OBJECTS_APP := \
   $(JUCE_OBJDIR)/PajFFT_fRange_70a1c310.o \
   $(JUCE_OBJDIR)/PajFFT_MixedRadix_c6590882.o \
   $(JUCE_OBJDIR)/PajFFT_Radix2_543f7fe7.o \
+  $(JUCE_OBJDIR)/PajFFT_HandyFunc_338ea57f.o \
   $(JUCE_OBJDIR)/Main_90ebc5c2.o \
   $(JUCE_OBJDIR)/MainComponent_a6ffb4a5.o \
   $(JUCE_OBJDIR)/FFTInterface_6c7425ee.o \
@@ -127,6 +128,11 @@ $(JUCE_OBJDIR)/PajFFT_MixedRadix_c6590882.o: ../../Source/PajFFT/PajFFT_MixedRad
 $(JUCE_OBJDIR)/PajFFT_Radix2_543f7fe7.o: ../../Source/PajFFT/PajFFT_Radix2.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
 	@echo "Compiling PajFFT_Radix2.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/PajFFT_HandyFunc_338ea57f.o: ../../Source/PajFFT/PajFFT_HandyFunc.cpp
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling PajFFT_HandyFunc.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/Main_90ebc5c2.o: ../../Source/Main.cpp
