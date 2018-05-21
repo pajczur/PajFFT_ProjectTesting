@@ -36,6 +36,7 @@ public:
 
     void fftCalc();
     
+    void defineDeviceBuffSize(long dev_buf_size);
     void setNewBufSize(double new_buf_size);
     void setRadix2BuffSize(double buf_size);
     void setSampleRate(float sampR);
@@ -59,6 +60,7 @@ public:
     
     double newBufferSize;
 private:
+    long deviceBuffSize;
     double radix2BuffSize;
 
 private:
@@ -68,6 +70,8 @@ private:
     int fftType=0;
     
     std::vector<float>               outRealMixed;
+    std::vector<float>               wOutput;
+    std::vector<float>               tempOutput;
     std::vector<float>               outRealRadix2;
     std::vector<float>               outRealDFT;
     
@@ -87,7 +91,10 @@ private:
     float wPitchShift;
     bool isWindowed;
     
-    int indeX;
+    long indexFFToutSize;
+    long indexDEVbufSize;
+    long dupa;
+    bool dupex;
     
     
     // ===================== //

@@ -19,7 +19,9 @@ CalculateDTFT::CalculateDTFT()
     fftType = 0;
     isPitchON = false;
     wPitchShift = 1.0f;
-    indeX = 0;
+    indexFFToutSize = 0;
+    indexDEVbufSize = 0;
+    dupex=false;
 }
 
 CalculateDTFT::~CalculateDTFT()
@@ -28,33 +30,80 @@ CalculateDTFT::~CalculateDTFT()
 
 void CalculateDTFT::setInputData(AudioBuffer<float> &inp)
 {
-    for(int i=0; i<inp.getNumSamples(); i++)
+    if(tempOutput.size()>dupa)
+        dupex=true;
+    
+    for(int i=0; i<deviceBuffSize; i++)
     {
-        inputDataC[indeX] = inp.getSample(0, i);
-        indeX++;
+        inputDataC[indexFFToutSize] = inp.getSample(0, i);
+        indexFFToutSize++;
 
-        if(indeX >= (fftType!=2 ? newBufferSize : radix2BuffSize) )
+        if(indexFFToutSize >= (fftType!=2 ? newBufferSize : radix2BuffSize) )
         {
-            indeX = 0;
             fftCalc();
+            
+            for(int z=0; z<newBufferSize; z++)
+            {
+                tempOutput.push_back(outRealMixed[z]);
+            }
+            
+            indexFFToutSize = 0;
+        }
+        
+        if(dupex)
+        {
+            wOutput[i] = tempOutput[0];
+            tempOutput.erase(tempOutput.begin());
         }
     }
+    
+//    if(dupex)
+//    {
+//        for(int p=0; p<deviceBuffSize; p++)
+//        {
+//            wOutput[p] = tempOutput[p];
+//        }
+//        tempOutput.erase(tempOutput.begin(), tempOutput.begin()+deviceBuffSize);
+//    }
 }
 
 void CalculateDTFT::setInputData(std::vector<float> &inp)
 {
-    for(int i=0; i<inp.size(); i++)
+    if(tempOutput.size()>dupa)
+        dupex=true;
+    
+    for(int i=0; i<deviceBuffSize; i++)
     {
-        inputDataC[indeX] = inp[i];
-        indeX++;
+        inputDataC[indexFFToutSize] = inp[i];
+        indexFFToutSize++;
 
-        if(indeX >= (fftType!=2 ? newBufferSize : radix2BuffSize) )
+        if(indexFFToutSize >= (fftType!=2 ? newBufferSize : radix2BuffSize) )
         {
-            indeX = 0;
             fftCalc();
+            
+            for(int z=0; z<newBufferSize; z++)
+            {
+                tempOutput.push_back(outRealMixed[z]);
+            }
+            
+            indexFFToutSize = 0;
         }
         
+        if(dupex)
+        {
+            wOutput[i] = tempOutput[0];
+            tempOutput.erase(tempOutput.begin());
+        }
     }
+    
+//    if(dupex)
+//    {
+//        for(int p=0; p<deviceBuffSize; p++)
+//        {
+//            wOutput[p] = tempOutput[p];
+//        }
+//        tempOutput.erase(tempOutput.begin(), tempOutput.begin()+deviceBuffSize);
+//    }
 }
 
 void CalculateDTFT::setOutputData(std::vector<float> &outp)
@@ -90,7 +139,6 @@ void CalculateDTFT::fftCalc()
                         if(isWindowed)
                         {
                             makeFFT_WindowOverlap(newBufferSize, 4, 44100.0f, inputDataC, outRealMixed);
-//                    std::cout << "aaa " << mixedRadix_FFT.getTopEnd() << std::endl;
 //                            smbPitchShift(wPitchShift, newBufferSize, 4, 44100.0f, inputDataC, outRealMixed);
                         }
                         else
@@ -138,6 +186,12 @@ void CalculateDTFT::fftCalc()
     }
 }
 
+void CalculateDTFT::defineDeviceBuffSize(long dev_buf_size)
+{
+    deviceBuffSize = dev_buf_size;
+    tempOutput.clear();
+}
+
 void CalculateDTFT::setNewBufSize(double new_buf_size)
 {
     newBufferSize = new_buf_size;
@@ -155,16 +209,29 @@ void CalculateDTFT::selectFFT(int identifier)
 
 void CalculateDTFT::resetOutputData()
 {
-    indeX=0;
+    indexDEVbufSize=0;
+    indexFFToutSize=0;
     outCompMixed.resize(newBufferSize);
     inputDataC.resize(newBufferSize);
     outRealMixed.resize(newBufferSize);
+    
     for(int i=0; i<newBufferSize; i++)
     {
 //        inputData[i] = 0.0f;
         inputDataC[i] = 0.0f;
         outRealMixed[i] = 0.0f;
     }
+    
+    dupa = (ceil(newBufferSize/deviceBuffSize))*deviceBuffSize;
+    dupex = false;
+    wOutput.resize(deviceBuffSize);
+
+
+    for(int i=0; i<wOutput.size(); i++)
+    {
+        wOutput[i] = 0.0f;
+    }
+    
     
     
     gInFIFO.resize(MAX_FRAME_LENGTH);

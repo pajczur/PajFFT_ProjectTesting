@@ -71,7 +71,7 @@ private:
     AudioPlayer wAudioPlayer;
     
     double wSampleRate;
-    double wBufferSize;
+    double deviceBufferSize;
     
     ToggleButton selectFreqDisp;
     ToggleButton selectTimeDisp;

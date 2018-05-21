@@ -121,23 +121,23 @@ void MainComponent::updateToggleState(Button* button, int buttonID)
                 fftInterface.wInverseFFT.setToggleState(true, dontSendNotification);
                 fftInterface.setInverse_fft();
                 fftInterface.wInverseFFT.setBounds(85+2000, 125+2000, 80, 30);
+                
                 fftInterface.alreadyInversed.setVisible(true);
-                
                 fftInterface.alreadyWindow.setVisible(true);
-                fftInterface.wWindowBut.setVisible(false);
                 
+                fftInterface.wWindowBut.setVisible(false);
                 calculator_FFT.isPitchON = true;
             }
             else
             {
                 calculator_FFT.mixedRadix_FFT.setWindowing(fftInterface.remembereWinWasClicked);
-                fftInterface.alreadyWindow.setVisible(false);
 
                 fftInterface.wInverseFFT.setToggleState(fftInterface.rememberInvWasClicked, dontSendNotification);
                 fftInterface.setInverse_fft();
+                fftInterface.wInverseFFT.setBounds(85, 125, 80, 30);
 
                 fftInterface.alreadyInversed.setVisible(false);
-                fftInterface.wInverseFFT.setBounds(85, 125, 80, 30);
+                fftInterface.alreadyWindow.setVisible(false);
 
                 if(fftInterface.wInverseFFT.getToggleState())
                     fftInterface.wWindowBut.setVisible(true);
@@ -167,11 +167,10 @@ void MainComponent::sliderValueChanged (Slider *slider)
 void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRate)
 {
     wSampleRate = sampleRate;
-    wBufferSize = samplesPerBlockExpected;
+    deviceBufferSize = samplesPerBlockExpected;
     wAudioPlayer.transportSource.prepareToPlay(samplesPerBlockExpected, sampleRate);
     tempBuff.setSize(2, samplesPerBlockExpected);
     fft_defaultSettings();
-    std::cout << "buff " << samplesPerBlockExpected << std::endl;
 }
 
 void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill)
@@ -210,7 +209,7 @@ void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
     }
     else
     {
-//        fftOutputIndex=0;
+        fftOutputIndex=0;
         bufferToFill.clearActiveBufferRegion();
         return;
     }
@@ -238,46 +237,40 @@ void MainComponent::playWaveGen(const AudioSourceChannelInfo& bufferToFill)
     {
         calculator_FFT.setInputData(*bufferToFill.buffer);
     }
-    
 }
 
 void MainComponent::playInversedFFTWaveGen(const AudioSourceChannelInfo& bufferToFill)
 {
-    oscillator.prepareWave(signalToFFT, bufferToFill.numSamples, bufferToFill.startSample);
-    
     if(calculator_FFT.fftType !=0)
     {
+        oscillator.prepareWave(signalToFFT, bufferToFill.numSamples, bufferToFill.startSample);
         calculator_FFT.setInputData(signalToFFT);
         
         for(int sample = bufferToFill.startSample; sample<bufferToFill.buffer->getNumSamples(); sample++)
         {
             float windowing;
             
-            if(fftOutputIndex < calculator_FFT.newBufferSize)
-            {
-                fftOutputIndex++;
-            }
-            else
-            {
-                fftOutputIndex = 1;
-            }
+//            if(fftOutputIndex < calculator_FFT.newBufferSize)
+//            {
+//                fftOutputIndex++;
+//            }
+//            else
+//            {
+//                fftOutputIndex = 1;
+//            }
+//            windowing = calculator_FFT.outRealMixed[fftOutputIndex-1];
+//            windowing = calculator_FFT.wOutput[fftOutputIndex-1];
             
-//            std::cout << sample << "    " << fftOutputIndex-1 << std::endl;
-            
-            windowing = calculator_FFT.outRealMixed[fftOutputIndex-1];
+            windowing = calculator_FFT.wOutput[sample];
             
             bufferToFill.buffer->addSample(0, sample, windowing);
         }
     }
     else
     {
-//        fftOutputIndex=0;
-        for(int sample = bufferToFill.startSample; sample<bufferToFill.buffer->getNumSamples(); sample++)
-        {
-            bufferToFill.buffer->addSample(0, sample, signalToFFT[sample]);
-        }
+        fftOutputIndex=0;
+        oscillator.playWave(*bufferToFill.buffer, bufferToFill.numSamples, bufferToFill.startSample);
     }
-    
 }
 
 void MainComponent::playIAudioFile(const AudioSourceChannelInfo& bufferToFill)
@@ -291,33 +284,39 @@ void MainComponent::playIAudioFile(const AudioSourceChannelInfo& bufferToFill)
 
 void MainComponent::playInversedFFTAudioFile(const AudioSourceChannelInfo& bufferToFill)
 {
-    const AudioSourceChannelInfo tempAudioSource(&tempBuff, bufferToFill.startSample, bufferToFill.numSamples);
-    
-    wAudioPlayer.transportSource.getNextAudioBlock (tempAudioSource);
 
     
     if(calculator_FFT.fftType !=0)
     {
+        const AudioSourceChannelInfo tempAudioSource(&tempBuff, bufferToFill.startSample, bufferToFill.numSamples);
+        wAudioPlayer.transportSource.getNextAudioBlock (tempAudioSource);
+        
         calculator_FFT.setInputData(*tempAudioSource.buffer);
+        
+        for(int sample = bufferToFill.startSample; sample<bufferToFill.buffer->getNumSamples(); sample++)
+        {
+            float windowing;
+            
+//            if(fftOutputIndex < calculator_FFT.newBufferSize)
+//            {
+//                fftOutputIndex++;
+//            }
+//            else
+//            {
+//                fftOutputIndex = 1;
+//            }
+//            windowing = calculator_FFT.outRealMixed[fftOutputIndex-1];
+            
+            windowing = calculator_FFT.wOutput[sample];
+            bufferToFill.buffer->addSample(0, sample, windowing);
+        }
+    }
+    else
+    {
+        fftOutputIndex=0;
+        wAudioPlayer.transportSource.getNextAudioBlock (bufferToFill);
     }
     
-    for(int sample = bufferToFill.startSample; sample<bufferToFill.buffer->getNumSamples(); sample++)
-    {
-        float windowing;
-
-        if(fftOutputIndex < calculator_FFT.newBufferSize)
-        {
-            fftOutputIndex++;
-        }
-        else
-        {
-            fftOutputIndex = 1;
-        }
-
-        windowing = calculator_FFT.outRealMixed[fftOutputIndex-1];
-
-        bufferToFill.buffer->addSample(0, sample, windowing);
-    }
 }
 
 void MainComponent::calculateTime()
@@ -371,7 +370,7 @@ void MainComponent::resized()
 void MainComponent::fft_defaultSettings()
 {
     fftInterface.setSampleRate(wSampleRate);
-    fftInterface.rememberedBuffer = wBufferSize;
+    fftInterface.rememberedBuffer = deviceBufferSize;
     
     oscillator.setSampleRate(wSampleRate);
     oscillator.selectWave(0);
@@ -385,16 +384,17 @@ void MainComponent::fft_defaultSettings()
     display_linear.setSampRate(wSampleRate);
     display_linear.repaint();
     
-    calculator_FFT.setNewBufSize(wBufferSize);
+    calculator_FFT.defineDeviceBuffSize((long)deviceBufferSize);
+    calculator_FFT.setNewBufSize(deviceBufferSize);
     calculator_FFT.setSampleRate(wSampleRate);
-    calculator_FFT.mixedRadix_FFT.wSettings(wSampleRate, wBufferSize);
+    calculator_FFT.mixedRadix_FFT.wSettings(wSampleRate, deviceBufferSize);
     
 //    calculator_FFT.radix2_FFT.wSettings(wSampleRate, wBufferSize, calculator_FFT.outRealRadix2, true);
-    calculator_FFT.setRadix2BuffSize(wBufferSize);
+    calculator_FFT.setRadix2BuffSize(deviceBufferSize);
     
 //    calculator_FFT.regular_DFT.wSettings(wSampleRate, wBufferSize, calculator_FFT.outRealDFT, true);
     graphAnalyser.setSampleRate(wSampleRate);
-    graphAnalyser.setNewBufSize(wBufferSize);
+    graphAnalyser.setNewBufSize(deviceBufferSize);
     
     graphAnalyser.setFFT_DataSource(calculator_FFT);
 }

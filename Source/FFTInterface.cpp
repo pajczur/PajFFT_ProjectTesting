@@ -535,7 +535,16 @@ void FFTInterface::setON_matrixfft          ()
         
         addAndMakeVisible(&wInverseFFT);
         if(wInverseFFT.getToggleState())
-            addAndMakeVisible(&setPhase);
+        {
+            setPhase.setVisible(true);
+            wWindowBut.setVisible(true);
+        }
+        if(calculator_FFT->isPitchON)
+        {
+            alreadyWindow.setVisible(true);
+            alreadyInversed.setVisible(true);
+            wWindowBut.setVisible(false);
+        }
         
         addAndMakeVisible(&filterSetLowEnd);
         addAndMakeVisible(&filterSetTopEnd);

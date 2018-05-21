@@ -38,6 +38,8 @@ public:
     void drawLogarGraph3();
     void clearDisplay();
     
+    double f_weighting(int freqIndex);
+    double a_weighting(int freqIndex);
 
 private:
     Path fftGraph;
@@ -63,6 +65,19 @@ private:
     float timeStart;
     float timeEnd;
     float linearDivider;
+    
+    
+    // F-Weighting
+    double gg;
+    double zz1;
+    double zz2;
+    double zz3;
+    double pp1;
+    double pp2;
+    double pp3;
+    double pp4;
+    
+    int fff=0;
     
 public:
     bool isForward;
