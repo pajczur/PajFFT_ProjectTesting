@@ -38,8 +38,9 @@ public:
     void drawLogarGraph3();
     void clearDisplay();
     
-    double f_weighting(int freqIndex);
+    double wDecibels  (double linearMag, int freqIndex);
     double a_weighting(int freqIndex);
+    double d_weighting(int freqIndex);
 
 private:
     Path fftGraph;

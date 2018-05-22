@@ -95,42 +95,32 @@ void GraphAnalyser::drawLinearGraph()
 
 void GraphAnalyser::drawLogarGraph3()
 {
-    double logaa;
-    double kkk= 0.0;
-    
-    if(dataSource->outRealMixed[low_End_index] <= 0.016)
-        logaa = 0.0;
-    else
-        logaa = (   ( /*a_weighting(low_End_index) */ 20.0 * log10(dataSource->outRealMixed[low_End_index]))       +36.0 )  /36.0;
-    
-//    fftGraph.startNewSubPath(0, -(dataSource->outRealMixed[low_End_index] * zero_dB) + zero_dB);
-    fftGraph.startNewSubPath(0, -(dataSource->outRealMixed[low_End_index] * zero_dB) + zero_dB);
+    float linearMagnitude=dataSource->outRealMixed[low_End_index];
 
-    float tempCurr=0.0;
+    fftGraph.startNewSubPath(0, wDecibels(linearMagnitude, low_End_index) );
+
 
     for(float i=low_End_index+1.0f; i<=buffNyquist; i++)
     {
-        kkk++;
         double wBefore    = dispLogScale * (log10((i-1.0)*logScaleWidth1) - log10(low_End));
         double wCurrent   = dispLogScale * (log10((i-0.0)*logScaleWidth1) - log10(low_End));
 
-        if(dataSource->outRealMixed[i] <= 0.016)
-            logaa = 0.0;
-        else
-            logaa = (   ( /*a_weighting(i)*/ 20.0 * log10(dataSource->outRealMixed[i]))       +36.0 )  /36.0;
-        
-//        tempCurr+=(dataSource->outRealMixed[i] * (dupsko==0.0 ? 1.0 : dupsko));
-        tempCurr+=( logaa  );
+        if(linearMagnitude<=dataSource->outRealMixed[i])
+            linearMagnitude =  dataSource->outRealMixed[i];
 
         if(round(wCurrent) != round(wBefore))
         {
-            fftGraph.lineTo(wCurrent, -(tempCurr * zero_dB * 0.75/kkk) + zero_dB);
-
-            tempCurr=0.0;
-            kkk=0.0;
+            fftGraph.lineTo(wCurrent, wDecibels(linearMagnitude, i) );
+            linearMagnitude=0.0;
         }
     }
 }
+
+
+
+
+
+
 
 void GraphAnalyser::setSampleRate(double sample_rate)
 {
@@ -198,33 +188,45 @@ void GraphAnalyser::clearDisplay()
 }
 
 
-double GraphAnalyser::f_weighting(int freqIndex)
-{
-    double iTof = (double)freqIndex * 22.049 / (double)buffNyquist;
-    double z1 = pow(iTof, 2.0);
-    double z2 = pow(pow(0.58, 2.0) + pow(1.03, 2.0) - z1, 2.0) + 4*pow(0.58, 2.0)*z1;
-    double z3 = pow(pow(3.18, 2.0) + pow(8.75, 2.0) - z1, 2.0) + 4*pow(3.18, 2.0)*z1;
-    double p1 = pow(0.18, 2.0) + z1;
-    double p2 = pow(1.63, 2.0) + z1;
-    double p3 = pow(pow(2.51, 2.0) + pow(3.85, 2.0) - z1, 2.0) + 4*pow(2.51, 2.0)*z1;
-    double p4 = pow(pow(6.62, 2.0) + pow(14.29,2.0) - z1, 2.0) + 4*pow(6.62, 2.0)*z1;
-
-    double dupsko = ( gg * pow(z1, 3.0)*z2*pow(z3, 3.0) / (pow(p1, 3.0) * pow(p2, 2.0) * pow(p3, 4.0))) * ( pow(pow(10.0, 5.0)/p4, 20.0) );
-    
-    return dupsko;
-}
-
 double GraphAnalyser::a_weighting(int freqIndex)
 {
-    double iTof = (double)freqIndex * 22049 / (double)buffNyquist;
+    double frInd = (double)freqIndex;
+    if(frInd<0.00026)
+        frInd = 0.00001;
+    
+    double iTof = frInd * 22050 / (double)buffNyquist;
     double f_2 = pow(iTof, 2.0);
     double z1 = pow(12194.0, 2.0);
     double z2 = f_2 + pow(20.6, 2.0);
     double z3 = pow(     (f_2 + pow(107.7, 2.0)) * (f_2 + pow(737.9, 2.0)), 0.5);
     double z4 = f_2 + pow(12194.0, 2.0);
     
-    
-    double dupsko = (z1 * f_2 * f_2) / (z2 * z3 * z4);
-    
+    double dupsko = ((log10( (z1 * f_2 * f_2) / (z2 * z3 * z4) ) * 20.0) + 2.0 + 72.0) / 72.0;
     return dupsko;
+}
+
+double GraphAnalyser::d_weighting(int freqIndex)
+{
+    double frInd = (double)freqIndex;
+    if(frInd<0.00026)
+        frInd = 0.00001;
+    
+    double iTof = frInd * 22050 / (double)buffNyquist;
+    double fr   = iTof;
+    double fr_2 = pow(fr, 2.0);
+    double z1 = 6.8966888496476 * pow(10.0, -5.0);
+    double z2 = (fr_2 + 79919.29) * (fr_2 + 1345600);
+    double hf = (pow(1037918.48 - fr_2, 2.0) + (1080768.16 * fr_2)) / ( pow(9837328 - fr_2, 2.0) + (11723776 * fr_2) );
+    
+    double dupsko = ((log10(  (fr/z1) * pow(hf/z2, 0.5) ) * 20.0) + 72.0) / 72.0;
+    return dupsko;
+}
+
+
+double GraphAnalyser::wDecibels(double linearMag, int freqIndex)
+{
+    if(linearMag <= 0.00026)
+        linearMag = 0.00001;
+    
+    return  -(0.75 * zero_dB * d_weighting(freqIndex) * (20.0*log10(linearMag) + 72.0)/72.0) + zero_dB;
 }

@@ -102,6 +102,9 @@ private:
     ToggleButton pitchShiftON;
     const int pitchShiftON_ID=3;
     
+    ToggleButton freqDisp;
+    ToggleButton waveDisp;
+    
     
     long tempp=0;
     

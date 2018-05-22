@@ -340,11 +340,11 @@ void Display_Logarithmic::paint (Graphics& g)
         }
         
         
-        g.drawText( " 12dB",   0-5, (0*_winY/4.0f)+margYTop-9,  40, 20, Justification::right);
+        g.drawText( " 24dB",   0-5, (0*_winY/4.0f)+margYTop-9,  40, 20, Justification::right);
         g.drawText( "  0dB",   0-5, (1*_winY/4.0f)+margYTop-9,  40, 20, Justification::right);
-        g.drawText( "-12dB",   0-5, (2*_winY/4.0f)+margYTop-9,  40, 20, Justification::right);
-        g.drawText( "-24dB",   0-5, (3*_winY/4.0f)+margYTop-9,  40, 20, Justification::right);
-        g.drawText( "-36dB",   0-5, (4*_winY/4.0f)+margYTop-9,  40, 20, Justification::right);
+        g.drawText( "-24dB",   0-5, (2*_winY/4.0f)+margYTop-9,  40, 20, Justification::right);
+        g.drawText( "-48dB",   0-5, (3*_winY/4.0f)+margYTop-9,  40, 20, Justification::right);
+        g.drawText( "-72dB",   0-5, (4*_winY/4.0f)+margYTop-9,  40, 20, Justification::right);
     }
 }
 

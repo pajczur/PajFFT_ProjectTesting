@@ -75,10 +75,14 @@ private:
     std::vector<float>               outRealRadix2;
     std::vector<float>               outRealDFT;
     
+    std::vector<float>               freqOutput;
+    
     std::vector<std::complex<float>> outCompMixed;
     std::vector<std::complex<float>> outCompRadix2;
     std::vector<std::complex<float>> outCompRadix22;
     std::vector<std::complex<float>> outCompDFT;
+    
+    
     
     float wSampleRate;
     

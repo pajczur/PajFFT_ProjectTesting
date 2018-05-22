@@ -56,15 +56,6 @@ void CalculateDTFT::setInputData(AudioBuffer<float> &inp)
             tempOutput.erase(tempOutput.begin());
         }
     }
-    
-//    if(dupex)
-//    {
-//        for(int p=0; p<deviceBuffSize; p++)
-//        {
-//            wOutput[p] = tempOutput[p];
-//        }
-//        tempOutput.erase(tempOutput.begin(), tempOutput.begin()+deviceBuffSize);
-//    }
 }
 
 void CalculateDTFT::setInputData(std::vector<float> &inp)
@@ -95,15 +86,6 @@ void CalculateDTFT::setInputData(std::vector<float> &inp)
             tempOutput.erase(tempOutput.begin());
         }
     }
-    
-//    if(dupex)
-//    {
-//        for(int p=0; p<deviceBuffSize; p++)
-//        {
-//            wOutput[p] = tempOutput[p];
-//        }
-//        tempOutput.erase(tempOutput.begin(), tempOutput.begin()+deviceBuffSize);
-//    }
 }
 
 void CalculateDTFT::setOutputData(std::vector<float> &outp)
@@ -133,29 +115,31 @@ void CalculateDTFT::fftCalc()
                         {
                             outRealMixed[i] = mixedRadix_FFT.freqMagnitudeCalc(inputDataC[i], i)/(newBufferSize/2);
                         }
+                        freqOutput=outRealMixed;
                     }
                     else
                     {
                         if(isWindowed)
                         {
                             makeFFT_WindowOverlap(newBufferSize, 4, 44100.0f, inputDataC, outRealMixed);
-//                            smbPitchShift(wPitchShift, newBufferSize, 4, 44100.0f, inputDataC, outRealMixed);
                         }
                         else
                         {
                             mixedRadix_FFT.makeFFT(inputDataC, inputDataC, true);
+                            for(long i=0; i<newBufferSize; i++)
+                            {
+                                freqOutput[i] = mixedRadix_FFT.freqMagnitudeCalc(inputDataC[i], i);
+                            }
                             mixedRadix_FFT.makeFFT(inputDataC, inputDataC, false);
                             for(long i=0; i<newBufferSize; i++)
                             {
-                                outRealMixed[i] = mixedRadix_FFT.waveEnvelopeCalc(inputDataC[i], i, 1);
+                                outRealMixed[i] = mixedRadix_FFT.waveEnvelopeCalc(inputDataC[i], i, 4);
                             }
                         }
                     }
                 }
                 else
                 {
-//                    std::cout << "dupex" << std::endl;
-//                    std::cout << "ccc " << mixedRadix_FFT.getTopEnd() << std::endl;
                     smbPitchShift(wPitchShift, newBufferSize, 4, 44100.0f, inputDataC, outRealMixed);
                 }
                 break;
@@ -214,12 +198,14 @@ void CalculateDTFT::resetOutputData()
     outCompMixed.resize(newBufferSize);
     inputDataC.resize(newBufferSize);
     outRealMixed.resize(newBufferSize);
+    freqOutput.resize(newBufferSize);
     
     for(int i=0; i<newBufferSize; i++)
     {
 //        inputData[i] = 0.0f;
         inputDataC[i] = 0.0f;
         outRealMixed[i] = 0.0f;
+        freqOutput[i] = 0.0f;
     }
     
     dupa = (ceil(newBufferSize/deviceBuffSize))*deviceBuffSize;
@@ -313,6 +299,7 @@ void CalculateDTFT::smbPitchShift(float pitchShift, long fftFrameSize, long osam
             for (long k = 0; k <= fftFrameSize2; k++) {
                 
                 /* compute magnitude and phase */
+                freqOutput[k] = 2.0*mixedRadix_FFT.freqMagnitudeCalc(gFFTworksp[k], k);
                 magn = 2.0*mixedRadix_FFT.freqMagnitudeCalc(gFFTworksp[k], k);
                 phase = mixedRadix_FFT.phaseCalculator(gFFTworksp[k], k);
 
