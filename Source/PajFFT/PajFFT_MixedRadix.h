@@ -112,7 +112,7 @@ private:
     std::complex<float>         twiddleCalculator        (float nXk);
 public:
     float                       freqMagnitudeCalc        (std::complex<float> fftOutput, long freqBin);
-    float                       waveEnvelopeCalc         (std::complex<float> fftOutput, long index, long overLap);
+    float                       waveEnvelopeCalc         (std::complex<float> fftOutput, long index);
     float                       phaseCalculator          (std::complex<float> fftOutput, long index);
     std::complex<float>         windowing                (std::complex<float> dataToWindowing, long index);
     float                       windowing                (float dataToWindowing, long index);

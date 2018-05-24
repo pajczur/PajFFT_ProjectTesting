@@ -29,7 +29,7 @@ CalculateDTFT::~CalculateDTFT()
 {
 }
 
-void CalculateDTFT::setInputData(AudioBuffer<float> &inp)
+void CalculateDTFT::fftCalculator(AudioBuffer<float> &inp)
 {
     if(tempOutput.size()>dupa)
         dupex=true;
@@ -37,15 +37,20 @@ void CalculateDTFT::setInputData(AudioBuffer<float> &inp)
     for(int i=0; i<deviceBuffSize; i++)
     {
         inputDataC[indexFFToutSize] = inp.getSample(0, i);
+        tempInput[indexFFToutSize] = inp.getSample(0, i);
         indexFFToutSize++;
 
         if(indexFFToutSize >= (fftType!=2 ? newBufferSize : radix2BuffSize) )
         {
+            inputData = tempInput;
             fftCalc();
             
             for(int z=0; z<newBufferSize; z++)
             {
-                tempOutput.push_back(outRealMixed[z]);
+                if(isWindowed)
+                    tempOutput.push_back(windowedBackFFTout[z]);
+                else
+                    tempOutput.push_back(backFFTout[z]);
             }
             
             indexFFToutSize = 0;
@@ -59,7 +64,7 @@ void CalculateDTFT::setInputData(AudioBuffer<float> &inp)
     }
 }
 
-void CalculateDTFT::setInputData(std::vector<float> &inp)
+void CalculateDTFT::fftCalculator(std::vector<float> &inp)
 {
     if(tempOutput.size()>dupa)
         dupex=true;
@@ -67,15 +72,20 @@ void CalculateDTFT::setInputData(std::vector<float> &inp)
     for(int i=0; i<deviceBuffSize; i++)
     {
         inputDataC[indexFFToutSize] = inp[i];
+        tempInput[indexFFToutSize] = inp[i];
         indexFFToutSize++;
 
         if(indexFFToutSize >= (fftType!=2 ? newBufferSize : radix2BuffSize) )
         {
+            inputData = tempInput;
             fftCalc();
             
             for(int z=0; z<newBufferSize; z++)
             {
-                tempOutput.push_back(outRealMixed[z]);
+                if(isWindowed)
+                    tempOutput.push_back(windowedBackFFTout[z]);
+                else
+                    tempOutput.push_back(backFFTout[z]);
             }
             
             indexFFToutSize = 0;
@@ -89,8 +99,19 @@ void CalculateDTFT::setInputData(std::vector<float> &inp)
     }
 }
 
-void CalculateDTFT::setOutputData(std::vector<float> &outp)
+void CalculateDTFT::getInputData(AudioBuffer<float> &inp)
 {
+    for(int i=0; i<deviceBuffSize; i++)
+    {
+        tempInput[indexFFToutSize] = inp.getSample(0, i);
+        indexFFToutSize++;
+        
+        if(indexFFToutSize >= (fftType!=2 ? newBufferSize : radix2BuffSize) )
+        {
+            inputData = tempInput;
+            indexFFToutSize = 0;
+        }
+    }
     
 }
 
@@ -108,40 +129,24 @@ void CalculateDTFT::fftCalc()
             case 1:
                 if(!isPitchON)
                 {
-//                    std::cout << "dup" << std::endl;
                     if(isForward)
-                    {
-                        mixedRadix_FFT.makeFFT(inputDataC, inputDataC, true);
-                        for(long i=0; i<newBufferSize/2; i++)
-                        {
-                            outRealMixed[i] = mixedRadix_FFT.freqMagnitudeCalc(inputDataC[i], i)/(newBufferSize/2);
-                        }
-                        freqOutput=outRealMixed;
-                    }
+                        mixedRadix_FFT.makeFFT(inputDataC, forwFFTout, true);
                     else
-                    {
                         if(isWindowed)
-                        {
-                            makeFFT_WindowOverlap(newBufferSize, 4, 44100.0f, inputDataC, outRealMixed);
-                        }
+                            makeFFT_WindowOverlap(newBufferSize, 4, 44100.0f, inputDataC, windowedBackFFTout);
                         else
                         {
-                            mixedRadix_FFT.makeFFT(inputDataC, inputDataC, true);
+                            mixedRadix_FFT.makeFFT(inputDataC, forwFFTout, true);
+                            mixedRadix_FFT.makeFFT(forwFFTout, inputDataC, false);
                             for(long i=0; i<newBufferSize; i++)
                             {
-                                freqOutput[i] = mixedRadix_FFT.freqMagnitudeCalc(inputDataC[i], i);
-                            }
-                            mixedRadix_FFT.makeFFT(inputDataC, inputDataC, false);
-                            for(long i=0; i<newBufferSize; i++)
-                            {
-                                outRealMixed[i] = mixedRadix_FFT.waveEnvelopeCalc(inputDataC[i], i, 4);
+                                backFFTout[i] = mixedRadix_FFT.waveEnvelopeCalc(inputDataC[i], i);
                             }
                         }
-                    }
                 }
                 else
                 {
-                    smbPitchShift(wPitchShift, newBufferSize, 4, 44100.0f, inputDataC, outRealMixed);
+                    smbPitchShift(wPitchShift, newBufferSize, 4, 44100.0f, inputDataC, windowedBackFFTout);
                 }
                 break;
                 
@@ -198,15 +203,22 @@ void CalculateDTFT::resetOutputData()
     indexFFToutSize=0;
     outCompMixed.resize(newBufferSize);
     inputDataC.resize(newBufferSize);
-    outRealMixed.resize(newBufferSize);
+    inputData.resize(newBufferSize);
+    windowedBackFFTout.resize(newBufferSize);
+    backFFTout.resize(newBufferSize);
+    forwFFTout.resize(newBufferSize);
     freqOutput.resize(newBufferSize);
+    tempInput.resize(newBufferSize);
     
     for(int i=0; i<newBufferSize; i++)
     {
-//        inputData[i] = 0.0f;
+        inputData[i] = 0.0f;
         inputDataC[i] = 0.0f;
-        outRealMixed[i] = 0.0f;
+        windowedBackFFTout[i] = 0.0f;
+        backFFTout[i] = 0.0f;
+        forwFFTout[i] = 0.0f;
         freqOutput[i] = 0.0f;
+        tempInput[i] = 0.0f;
     }
     
     dupa = (ceil(newBufferSize/deviceBuffSize))*deviceBuffSize;
@@ -294,15 +306,14 @@ void CalculateDTFT::smbPitchShift(float pitchShift, long fftFrameSize, long osam
             
             /* ***************** ANALYSIS ******************* */
             /* do transform */
-            mixedRadix_FFT.makeFFT(gFFTworksp, gFFTworksp, true);
+            mixedRadix_FFT.makeFFT(gFFTworksp, forwFFTout, true);
             
             /* this is the analysis step */
             for (long k = 0; k <= fftFrameSize2; k++) {
                 
                 /* compute magnitude and phase */
-                freqOutput[k] = 2.0*mixedRadix_FFT.freqMagnitudeCalc(gFFTworksp[k], k);
-                magn = 2.0*mixedRadix_FFT.freqMagnitudeCalc(gFFTworksp[k], k);
-                phase = mixedRadix_FFT.phaseCalculator(gFFTworksp[k], k);
+                magn = 2.0*mixedRadix_FFT.freqMagnitudeCalc(forwFFTout[k], k);
+                phase = mixedRadix_FFT.phaseCalculator(forwFFTout[k], k);
 
                 /* compute phase difference */
                 tmp = phase - gLastPhase[k];
@@ -368,20 +379,20 @@ void CalculateDTFT::smbPitchShift(float pitchShift, long fftFrameSize, long osam
 //                                                                                    phase = 0.0f;
                 
                 /* get real and imag part and re-interleave */
-                gFFTworksp[k].real(magn*cos(phase));
-                gFFTworksp[k].imag(magn*sin(phase));
+                forwFFTout[k].real(magn*cos(phase));
+                forwFFTout[k].imag(magn*sin(phase));
             }
             
             /* zero negative frequencies */
-            for (long k = fftFrameSize2+1; k < fftFrameSize; k++) gFFTworksp[k] = 0.0f;
+            for (long k = fftFrameSize2+1; k < fftFrameSize; k++) forwFFTout[k] = 0.0f;
             
             /* do inverse transform */
-            mixedRadix_FFT.makeFFT(gFFTworksp, outPP2, false);
+            mixedRadix_FFT.makeFFT(forwFFTout, outPP2, false);
             
             
             /* do windowing and add to output accumulator */
             for(long k=0; k < fftFrameSize; k++) {
-                gOutputAccum[k] += 2.0*mixedRadix_FFT.waveEnvelopeCalc(outPP2[k], k, osamp);
+                gOutputAccum[k] += 2.0*(mixedRadix_FFT.waveEnvelopeCalc(outPP2[k], k)/osamp);
             }
             
             for (long k = 0; k < stepSize; k++) gOutFIFO[k] = gOutputAccum[k];
@@ -420,13 +431,13 @@ void CalculateDTFT::makeFFT_WindowOverlap(long fftFrameSize, long osamp, float s
                 gFFTworksp[k] = mixedRadix_FFT.windowing(gInFIFO[k], k);
             }
             
-            mixedRadix_FFT.makeFFT(gFFTworksp, gFFTworksp, true);
+            mixedRadix_FFT.makeFFT(gFFTworksp, forwFFTout, true);
             
             for (long k = 0; k <= fftFrameSize2; k++) {
                 
                 /* compute magnitude and phase */
-                magn = 2.0*mixedRadix_FFT.freqMagnitudeCalc(gFFTworksp[k], k);
-                phase = mixedRadix_FFT.phaseCalculator(gFFTworksp[k], k);
+                magn = 2.0*mixedRadix_FFT.freqMagnitudeCalc(forwFFTout[k], k);
+                phase = mixedRadix_FFT.phaseCalculator(forwFFTout[k], k);
                 
                 /* compute phase difference */
                 tmp = phase - gLastPhase[k];
@@ -488,20 +499,20 @@ void CalculateDTFT::makeFFT_WindowOverlap(long fftFrameSize, long osamp, float s
                 //                                                                                    phase = 0.0f;
                 
                 /* get real and imag part and re-interleave */
-                gFFTworksp[k].real(magn*cos(phase));
-                gFFTworksp[k].imag(magn*sin(phase));
+                forwFFTout[k].real(magn*cos(phase));
+                forwFFTout[k].imag(magn*sin(phase));
             }
             
             /* zero negative frequencies */
-            for (long k = fftFrameSize2+1; k < fftFrameSize; k++) gFFTworksp[k] = 0.0f;
+            for (long k = fftFrameSize2+1; k < fftFrameSize; k++) forwFFTout[k] = 0.0f;
             
             /* do inverse transform */
-            mixedRadix_FFT.makeFFT(gFFTworksp, outPP2, false);
+            mixedRadix_FFT.makeFFT(forwFFTout, outPP2, false);
             
             
             /* do windowing and add to output accumulator */
             for(long k=0; k < fftFrameSize; k++) {
-                gOutputAccum[k] += 2.0*mixedRadix_FFT.waveEnvelopeCalc(outPP2[k], k, osamp);
+                gOutputAccum[k] += 2.0*(mixedRadix_FFT.waveEnvelopeCalc(outPP2[k], k) / osamp);
             }
             
             for (long k = 0; k < stepSize; k++) gOutFIFO[k] = gOutputAccum[k];

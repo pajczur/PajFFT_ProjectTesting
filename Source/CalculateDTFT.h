@@ -29,9 +29,9 @@ public:
     CalculateDTFT();
     ~CalculateDTFT();
     
-    void setInputData(AudioBuffer<float> &inp);
-    void setInputData(std::vector<float> &inp);
-    void setOutputData(std::vector<float> &outp);
+    void fftCalculator(AudioBuffer<float> &inp);
+    void fftCalculator(std::vector<float> &inp);
+    void getInputData(AudioBuffer<float> &inp);
     
 
     void fftCalc();
@@ -62,15 +62,16 @@ public:
 private:
     long deviceBuffSize;
     double radix2BuffSize;
-
-private:
-    std::vector<float>               inputData;
-    std::vector<std::complex<float>> inputDataC;
  public:
+    std::vector<float>               inputData;
+    std::vector<float>               tempInput;
+    std::vector<std::complex<float>> inputDataC;
     int fftType=0;
     double fPi;
     
-    std::vector<float>               outRealMixed;
+    std::vector<float>               windowedBackFFTout;
+    std::vector<float>               backFFTout;
+    std::vector<std::complex<float>> forwFFTout;
     std::vector<float>               wOutput;
     std::vector<float>               tempOutput;
     std::vector<float>               outRealRadix2;

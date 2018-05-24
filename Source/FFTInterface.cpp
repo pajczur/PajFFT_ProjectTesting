@@ -292,7 +292,7 @@ void FFTInterface::sliderValueChanged       (Slider *slider)
                 
                 for(int k=tempIndex; k>0; k--)
                 {
-                    calculator_FFT->outRealMixed[k-1] = 0.0f;
+                    calculator_FFT->backFFTout[k-1] = 0.0f;
                 }
             }
         }
@@ -320,7 +320,7 @@ void FFTInterface::sliderValueChanged       (Slider *slider)
                 int tempIndex = round(filterSetTopEnd.getValue()*(calculator_FFT->mixedRadix_FFT.getBufferSize()/wSampleRate));
                 for(int k=tempIndex; k<(calculator_FFT->mixedRadix_FFT.getBufferSize()/2.0); k++)
                 {
-                    calculator_FFT->outRealMixed[k] = 0.0f;
+                    calculator_FFT->backFFTout[k] = 0.0f;
                 }
             }
         }
@@ -684,7 +684,7 @@ void FFTInterface::setInverse_fft           ()
         wWindowBut.setVisible(true);
         setPhase.setVisible(true);
         calculator_FFT->isForward = false;
-        graphAnalyser->isForward = false;
+//        graphAnalyser->isForward = false;
         alreadyWindow.setVisible(false);
         alreadyWindow.setVisible(false);
     }
@@ -693,7 +693,7 @@ void FFTInterface::setInverse_fft           ()
         wWindowBut.setVisible(false);
         setPhase.setVisible(false);
         calculator_FFT->isForward = true;
-        graphAnalyser->isForward = true;
+//        graphAnalyser->isForward = true;
         alreadyWindow.setVisible(false);
         alreadyWindow.setVisible(false);
     }

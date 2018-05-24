@@ -13,6 +13,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "WavesGen.h"
 #include "CalculateDTFT.h"
+#include "GraphAnalyser.h"
 
 //==============================================================================
 /*
@@ -32,7 +33,7 @@ public:
     void sliderValueChanged (Slider *slider) override;
     void updateToggleState(Button* button, int waveIdentifier);
     
-    void settings(WavesGen &waveGenerator, CalculateDTFT &fftCalc, double sampRate);
+    void settings(WavesGen &waveGenerator, CalculateDTFT &fftCalc, GraphAnalyser &gAnalyser, double sampRate);
 
 private:
     Slider wPitchBand;
@@ -61,5 +62,6 @@ private:
     
     CalculateDTFT *calculator_FFT;
     WavesGen *oscillator;
+    GraphAnalyser *graphAnalyser;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (OscInterface)
 };

@@ -145,12 +145,17 @@ void OscInterface::updateToggleState(Button* button, int waveIdentifier)
         selectSqrWave.setToggleState(false, NotificationType::dontSendNotification);
         selectWhiteNoise.setToggleState(false, NotificationType::dontSendNotification);
     }
+    else
+    {
+        graphAnalyser->startTimer(40);
+    }
 }
 
-void OscInterface::settings(WavesGen &waveGenerator, CalculateDTFT &fftCalc, double sampRate)
+void OscInterface::settings(WavesGen &waveGenerator, CalculateDTFT &fftCalc, GraphAnalyser &gAnalyser, double sampRate)
 {
     calculator_FFT = &fftCalc;
     oscillator = &waveGenerator;
+    graphAnalyser = &gAnalyser;
     
     wPitchBand.setRange(0, sampRate/2.0, 0.000001);
     wPitchBand.setValue(172.0);

@@ -26,13 +26,17 @@ MainComponent::MainComponent() : fftInterface(this)
     
     addAndMakeVisible(&wAudioPlayer);
 
+    addAndMakeVisible(&display_logarithmic);
     display_logarithmic.setFFTcalc(graphAnalyser);
-    display_logarithmic.setSize(700, 420);
+    display_logarithmic.setSize(700, 410);
     
+    addAndMakeVisible(&display_linear);
     display_linear.setFFTcalc(graphAnalyser);
-    display_linear.setSize(700, 420);
+    display_linear.setSize(700, 410);
 
     graphAnalyser.setSize(display_logarithmic.getDisplayWidth(), display_logarithmic.getDisplayHeight());
+//    std::cout << "width "  << display_logarithmic.getDisplayWidth() << std::endl;
+//    std::cout << "hhhhh "  << display_logarithmic.getDisplayHeight() << std::endl;
     
     hearFFTinversedSignal = false;
     
@@ -72,16 +76,22 @@ MainComponent::MainComponent() : fftInterface(this)
     wPitchShift.addListener(this);
   
     addAndMakeVisible(&freqDisp);
+    freqDisp.setRadioGroupId(selectorFreqTimeButton);
+    freqDisp.setAlwaysOnTop(true);
     freqDisp.setButtonText("Freq");
     freqDisp.setToggleState(false, dontSendNotification);
     freqDisp.onClick = [this] { updateToggleState(&freqDisp, freqDisp_ID); };
   
     addAndMakeVisible(&timeDisp);
+    timeDisp.setRadioGroupId(selectorFreqTimeButton);
+    timeDisp.setAlwaysOnTop(true);
     timeDisp.setButtonText("Time");
-    timeDisp.setToggleState(false, dontSendNotification);
+    timeDisp.setToggleState(true, dontSendNotification);
     timeDisp.onClick = [this] { updateToggleState(&timeDisp, timeDisp_ID); };
+    updateToggleState(&timeDisp, timeDisp_ID);
   
     addAndMakeVisible(&d_weightingDisp);
+    d_weightingDisp.setAlwaysOnTop(true);
     d_weightingDisp.setButtonText("D-weighting");
     d_weightingDisp.setToggleState(false, dontSendNotification);
     d_weightingDisp.onClick = [this] { updateToggleState(&d_weightingDisp, d_weightingDisp_ID); };
@@ -141,6 +151,7 @@ void MainComponent::updateToggleState(Button* button, int buttonID)
                 fftInterface.alreadyWindow.setVisible(true);
                 
                 fftInterface.wWindowBut.setVisible(false);
+                calculator_FFT.isWindowed = true;
                 calculator_FFT.isPitchON = true;
             }
             else
@@ -159,8 +170,29 @@ void MainComponent::updateToggleState(Button* button, int buttonID)
                 else
                     fftInterface.wWindowBut.setVisible(false);
 
+                calculator_FFT.isWindowed = fftInterface.remembereWinWasClicked;
                 calculator_FFT.isPitchON = false;
             }
+            break;
+            
+        case 4:
+            graphAnalyser.isFreqAnalyser = true;
+            display_linear.setVisible(false);
+            display_logarithmic.setVisible(true);
+            graphAnalyser.setBounds(display_logarithmic.getDisplayMargXLeft()+150, display_logarithmic.getDisplayMargYTop()+10, 644, 338);
+            graphAnalyser.setVisible(true);
+            break;
+            
+        case 5:
+            graphAnalyser.isFreqAnalyser = false;
+            display_logarithmic.setVisible(false);
+            display_linear.setVisible(true);
+            graphAnalyser.setBounds(display_linear.getDisplayMargXLeft()+150, display_linear.getDisplayMargYTop()+10, 644+36, 338);
+            graphAnalyser.setVisible(true);
+            break;
+            
+        case 6:
+            break;
             
         default:
             return;
@@ -250,7 +282,11 @@ void MainComponent::playWaveGen(const AudioSourceChannelInfo& bufferToFill)
     
     if(calculator_FFT.fftType !=0)
     {
-        calculator_FFT.setInputData(*bufferToFill.buffer);
+        calculator_FFT.fftCalculator(*bufferToFill.buffer);
+    }
+    else
+    {
+        calculator_FFT.getInputData(*bufferToFill.buffer);
     }
 }
 
@@ -259,7 +295,7 @@ void MainComponent::playInversedFFTWaveGen(const AudioSourceChannelInfo& bufferT
     if(calculator_FFT.fftType !=0)
     {
         oscillator.prepareWave(signalToFFT, bufferToFill.numSamples, bufferToFill.startSample);
-        calculator_FFT.setInputData(signalToFFT);
+        calculator_FFT.fftCalculator(signalToFFT);
         
         for(int sample = bufferToFill.startSample; sample<bufferToFill.buffer->getNumSamples(); sample++)
         {
@@ -293,7 +329,15 @@ void MainComponent::playIAudioFile(const AudioSourceChannelInfo& bufferToFill)
     wAudioPlayer.transportSource.getNextAudioBlock (bufferToFill);
     if(calculator_FFT.fftType !=0)
     {
-        calculator_FFT.setInputData(*bufferToFill.buffer);
+        calculator_FFT.fftCalculator(*bufferToFill.buffer);
+    }
+    else
+    {
+        calculator_FFT.getInputData(*bufferToFill.buffer);
+        if(!graphAnalyser.isTimerRunning())
+        {
+            graphAnalyser.startTimer(40);
+        }
     }
 }
 
@@ -306,7 +350,7 @@ void MainComponent::playInversedFFTAudioFile(const AudioSourceChannelInfo& buffe
         const AudioSourceChannelInfo tempAudioSource(&tempBuff, bufferToFill.startSample, bufferToFill.numSamples);
         wAudioPlayer.transportSource.getNextAudioBlock (tempAudioSource);
         
-        calculator_FFT.setInputData(*tempAudioSource.buffer);
+        calculator_FFT.fftCalculator(*tempAudioSource.buffer);
         
         for(int sample = bufferToFill.startSample; sample<bufferToFill.buffer->getNumSamples(); sample++)
         {
@@ -350,14 +394,14 @@ void MainComponent::paint (Graphics& g)
     if(!fftInterface.wInverseFFT.getToggleState())
     {
         hearFFTinversedSignal = false;
-        display_linear.setVisible(false);
-        addAndMakeVisible(&display_logarithmic);
+//        display_linear.setVisible(false);
+//        addAndMakeVisible(&display_logarithmic);
     }
     else
     {
         hearFFTinversedSignal = true; // Set to true if ready playInverseFFT...
-        display_logarithmic.setVisible(false);
-        addAndMakeVisible(&display_linear);
+//        display_logarithmic.setVisible(false);
+//        addAndMakeVisible(&display_linear);
     }
     
 }
@@ -366,7 +410,6 @@ void MainComponent::resized()
 {
     
     display_logarithmic.setBounds           (150, 10, 700, 400);
-    graphAnalyser.setBounds      (display_logarithmic.getDisplayMargXLeft()+150, display_logarithmic.getDisplayMargYTop(), graphAnalyser.getWidth(), graphAnalyser.getHeight());
     display_linear.setBounds                (150, 10, 700, 400);
     oscInterface.setBounds(10, 10, 130, 410);
     fftInterface.setBounds((getWidth()/2) + 5, 430, 485, 160);
@@ -380,9 +423,9 @@ void MainComponent::resized()
     selectOscill.setBounds(12, 12, 25, 25);
     selectPlayer.setBounds(12, 432, 25, 25);
   
-    freqDisp.setBounds(155, 2, 80, 25);
-    timeDisp.setBounds(240, 2, 80, 25);
-    d_weightingDisp.setBounds(325, 2, 80, 25);
+    freqDisp.setBounds(355, 12, 80, 17);
+    timeDisp.setBounds(440, 12, 80, 17);
+    d_weightingDisp.setBounds(525, 12, 110, 17);
 }
 
 void MainComponent::fft_defaultSettings()
@@ -394,7 +437,7 @@ void MainComponent::fft_defaultSettings()
     oscillator.selectWave(0);
     oscillator.setFrequency(440.0);
     oscillator.setAmplitude(1.0);
-    oscInterface.settings(oscillator, calculator_FFT, wSampleRate);
+    oscInterface.settings(oscillator, calculator_FFT, graphAnalyser, wSampleRate);
     
     display_logarithmic.setNyquist(wSampleRate/2.0);
     display_logarithmic.repaint();
@@ -411,9 +454,12 @@ void MainComponent::fft_defaultSettings()
     calculator_FFT.setRadix2BuffSize(deviceBufferSize);
     
 //    calculator_FFT.regular_DFT.wSettings(wSampleRate, wBufferSize, calculator_FFT.outRealDFT, true);
+    
+    calculator_FFT.resetOutputData();
+    
     graphAnalyser.setSampleRate(wSampleRate);
     graphAnalyser.setNewBufSize(deviceBufferSize);
     
-    graphAnalyser.setFFT_DataSource(calculator_FFT);
+    graphAnalyser.setFFT_DataSource(calculator_FFT, oscillator, wAudioPlayer);
 }
 

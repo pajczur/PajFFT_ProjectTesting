@@ -14,10 +14,10 @@
 //==============================================================================
 Display_Logarithmic::Display_Logarithmic()
 {
-    margXLeft = 41.0f;
+    margXLeft = 46.0f;
     margXRight = 10.0f;
     margYBot = 20.0f+30.0f;
-    margYTop = 20.0f;
+    margYTop = 22.0f;
     
     wZoom.setSliderStyle(Slider::SliderStyle::ThreeValueHorizontal);
     addAndMakeVisible(&wZoom);
@@ -38,40 +38,6 @@ void Display_Logarithmic::paint (Graphics& g)
     {
         _winX = getWidth() - margXLeft - margXRight;
         _winY = getHeight() - margYBot - margYTop;
-        
-//        g.setColour(Colours::lightblue);
-//        float temporaryHz1 = (log10(2368.652344f)     - log10(lowEnd)) / (log10(topEnd) - log10(lowEnd));
-//        float temporaryHz2 = (log10(2390.185547f)     - log10(lowEnd)) / (log10(topEnd) - log10(lowEnd));
-//        float temporaryHz3 = (log10(2411.718750f)     - log10(lowEnd)) / (log10(topEnd) - log10(lowEnd));
-//        float temporaryHz4 = (log10(2433.251953f)     - log10(lowEnd)) / (log10(topEnd) - log10(lowEnd));
-//        float temporaryHz5 = (log10(2454.785156f)     - log10(lowEnd)) / (log10(topEnd) - log10(lowEnd));
-//        if(temporaryHz1 < 1.0f && temporaryHz1 > 0.0f) {
-//            g.drawLine((temporaryHz1 * _winX)+margXLeft, margYTop, (temporaryHz1 * _winX)+margXLeft, margYTop+ _winY, lineThickness);
-//            g.drawText("2368.652344",    11.0f + (temporaryHz1*_winX),    getHeight()-margYBot, 100, 20, Justification::centred);
-//        }
-//        
-//        if(temporaryHz2 < 1.0f && temporaryHz2 > 0.0f) {
-//            g.drawLine((temporaryHz2 * _winX)+margXLeft, margYTop, (temporaryHz2 * _winX)+margXLeft, margYTop+ _winY, lineThickness);
-//            g.drawText("2390.185547",    11.0f + (temporaryHz2*_winX),    getHeight()-margYBot, 100, 20, Justification::centred);
-//        }
-//
-//        
-//        if(temporaryHz3 < 1.0f && temporaryHz3 > 0.0f) {
-//            g.drawLine((temporaryHz3 * _winX)+margXLeft, margYTop, (temporaryHz3 * _winX)+margXLeft, margYTop+ _winY, lineThickness);
-//            g.drawText("2411.718750",    11.0f + (temporaryHz3*_winX),    getHeight()-margYBot, 100, 20, Justification::centred);
-//        }
-//
-//        
-//        if(temporaryHz4 < 1.0f && temporaryHz4 > 0.0f) {
-//            g.drawLine((temporaryHz4 * _winX)+margXLeft, margYTop, (temporaryHz4 * _winX)+margXLeft, margYTop+ _winY, lineThickness);
-//            g.drawText("2433.251953",    11.0f + (temporaryHz4*_winX),    getHeight()-margYBot, 100, 20, Justification::centred);
-//        }
-//
-//        
-//        if(temporaryHz5 < 1.0f && temporaryHz5 > 0.0f) {
-//            g.drawLine((temporaryHz5 * _winX)+margXLeft, margYTop, (temporaryHz5 * _winX)+margXLeft, margYTop+ _winY, lineThickness);
-//            g.drawText("2454.785156",    11.0f + (temporaryHz5*_winX),    getHeight()-margYBot, 100, 20, Justification::centred);
-//        }
 
         
         scale1Hz     = (log10(1.0f)     - log10(lowEnd)) / (log10(topEnd) - log10(lowEnd));
@@ -118,208 +84,208 @@ void Display_Logarithmic::paint (Graphics& g)
         
         if(scale1Hz < 1.0f && scale1Hz > 0.0f) {
             g.drawLine((scale1Hz * _winX)+margXLeft, margYTop, (scale1Hz * _winX)+margXLeft, margYTop+ _winY, lineThickness);
-            g.drawText("1",    11.0f + (scale1Hz*_winX),    getHeight()-margYBot, 60, 20, Justification::centred);
+            g.drawText("1",    margXLeft-31.0f + (scale1Hz*_winX),    getHeight()-margYBot, 60, 20, Justification::centred);
         }
  
         if(scale2Hz < 1.0f && scale2Hz > 0.0f) {
             g.drawLine((scale2Hz * _winX)+margXLeft, margYTop, (scale2Hz * _winX)+margXLeft, margYTop+ _winY, altLineThickness);
             if(wZoom.getMaxValue() - wZoom.getMinValue() < 20  || scale1Hz<0.0f)
-                g.drawText("2",    11.0f + (scale2Hz*_winX),    getHeight()-margYBot, 60, 20, Justification::centred);
+                g.drawText("2",    margXLeft-31.0f + (scale2Hz*_winX),    getHeight()-margYBot, 60, 20, Justification::centred);
         }
         
         if(scale3Hz < 1.0f && scale3Hz > 0.0f) {
             g.drawLine((scale3Hz * _winX)+margXLeft, margYTop, (scale3Hz * _winX)+margXLeft, margYTop+ _winY, altLineThickness);
             if(wZoom.getMaxValue() - wZoom.getMinValue() < 20  || scale2Hz<0.0f)
-                g.drawText("3",    11.0f + (scale3Hz*_winX),    getHeight()-margYBot, 60, 20, Justification::centred);
+                g.drawText("3",    margXLeft-31.0f + (scale3Hz*_winX),    getHeight()-margYBot, 60, 20, Justification::centred);
         }
         
         if(scale4Hz < 1.0f && scale4Hz > 0.0f) {
             g.drawLine((scale4Hz * _winX)+margXLeft, margYTop, (scale4Hz * _winX)+margXLeft, margYTop+ _winY, altLineThickness);
             if(wZoom.getMaxValue() - wZoom.getMinValue() < 20  || scale3Hz<0.0f)
-                g.drawText("4",    11.0f + (scale4Hz*_winX),    getHeight()-margYBot, 60, 20, Justification::centred);
+                g.drawText("4",    margXLeft-31.0f + (scale4Hz*_winX),    getHeight()-margYBot, 60, 20, Justification::centred);
         }
         
         
         if(scale5Hz < 1.0f && scale5Hz > 0.0f) {
             g.drawLine((scale5Hz * _winX)+margXLeft, margYTop, (scale5Hz * _winX)+margXLeft, margYTop+ _winY, altLineThickness);
             if(wZoom.getMaxValue() - wZoom.getMinValue() < 20  || scale4Hz<0.0f)
-                g.drawText("5",    11.0f + (scale5Hz*_winX),    getHeight()-margYBot, 60, 20, Justification::centred);
+                g.drawText("5",    margXLeft-31.0f + (scale5Hz*_winX),    getHeight()-margYBot, 60, 20, Justification::centred);
         }
         
         if(scale6Hz < 1.0f && scale6Hz > 0.0f) {
             g.drawLine((scale6Hz * _winX)+margXLeft, margYTop, (scale6Hz * _winX)+margXLeft, margYTop+ _winY, altLineThickness);
             if(wZoom.getMaxValue() - wZoom.getMinValue() < 20  || scale5Hz<0.0f)
-                g.drawText("6",    11.0f + (scale6Hz*_winX),    getHeight()-margYBot, 60, 20, Justification::centred);
+                g.drawText("6",    margXLeft-31.0f + (scale6Hz*_winX),    getHeight()-margYBot, 60, 20, Justification::centred);
         }
         
         if(scale7Hz < 1.0f && scale7Hz > 0.0f) {
             g.drawLine((scale7Hz * _winX)+margXLeft, margYTop, (scale7Hz * _winX)+margXLeft, margYTop+ _winY, altLineThickness);
             if(wZoom.getMaxValue() - wZoom.getMinValue() < 20  || scale6Hz<0.0f)
-                g.drawText("7",    11.0f + (scale7Hz*_winX),    getHeight()-margYBot, 60, 20, Justification::centred);
+                g.drawText("7",    margXLeft-31.0f + (scale7Hz*_winX),    getHeight()-margYBot, 60, 20, Justification::centred);
         }
         
         if(scale8Hz < 1.0f && scale8Hz > 0.0f) {
             g.drawLine((scale8Hz * _winX)+margXLeft, margYTop, (scale8Hz * _winX)+margXLeft, margYTop+ _winY, altLineThickness);
             if(wZoom.getMaxValue() - wZoom.getMinValue() < 20  || scale7Hz<0.0f)
-                g.drawText("8",    11.0f + (scale8Hz*_winX),    getHeight()-margYBot, 60, 20, Justification::centred);
+                g.drawText("8",    margXLeft-31.0f + (scale8Hz*_winX),    getHeight()-margYBot, 60, 20, Justification::centred);
         }
         
         
         if(scale10Hz < 1.0f && scale10Hz > 0.0f) {
             g.drawLine((scale10Hz * _winX)+margXLeft, margYTop, (scale10Hz * _winX)+margXLeft, margYTop+ _winY, lineThickness);
-            g.drawText("10",    11.0f + (scale10Hz*_winX),    getHeight()-margYBot, 60, 20, Justification::centred);
+            g.drawText("10",    margXLeft-31.0f + (scale10Hz*_winX),    getHeight()-margYBot, 60, 20, Justification::centred);
         }
         
         if(scale20Hz < 1.0f && scale20Hz > 0.0f) {
             g.drawLine((scale20Hz * _winX)+margXLeft, margYTop, (scale20Hz * _winX)+margXLeft, margYTop+ _winY, altLineThickness);
             if((wZoom.getMaxValue() - wZoom.getMinValue() < 100 && scale5Hz<0.0f)  || scale10Hz<0.0f || scale30Hz>1.0f)
-                g.drawText("20",    11.0f + (scale20Hz*_winX),    getHeight()-margYBot, 60, 20, Justification::centred);
+                g.drawText("20",    margXLeft-31.0f + (scale20Hz*_winX),    getHeight()-margYBot, 60, 20, Justification::centred);
         }
         
         if(scale30Hz < 1.0f && scale30Hz > 0.0f) {
             g.drawLine((scale30Hz * _winX)+margXLeft, margYTop, (scale30Hz * _winX)+margXLeft, margYTop+ _winY, altLineThickness);
             if((wZoom.getMaxValue() - wZoom.getMinValue() < 100 && scale5Hz<0.0f)  || scale20Hz<0.0f || scale40Hz>1.0f)
-                g.drawText("30",    11.0f + (scale30Hz*_winX),    getHeight()-margYBot, 60, 20, Justification::centred);
+                g.drawText("30",    margXLeft-31.0f + (scale30Hz*_winX),    getHeight()-margYBot, 60, 20, Justification::centred);
         }
         
         if(scale40Hz < 1.0f && scale40Hz > 0.0f) {
             g.drawLine((scale40Hz * _winX)+margXLeft, margYTop, (scale40Hz * _winX)+margXLeft, margYTop+ _winY, altLineThickness);
             if((wZoom.getMaxValue() - wZoom.getMinValue() < 100 && scale5Hz<0.0f)  || scale30Hz<0.0f || scale50Hz>1.0f)
-                g.drawText("40",    11.0f + (scale40Hz*_winX),    getHeight()-margYBot, 60, 20, Justification::centred);
+                g.drawText("40",    margXLeft-31.0f + (scale40Hz*_winX),    getHeight()-margYBot, 60, 20, Justification::centred);
         }
         
         if(scale50Hz < 1.0f && scale50Hz > 0.0f) {
             g.drawLine((scale50Hz * _winX)+margXLeft, margYTop, (scale50Hz * _winX)+margXLeft, margYTop+ _winY, altLineThickness);
             if((wZoom.getMaxValue() - wZoom.getMinValue() < 100 && scale5Hz<0.0f)  || scale40Hz<0.0f || scale60Hz>1.0f)
-                g.drawText("50",    11.0f + (scale50Hz*_winX),    getHeight()-margYBot, 60, 20, Justification::centred);
+                g.drawText("50",    margXLeft-31.0f + (scale50Hz*_winX),    getHeight()-margYBot, 60, 20, Justification::centred);
         }
         
         if(scale60Hz < 1.0f && scale60Hz > 0.0f) {
             g.drawLine((scale60Hz * _winX)+margXLeft, margYTop, (scale60Hz * _winX)+margXLeft, margYTop+ _winY, altLineThickness);
             if((wZoom.getMaxValue() - wZoom.getMinValue() < 100 && scale5Hz<0.0f)  || scale50Hz<0.0f || scale70Hz>1.0f)
-                g.drawText("60",    11.0f + (scale60Hz*_winX),    getHeight()-margYBot, 60, 20, Justification::centred);
+                g.drawText("60",    margXLeft-31.0f + (scale60Hz*_winX),    getHeight()-margYBot, 60, 20, Justification::centred);
         }
         
         if(scale70Hz < 1.0f && scale70Hz > 0.0f) {
             g.drawLine((scale70Hz * _winX)+margXLeft, margYTop, (scale70Hz * _winX)+margXLeft, margYTop+ _winY, altLineThickness);
             if((wZoom.getMaxValue() - wZoom.getMinValue() < 100 && scale5Hz<0.0f)  || scale60Hz<0.0f || scale80Hz>1.0f)
-                g.drawText("70",    11.0f + (scale70Hz*_winX),    getHeight()-margYBot, 60, 20, Justification::centred);
+                g.drawText("70",    margXLeft-31.0f + (scale70Hz*_winX),    getHeight()-margYBot, 60, 20, Justification::centred);
         }
         
         if(scale80Hz < 1.0f && scale80Hz > 0.0f) {
             g.drawLine((scale80Hz * _winX)+margXLeft, margYTop, (scale80Hz * _winX)+margXLeft, margYTop+ _winY, altLineThickness);
             if((wZoom.getMaxValue() - wZoom.getMinValue() < 100 && scale5Hz<0.0f)  || scale70Hz<0.0f || scale100Hz>1.0f)
-                g.drawText("80",    11.0f + (scale80Hz*_winX),    getHeight()-margYBot, 60, 20, Justification::centred);
+                g.drawText("80",    margXLeft-31.0f + (scale80Hz*_winX),    getHeight()-margYBot, 60, 20, Justification::centred);
         }
         
         if(scale100Hz < 1.0f && scale100Hz > 0.0f) {
             g.drawLine((scale100Hz * _winX)+margXLeft, margYTop, (scale100Hz * _winX)+margXLeft, margYTop+ _winY, lineThickness);
-            g.drawText("100",   12.0f + (scale100Hz*_winX),   getHeight()-margYBot, 60, 20, Justification::centred);
+            g.drawText("100",   margXLeft-30.0f + (scale100Hz*_winX),   getHeight()-margYBot, 60, 20, Justification::centred);
         }
         
         if(scale200Hz < 1.0f && scale200Hz > 0.0f) {
             g.drawLine((scale200Hz * _winX)+margXLeft, margYTop, (scale200Hz * _winX)+margXLeft, margYTop+ _winY, altLineThickness);
             if((wZoom.getMaxValue() - wZoom.getMinValue() < 1100 && scale50Hz<0.0f)  || scale100Hz<0.0f || scale300Hz>1.0f)
-                g.drawText("200",   12.0f + (scale200Hz*_winX),  getHeight()-margYBot, 60, 20, Justification::centred);
+                g.drawText("200",   margXLeft-30.0f + (scale200Hz*_winX),  getHeight()-margYBot, 60, 20, Justification::centred);
         }
         
         if(scale300Hz < 1.0f && scale300Hz > 0.0f) {
             g.drawLine((scale300Hz * _winX)+margXLeft, margYTop, (scale300Hz * _winX)+margXLeft, margYTop+ _winY, altLineThickness);
             if((wZoom.getMaxValue() - wZoom.getMinValue() < 1100 && scale50Hz<0.0f)  || scale200Hz<0.0f || scale400Hz>1.0f)
-                g.drawText("300",   12.0f + (scale300Hz*_winX),  getHeight()-margYBot, 60, 20, Justification::centred);
+                g.drawText("300",   margXLeft-30.0f + (scale300Hz*_winX),  getHeight()-margYBot, 60, 20, Justification::centred);
         }
         
         if(scale400Hz < 1.0f && scale400Hz > 0.0f) {
             g.drawLine((scale400Hz * _winX)+margXLeft, margYTop, (scale400Hz * _winX)+margXLeft, margYTop+ _winY, altLineThickness);
             if((wZoom.getMaxValue() - wZoom.getMinValue() < 1100 && scale50Hz<0.0f)  || scale300Hz<0.0f || scale500Hz>1.0f)
-                g.drawText("400",   12.0f + (scale400Hz*_winX),  getHeight()-margYBot, 60, 20, Justification::centred);
+                g.drawText("400",   margXLeft-30.0f + (scale400Hz*_winX),  getHeight()-margYBot, 60, 20, Justification::centred);
         }
         
         if(scale500Hz < 1.0f && scale500Hz > 0.0f) {
             g.drawLine((scale500Hz * _winX)+margXLeft, margYTop, (scale500Hz * _winX)+margXLeft, margYTop+ _winY, altLineThickness);
             if((wZoom.getMaxValue() - wZoom.getMinValue() < 1100 && scale50Hz<0.0f)  || scale400Hz<0.0f || scale600Hz>1.0f)
-                g.drawText("500",   12.0f + (scale500Hz*_winX),  getHeight()-margYBot, 60, 20, Justification::centred);
+                g.drawText("500",   margXLeft-30.0f + (scale500Hz*_winX),  getHeight()-margYBot, 60, 20, Justification::centred);
         }
         
         if(scale600Hz < 1.0f && scale600Hz > 0.0f) {
             g.drawLine((scale600Hz * _winX)+margXLeft, margYTop, (scale600Hz * _winX)+margXLeft, margYTop+ _winY, altLineThickness);
             if((wZoom.getMaxValue() - wZoom.getMinValue() < 1100 && scale50Hz<0.0f)  || scale500Hz<0.0f || scale700Hz>1.0f)
-                g.drawText("600",   12.0f + (scale600Hz*_winX),  getHeight()-margYBot, 60, 20, Justification::centred);
+                g.drawText("600",   margXLeft-30.0f + (scale600Hz*_winX),  getHeight()-margYBot, 60, 20, Justification::centred);
         }
         
         if(scale700Hz < 1.0f && scale700Hz > 0.0f) {
             g.drawLine((scale700Hz * _winX)+margXLeft, margYTop, (scale700Hz * _winX)+margXLeft, margYTop+ _winY, altLineThickness);
             if((wZoom.getMaxValue() - wZoom.getMinValue() < 1100 && scale50Hz<0.0f)  || scale600Hz<0.0f || scale800Hz>1.0f)
-                g.drawText("700",   12.0f + (scale700Hz*_winX),  getHeight()-margYBot, 60, 20, Justification::centred);
+                g.drawText("700",   margXLeft-30.0f + (scale700Hz*_winX),  getHeight()-margYBot, 60, 20, Justification::centred);
         }
         
         if(scale800Hz < 1.0f && scale800Hz > 0.0f) {
             g.drawLine((scale800Hz * _winX)+margXLeft, margYTop, (scale800Hz * _winX)+margXLeft, margYTop+ _winY, altLineThickness);
             if((wZoom.getMaxValue() - wZoom.getMinValue() < 1100 && scale50Hz<0.0f)  || scale700Hz<0.0f || scale1000Hz>1.0f)
-                g.drawText("800",   12.0f + (scale800Hz*_winX),  getHeight()-margYBot, 60, 20, Justification::centred);
+                g.drawText("800",   margXLeft-30.0f + (scale800Hz*_winX),  getHeight()-margYBot, 60, 20, Justification::centred);
         }
         
         if(scale1000Hz <1.0f && scale1000Hz > 0.0f) {
             g.drawLine((scale1000Hz * _winX)+margXLeft, margYTop, (scale1000Hz * _winX)+margXLeft, margYTop+ _winY, lineThickness);
-            g.drawText("1k",    12.0f + (scale1000Hz*_winX),   getHeight()-margYBot, 60, 20, Justification::centred);
+            g.drawText("1k",    margXLeft-30.0f + (scale1000Hz*_winX),   getHeight()-margYBot, 60, 20, Justification::centred);
         }
         
         if(scale2000Hz <1.0f && scale2000Hz > 0.0f) {
             g.drawLine((scale2000Hz * _winX)+margXLeft, margYTop, (scale2000Hz * _winX)+margXLeft, margYTop+ _winY, altLineThickness);
             if((wZoom.getMaxValue() - wZoom.getMinValue() < 16000 && scale500Hz<0.0f)  || scale1000Hz<0.0f || scale3000Hz>1.0f)
-                g.drawText("2k",    12.0f + (scale2000Hz*_winX),   getHeight()-margYBot, 60, 20, Justification::centred);
+                g.drawText("2k",    margXLeft-30.0f + (scale2000Hz*_winX),   getHeight()-margYBot, 60, 20, Justification::centred);
         }
         
         if(scale3000Hz <1.0f && scale3000Hz > 0.0f) {
             g.drawLine((scale3000Hz * _winX)+margXLeft, margYTop, (scale3000Hz * _winX)+margXLeft, margYTop+ _winY, altLineThickness);
             if((wZoom.getMaxValue() - wZoom.getMinValue() < 16000 && scale500Hz<0.0f)  || scale2000Hz<0.0f || scale4000Hz>1.0f)
-                g.drawText("3k",    12.0f + (scale3000Hz*_winX),   getHeight()-margYBot, 60, 20, Justification::centred);
+                g.drawText("3k",    margXLeft-30.0f + (scale3000Hz*_winX),   getHeight()-margYBot, 60, 20, Justification::centred);
         }
         
         if(scale4000Hz <1.0f && scale4000Hz > 0.0f) {
             g.drawLine((scale4000Hz * _winX)+margXLeft, margYTop, (scale4000Hz * _winX)+margXLeft, margYTop+ _winY, altLineThickness);
             if((wZoom.getMaxValue() - wZoom.getMinValue() < 16000 && scale500Hz<0.0f)  || scale3000Hz<0.0f || scale5000Hz>1.0f)
-                g.drawText("4k",    12.0f + (scale4000Hz*_winX),    getHeight()-margYBot, 60, 20, Justification::centred);
+                g.drawText("4k",    margXLeft-30.0f + (scale4000Hz*_winX),    getHeight()-margYBot, 60, 20, Justification::centred);
         }
         
         if(scale5000Hz <1.0f && scale5000Hz > 0.0f) {
             g.drawLine((scale5000Hz * _winX)+margXLeft, margYTop, (scale5000Hz * _winX)+margXLeft, margYTop+ _winY, altLineThickness);
             if((wZoom.getMaxValue() - wZoom.getMinValue() < 16000 && scale500Hz<0.0f)  || scale4000Hz<0.0f || scale6000Hz>1.0f)
-                g.drawText("5k",    12.0f + (scale5000Hz*_winX),    getHeight()-margYBot, 60, 20, Justification::centred);
+                g.drawText("5k",    margXLeft-30.0f + (scale5000Hz*_winX),    getHeight()-margYBot, 60, 20, Justification::centred);
         }
         
         if(scale6000Hz <1.0f && scale6000Hz > 0.0f) {
             g.drawLine((scale6000Hz * _winX)+margXLeft, margYTop, (scale6000Hz * _winX)+margXLeft, margYTop+ _winY, altLineThickness);
             if((wZoom.getMaxValue() - wZoom.getMinValue() < 16000 && scale500Hz<0.0f)  || scale5000Hz<0.0f || scale7000Hz>1.0f)
-                g.drawText("6k",    12.0f + (scale6000Hz*_winX),    getHeight()-margYBot, 60, 20, Justification::centred);
+                g.drawText("6k",    margXLeft-30.0f + (scale6000Hz*_winX),    getHeight()-margYBot, 60, 20, Justification::centred);
         }
         
         if(scale7000Hz <1.0f && scale7000Hz > 0.0f) {
             g.drawLine((scale7000Hz * _winX)+margXLeft, margYTop, (scale7000Hz * _winX)+margXLeft, margYTop+ _winY, altLineThickness);
             if((wZoom.getMaxValue() - wZoom.getMinValue() < 16000 && scale500Hz<0.0f)  || scale6000Hz<0.0f || scale8000Hz>1.0f)
-                g.drawText("7k",    12.0f + (scale7000Hz*_winX),    getHeight()-margYBot, 60, 20, Justification::centred);
+                g.drawText("7k",    margXLeft-30.0f + (scale7000Hz*_winX),    getHeight()-margYBot, 60, 20, Justification::centred);
         }
         
         if(scale8000Hz <1.0f && scale8000Hz > 0.0f) {
             g.drawLine((scale8000Hz * _winX)+margXLeft, margYTop, (scale8000Hz * _winX)+margXLeft, margYTop+ _winY, altLineThickness);
             if((wZoom.getMaxValue() - wZoom.getMinValue() < 16000 && scale500Hz<0.0f)  || scale7000Hz<0.0f || scale10000Hz>1.0f)
-                g.drawText("8k",    12.0f + (scale8000Hz*_winX),    getHeight()-margYBot, 60, 20, Justification::centred);
+                g.drawText("8k",    margXLeft-30.0f + (scale8000Hz*_winX),    getHeight()-margYBot, 60, 20, Justification::centred);
         }
         
         if(scale10000Hz <1.0f && scale10000Hz > 0.0f) {
             g.drawLine((scale10000Hz * _winX)+margXLeft, margYTop, (scale10000Hz * _winX)+margXLeft, margYTop+ _winY, lineThickness);
-            g.drawText("10k",    12.0f + (scale10000Hz*_winX),    getHeight()-margYBot, 60, 20, Justification::centred);
+            g.drawText("10k",    margXLeft-30.0f + (scale10000Hz*_winX),    getHeight()-margYBot, 60, 20, Justification::centred);
         }
         
         if(scale20000Hz <1.0f && scale20000Hz > 0.0f) {
             g.drawLine((scale20000Hz * _winX)+margXLeft, margYTop, (scale20000Hz * _winX)+margXLeft, margYTop+ _winY, lineThickness);
-            g.drawText("20k",   12.0f + (scale20000Hz*_winX),   getHeight()-margYBot, 60, 20, Justification::centred);
+            g.drawText("20k",   margXLeft-30.0f + (scale20000Hz*_winX),   getHeight()-margYBot, 60, 20, Justification::centred);
         }
         
         g.setColour(Colours::lightyellow);
-        if(scaleNyquist <1.0f && scaleNyquist > 0.0f) {
+        if(scaleNyquist <=1.0f && scaleNyquist >= 0.0f) {
             g.drawLine((scaleNyquist * _winX)+margXLeft, margYTop, (scaleNyquist * _winX)+margXLeft, margYTop+ _winY);
-            g.drawText("N",     12.0f + (scaleNyquist*_winX),  margYTop-20,          60, 20, Justification::centredBottom);
+            g.drawText("N",     margXLeft-30.0f + (scaleNyquist*_winX),  margYTop-20,          60, 20, Justification::centredBottom);
         }
         
     //    g.setColour(Colours::indianred);
@@ -336,16 +302,19 @@ void Display_Logarithmic::paint (Graphics& g)
         
         //Horizontal lines
         for (int i=0; i<5; i++) {
-            g.drawLine(margXLeft-7, ((float)i*_winY/4.0f)+margYTop, margXLeft+_winX, ((float)i*_winY/4.0f)+margYTop);
+            g.drawLine(margXLeft-4, ((float)i*_winY/4.0f)+margYTop, margXLeft+_winX, ((float)i*_winY/4.0f)+margYTop);
         }
         
         
-        g.drawText( " 24dB",   0-5, (0*_winY/4.0f)+margYTop-9,  40, 20, Justification::right);
-        g.drawText( "  0dB",   0-5, (1*_winY/4.0f)+margYTop-9,  40, 20, Justification::right);
-        g.drawText( "-24dB",   0-5, (2*_winY/4.0f)+margYTop-9,  40, 20, Justification::right);
-        g.drawText( "-48dB",   0-5, (3*_winY/4.0f)+margYTop-9,  40, 20, Justification::right);
-        g.drawText( "-72dB",   0-5, (4*_winY/4.0f)+margYTop-9,  40, 20, Justification::right);
+        g.drawText( " 24dB",   margXLeft-47, (0*_winY/4.0f)+margYTop-9,  40, 20, Justification::right);
+        g.drawText( "  0dB",   margXLeft-47, (1*_winY/4.0f)+margYTop-9,  40, 20, Justification::right);
+        g.drawText( "-24dB",   margXLeft-47, (2*_winY/4.0f)+margYTop-9,  40, 20, Justification::right);
+        g.drawText( "-48dB",   margXLeft-47, (3*_winY/4.0f)+margYTop-9,  40, 20, Justification::right);
+        g.drawText( "-72dB",   margXLeft-47, (4*_winY/4.0f)+margYTop-9,  40, 20, Justification::right);
     }
+    
+    g.setColour (Colours::grey);
+    g.drawRect (getLocalBounds(), 1);
 }
 
 void Display_Logarithmic::resized()

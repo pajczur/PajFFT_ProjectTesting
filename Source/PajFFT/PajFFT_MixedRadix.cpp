@@ -606,10 +606,10 @@ float PajFFT_MixedRadix::freqMagnitudeCalc (std::complex<float> fftOutput, long 
     }
 }
 
-float PajFFT_MixedRadix::waveEnvelopeCalc (std::complex<float> fftOutput, long index, long overLap)
+float PajFFT_MixedRadix::waveEnvelopeCalc (std::complex<float> fftOutput, long index)
 {
     fftOutput *= phaseRotation;
-    return windowing(fftOutput.real(), index)/((long)wBufferSize*overLap);
+    return windowing(fftOutput.real(), index)/((long)wBufferSize);
 }
 
 float PajFFT_MixedRadix::phaseCalculator          (std::complex<float> fftOutput, long index)

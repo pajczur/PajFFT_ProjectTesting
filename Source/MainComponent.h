@@ -73,10 +73,10 @@ private:
     double wSampleRate;
     double deviceBufferSize;
     
-    ToggleButton selectFreqDisp;
-    ToggleButton selectTimeDisp;
-    const int freqDisp_ID=1;
-    const int timeDisp_ID=2;
+//    ToggleButton selectFreqDisp;
+//    ToggleButton selectTimeDisp;
+//    const int freqDisp_ID=1;
+//    const int timeDisp_ID=2;
     
     ToggleButton selectOscill;
     ToggleButton selectPlayer;
@@ -108,6 +108,8 @@ private:
     const int timeDisp_ID=5;
     ToggleButton d_weightingDisp;
     const int d_weightingDisp_ID=6;
+    
+    int selectorFreqTimeButton = 100;
     
     
     long tempp=0;

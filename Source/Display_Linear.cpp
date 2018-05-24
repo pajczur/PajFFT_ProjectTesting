@@ -14,10 +14,10 @@
 //==============================================================================
 Display_Linear::Display_Linear()
 {
-    margXLeft = 41.0f;
+    margXLeft = 46.0f-36.0f;
     margXRight = 10.0f;
     margYBot = 20.0f+30.0f;
-    margYTop = 20.0f;
+    margYTop = 22.0f;
 
     wZoom.setSliderStyle(Slider::SliderStyle::ThreeValueHorizontal);
     addAndMakeVisible(&wZoom);
@@ -37,6 +37,9 @@ void Display_Linear::paint (Graphics& g)
     g.setColour(Colours::lightblue);
     
     g.drawRect(margXLeft, margYTop, getWidth()-margXRight-margXLeft, _winY);
+    
+    g.setColour (Colours::grey);
+    g.drawRect (getLocalBounds(), 1);
 }
 
 void Display_Linear::resized()

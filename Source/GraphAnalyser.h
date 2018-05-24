@@ -12,6 +12,8 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "CalculateDTFT.h"
+#include "WavesGen.h"
+#include "AudioPlayer.h"
 
 //==============================================================================
 /*
@@ -29,7 +31,7 @@ public:
     void setZoomLogar(double lowE, double topE);
     void setZoomLinear(double startTime, double endTime);
     void setLowEndIndex();
-    void setFFT_DataSource(CalculateDTFT &fftData);
+    void setFFT_DataSource(CalculateDTFT &fftData,  WavesGen &oscData, AudioPlayer &audioData);
 
     void paint (Graphics&) override;
     void resized() override;
@@ -45,6 +47,9 @@ public:
 private:
     Path fftGraph;
     CalculateDTFT *dataSource;
+    WavesGen *oscSource;
+    AudioPlayer *audioSource;
+    
     
     double wSampleRate;
     double newBufferSize;
@@ -81,6 +86,6 @@ private:
     int fff=0;
     
 public:
-    bool isForward;
+    bool isFreqAnalyser;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GraphAnalyser)
 };

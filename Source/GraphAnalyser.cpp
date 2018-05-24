@@ -16,7 +16,7 @@ GraphAnalyser::GraphAnalyser()
 {
     wSampleRate = 0.0;
     maxResolution = 1000;
-    isForward = true;
+    isFreqAnalyser = true;
     gg=2.536 * pow(10.0, -5.0);
 }
 
@@ -27,8 +27,8 @@ GraphAnalyser::~GraphAnalyser()
 void GraphAnalyser::paint (Graphics& g)
 {
     g.setColour (Colours::red);
-    
-    if(!fftGraph.isEmpty() && dataSource->fftType != 0)
+
+    if(oscSource->getWaveType() != 0   ||   audioSource->transportSource.isPlaying())
     {
         g.strokePath(fftGraph, PathStrokeType(2));
     }
@@ -42,13 +42,13 @@ void GraphAnalyser::resized()
 void GraphAnalyser::timerCallback()
 {
     
-    if(dataSource->fftType != 0)
+    if(oscSource->getWaveType() != 0   ||   audioSource->transportSource.isPlaying())
     {
-        if(!dataSource->outRealMixed.empty())
+        if(!dataSource->backFFTout.empty())
         {
             fftGraph.clear();
             
-            if(!isForward)
+            if(!isFreqAnalyser)
             {
                 drawLinearGraph();
             }
@@ -57,6 +57,7 @@ void GraphAnalyser::timerCallback()
                 drawLogarGraph3();
             }
 
+            
             repaint();
         }
     }
@@ -75,42 +76,60 @@ void GraphAnalyser::timerCallback()
 
 void GraphAnalyser::drawLinearGraph()
 {
-    int startPoint = (int)timeStart%(int)(newBufferSize-1);
-    fftGraph.startNewSubPath(0, -(dataSource->outRealMixed[startPoint] * zero_dB/2.0) + (zero_dB/2.0));
-    
-    double avarage = 0.0;
-    for(float i=timeStart+1.0; i<=wSampleRate; i++)
+    std::vector<float> env;
+    if(dataSource->isForward)
     {
-        avarage += dataSource->outRealMixed[(int)i%(int)(newBufferSize-1)];
-        
-        if(fmod(round(i), linearDivider)==0)
-        {
-            avarage = avarage/linearDivider;
-            double wCurrent   = dispWidth * ((i)-timeStart);
-            fftGraph.lineTo(wCurrent, -(avarage * zero_dB/2.0) + (zero_dB/2.0));
-            avarage = 0.0;
-        }
+        env = dataSource->tempInput;
     }
+    else
+    {
+        env.clear();
+        env = dataSource->backFFTout;
+    }
+    
+//    if(!env.empty())
+//    {
+        int startPoint = (int)timeStart%(int)(newBufferSize-1);
+        fftGraph.startNewSubPath(0, -(env[startPoint] * zero_dB/2.0) + (zero_dB/2.0));
+        
+        double avarage = 0.0;
+        for(float i=timeStart+1.0; i<=wSampleRate; i++)
+        {
+            if(dataSource->isWindowed)
+                avarage += dataSource->windowedBackFFTout[(int)i%(int)(newBufferSize-1)];
+            else
+                avarage += env[(int)i%(int)(newBufferSize-1)];
+
+            if(fmod(round(i), linearDivider)==0)
+            {
+                avarage = avarage/linearDivider;
+                double wCurrent   = dispWidth * ((i)-timeStart);
+                fftGraph.lineTo(wCurrent, -(avarage * zero_dB/2.0) + (zero_dB/2.0));
+                avarage = 0.0;
+            }
+        }
+//    }
 }
 
 void GraphAnalyser::drawLogarGraph3()
 {
-    float linearMagnitude=dataSource->outRealMixed[low_End_index];
+    float linearMagnitude=abs(dataSource->forwFFTout[low_End_index].real()) / (newBufferSize/2.0f);
 
-    fftGraph.startNewSubPath(0, wDecibels(linearMagnitude, low_End_index) );
-
+    fftGraph.startNewSubPath(low_End_index, wDecibels(linearMagnitude, low_End_index) );
+    
+    linearMagnitude=0.0;
 
     for(float i=low_End_index+1.0f; i<=buffNyquist; i++)
     {
         double wBefore    = dispLogScale * (log10((i-1.0)*logScaleWidth1) - log10(low_End));
         double wCurrent   = dispLogScale * (log10((i-0.0)*logScaleWidth1) - log10(low_End));
 
-        if(linearMagnitude<=dataSource->outRealMixed[i])
-            linearMagnitude =  dataSource->outRealMixed[i];
+        if(linearMagnitude<=abs(dataSource->forwFFTout[i].real())/ (newBufferSize/2.0f))
+            linearMagnitude =  abs(dataSource->forwFFTout[i].real())  / (newBufferSize/2.0f);
 
         if(round(wCurrent) != round(wBefore))
         {
-            fftGraph.lineTo(wCurrent, wDecibels(linearMagnitude, i) );
+            fftGraph.lineTo(wCurrent, wDecibels(linearMagnitude, i));
             linearMagnitude=0.0;
         }
     }
@@ -176,9 +195,11 @@ void GraphAnalyser::setLowEndIndex()
     low_End_index = round(1.0f * ( newBufferSize / wSampleRate));
 }
 
-void GraphAnalyser::setFFT_DataSource(CalculateDTFT &fftData)
+void GraphAnalyser::setFFT_DataSource(CalculateDTFT &fftData,  WavesGen &oscData, AudioPlayer &audioData)
 {
     dataSource = &fftData;
+    oscSource = &oscData;
+    audioSource = &audioData;
 }
 
 void GraphAnalyser::clearDisplay()
@@ -225,8 +246,15 @@ double GraphAnalyser::d_weighting(int freqIndex)
 
 double GraphAnalyser::wDecibels(double linearMag, int freqIndex)
 {
-    if(linearMag <= 0.00026)
-        linearMag = 0.00001;
+    float dweight;
     
-    return  -(0.75 * zero_dB * d_weighting(freqIndex) * (20.0*log10(linearMag) + 72.0)/72.0) + zero_dB;
+    dweight = d_weighting(freqIndex);
+    
+    if(linearMag <= 0.0001)
+    {
+        linearMag = 0.00001;
+        dweight = 0.00001f;
+    }
+    
+    return  -(0.75 * zero_dB * dweight * (20.0*log10(linearMag) + 72.0)/72.0) + zero_dB;
 }
