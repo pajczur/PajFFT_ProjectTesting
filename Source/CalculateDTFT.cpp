@@ -268,7 +268,7 @@ void CalculateDTFT::smbPitchShift(float pitchShift, long fftFrameSize, long osam
     fftFrameSize2 = fftFrameSize/2;
     stepSize = fftFrameSize/osamp;
     freqPerBin = sampleRate/(double)fftFrameSize;
-    expct = 2.*M_PI*(double)stepSize/(double)fftFrameSize;
+    expct = 2.*fPi*(double)stepSize/(double)fftFrameSize;
     inFifoLatency = fftFrameSize-stepSize;
     if (gRover == false) gRover = inFifoLatency;
 
@@ -312,13 +312,13 @@ void CalculateDTFT::smbPitchShift(float pitchShift, long fftFrameSize, long osam
                 tmp -= (double)k*expct;
 
                 /* map delta phase into +/- Pi interval */
-                qpd = tmp/M_PI;
+                qpd = tmp/fPi;
                 if (qpd >= 0) qpd += qpd&1;
                 else          qpd -= qpd&1;
-                tmp -= M_PI*(double)qpd;
+                tmp -= fPi*(double)qpd;
 
                 /* get deviation from bin frequency from the +/- Pi interval */
-                tmp = osamp*tmp/(2.*M_PI);
+                tmp = osamp*tmp/(2.*fPi);
 
                 /* compute the k-th partials' true frequency */
                 tmp = (double)k*freqPerBin + tmp*freqPerBin;
@@ -357,7 +357,7 @@ void CalculateDTFT::smbPitchShift(float pitchShift, long fftFrameSize, long osam
                 tmp /= freqPerBin;
 
                 /* take osamp into account */
-                tmp = 2.*M_PI*tmp/osamp;
+                tmp = 2.*fPi*tmp/osamp;
 
                 /* add the overlap phase advance back in */
                 tmp += (double)k*expct;
@@ -402,7 +402,7 @@ void CalculateDTFT::makeFFT_WindowOverlap(long fftFrameSize, long osamp, float s
     fftFrameSize2 = fftFrameSize/2;
     stepSize = fftFrameSize/osamp;
     freqPerBin = sampleRate/(double)fftFrameSize;
-    expct = 2.*M_PI*(double)stepSize/(double)fftFrameSize;
+    expct = 2.*fPi*(double)stepSize/(double)fftFrameSize;
     inFifoLatency = fftFrameSize-stepSize;
     if (gRover == false) gRover = inFifoLatency;
     
@@ -436,13 +436,13 @@ void CalculateDTFT::makeFFT_WindowOverlap(long fftFrameSize, long osamp, float s
                 tmp -= (double)k*expct;
                 
                 /* map delta phase into +/- Pi interval */
-                qpd = tmp/M_PI;
+                qpd = tmp/fPi;
                 if (qpd >= 0) qpd += qpd&1;
                 else          qpd -= qpd&1;
-                tmp -= M_PI*(double)qpd;
+                tmp -= fPi*(double)qpd;
                 
                 /* get deviation from bin frequency from the +/- Pi interval */
-                tmp = osamp*tmp/(2.*M_PI);
+                tmp = osamp*tmp/(2.*fPi);
                 
                 /* compute the k-th partials' true frequency */
                 tmp = (double)k*freqPerBin + tmp*freqPerBin;
@@ -477,7 +477,7 @@ void CalculateDTFT::makeFFT_WindowOverlap(long fftFrameSize, long osamp, float s
                 tmp /= freqPerBin;
                 
                 /* take osamp into account */
-                tmp = 2.*M_PI*tmp/osamp;
+                tmp = 2.*fPi*tmp/osamp;
                 
                 /* add the overlap phase advance back in */
                 tmp += (double)k*expct;
