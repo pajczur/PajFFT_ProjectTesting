@@ -103,7 +103,11 @@ private:
     const int pitchShiftON_ID=3;
     
     ToggleButton freqDisp;
-    ToggleButton waveDisp;
+    const int freqDisp_ID=4;
+    ToggleButton timeDisp;
+    const int timeDisp_ID=5;
+    ToggleButton d_weightingDisp;
+    const int d_weightingDisp_ID=6;
     
     
     long tempp=0;
