@@ -175,7 +175,7 @@ void PajFFT_MixedRadix::resetData              ()
         iteratorsEnd.resize(wRadixSize);
         prepareIteratorsBounds(0);
 
-        /* Precalculations of all twiddles W = exp(-i*2*M_PI*n*k / N) */
+        /* Precalculations of all twiddles W = exp(-i*2*fPi*n*k / N) */
         prepareTwiddlesArray();
 
         dataPreparedConfirm = true;
@@ -405,7 +405,7 @@ void PajFFT_MixedRadix::prepareWindowingArray               ()
     windowHann.clear();
     for(int i=0; i<wBufferSize; ++i)
     {
-        float windowSample = -0.5*cos(2.*M_PI*(double)i/(double)wBufferSize)+0.5;
+        float windowSample = -0.5*cos(2.*fPi*(double)i/(double)wBufferSize)+0.5;
         windowHann.push_back(windowSample);
     }
 }
