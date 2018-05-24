@@ -68,6 +68,7 @@ private:
     std::vector<std::complex<float>> inputDataC;
  public:
     int fftType=0;
+    double fPi;
     
     std::vector<float>               outRealMixed;
     std::vector<float>               wOutput;
