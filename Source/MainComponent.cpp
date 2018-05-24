@@ -27,10 +27,10 @@ MainComponent::MainComponent() : fftInterface(this)
     addAndMakeVisible(&wAudioPlayer);
 
     display_logarithmic.setFFTcalc(graphAnalyser);
-    display_logarithmic.setSize(700, 400+30);
+    display_logarithmic.setSize(700, 420);
     
     display_linear.setFFTcalc(graphAnalyser);
-    display_linear.setSize(700, 400+30);
+    display_linear.setSize(700, 420);
 
     graphAnalyser.setSize(display_logarithmic.getDisplayWidth(), display_logarithmic.getDisplayHeight());
     
@@ -70,6 +70,21 @@ MainComponent::MainComponent() : fftInterface(this)
     wPitchShiftLabel.setJustificationType(Justification::centredBottom);
     wPitchShiftLabel.attachToComponent(&wPitchShift, false);
     wPitchShift.addListener(this);
+  
+    addAndMakeVisible(&freqDisp);
+    freqDisp.setButtonText("Freq");
+    freqDisp.setToggleState(false, dontSendNotification);
+    freqDisp.onClick = [this] { updateToggleState(&freqDisp, freqDisp_ID); };
+  
+    addAndMakeVisible(&timeDisp);
+    timeDisp.setButtonText("Time");
+    timeDisp.setToggleState(false, dontSendNotification);
+    timeDisp.onClick = [this] { updateToggleState(&timeDisp, timeDisp_ID); };
+  
+    addAndMakeVisible(&d_weightingDisp);
+    d_weightingDisp.setButtonText("D-weighting");
+    d_weightingDisp.setToggleState(false, dontSendNotification);
+    d_weightingDisp.onClick = [this] { updateToggleState(&d_weightingDisp, d_weightingDisp_ID); };
     
     
     startTimer(1000);
@@ -350,9 +365,9 @@ void MainComponent::paint (Graphics& g)
 void MainComponent::resized()
 {
     
-    display_logarithmic.setBounds           (150, 0, 700, 400);
+    display_logarithmic.setBounds           (150, 10, 700, 400);
     graphAnalyser.setBounds      (display_logarithmic.getDisplayMargXLeft()+150, display_logarithmic.getDisplayMargYTop(), graphAnalyser.getWidth(), graphAnalyser.getHeight());
-    display_linear.setBounds                (150, 0, 700, 400);
+    display_linear.setBounds                (150, 10, 700, 400);
     oscInterface.setBounds(10, 10, 130, 410);
     fftInterface.setBounds((getWidth()/2) + 5, 430, 485, 160);
     wAudioPlayer.setBounds(10, 430, 485, 160);
@@ -364,7 +379,10 @@ void MainComponent::resized()
     
     selectOscill.setBounds(12, 12, 25, 25);
     selectPlayer.setBounds(12, 432, 25, 25);
-    
+  
+    freqDisp.setBounds(155, 2, 80, 25);
+    timeDisp.setBounds(240, 2, 80, 25);
+    d_weightingDisp.setBounds(325, 2, 80, 25);
 }
 
 void MainComponent::fft_defaultSettings()
