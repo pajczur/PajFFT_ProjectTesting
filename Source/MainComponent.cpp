@@ -192,6 +192,12 @@ void MainComponent::updateToggleState(Button* button, int buttonID)
             break;
             
         case 6:
+            if(d_weightingDisp.getToggleState())
+            {
+                graphAnalyser.isDWeighting = true;
+            }
+            else
+                graphAnalyser.isDWeighting = false;
             break;
             
         default:

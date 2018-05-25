@@ -18,6 +18,7 @@ GraphAnalyser::GraphAnalyser()
     maxResolution = 1000;
     isFreqAnalyser = true;
     gg=2.536 * pow(10.0, -5.0);
+    isDWeighting = false;
 }
 
 GraphAnalyser::~GraphAnalyser()
@@ -248,12 +249,23 @@ double GraphAnalyser::wDecibels(double linearMag, int freqIndex)
 {
     float dweight;
     
-    dweight = d_weighting(freqIndex);
-    
-    if(linearMag <= 0.0001)
+    if(isDWeighting)
     {
-        linearMag = 0.00001;
-        dweight = 0.00001f;
+        dweight = d_weighting(freqIndex);
+        
+        if(linearMag <= 0.0001)
+        {
+            linearMag = 0.00001;
+            dweight = 0.00001f;
+        }
+    }
+    else
+    {
+        dweight = 1.0f;
+        if(linearMag <= 0.0001)
+        {
+            linearMag = 0.00001;
+        }
     }
     
     return  -(0.75 * zero_dB * dweight * (20.0*log10(linearMag) + 72.0)/72.0) + zero_dB;
