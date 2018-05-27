@@ -397,16 +397,19 @@
     <ClCompile Include="..\..\Source\MainComponent.cpp">
       <Filter>PajFFTproject\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\FFTInterface.cpp">
-      <Filter>PajFFTproject\Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\OscInterface.cpp">
       <Filter>PajFFTproject\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\WavesGen.cpp">
+    <ClCompile Include="..\..\Source\AudioPlayer.cpp">
       <Filter>PajFFTproject\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\AudioPlayer.cpp">
+    <ClCompile Include="..\..\Source\FFTInterface.cpp">
+      <Filter>PajFFTproject\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\PitchShiftingGUI.cpp">
+      <Filter>PajFFTproject\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\WavesGen.cpp">
       <Filter>PajFFTproject\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Display_Logarithmic.cpp">
@@ -2253,16 +2256,19 @@
     <ClInclude Include="..\..\Source\MainComponent.h">
       <Filter>PajFFTproject\Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\FFTInterface.h">
-      <Filter>PajFFTproject\Source</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\OscInterface.h">
       <Filter>PajFFTproject\Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\WavesGen.h">
+    <ClInclude Include="..\..\Source\AudioPlayer.h">
       <Filter>PajFFTproject\Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\AudioPlayer.h">
+    <ClInclude Include="..\..\Source\FFTInterface.h">
+      <Filter>PajFFTproject\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\PitchShiftingGUI.h">
+      <Filter>PajFFTproject\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\WavesGen.h">
       <Filter>PajFFTproject\Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Display_Logarithmic.h">

@@ -33,7 +33,8 @@ public:
     void sliderValueChanged (Slider *slider) override;
     void updateToggleState(Button* button, int waveIdentifier);
     
-    void settings(WavesGen &waveGenerator, CalculateDTFT &fftCalc, GraphAnalyser &gAnalyser, double sampRate);
+    void setSampleRate(double sampRate);
+    void setReferences(WavesGen &waveGenerator, CalculateDTFT &fftCalc, GraphAnalyser &gAnalyser);
 
 private:
     Slider wPitchBand;

@@ -151,15 +151,18 @@ void OscInterface::updateToggleState(Button* button, int waveIdentifier)
     }
 }
 
-void OscInterface::settings(WavesGen &waveGenerator, CalculateDTFT &fftCalc, GraphAnalyser &gAnalyser, double sampRate)
+void OscInterface::setSampleRate(double sampRate)
+{
+    wPitchBand.setRange(0, sampRate/2.0, 0.000001);
+    wPitchBand.setValue(220.0);
+    wPitchBand.setSkewFactorFromMidPoint(1000);
+}
+
+void OscInterface::setReferences(WavesGen &waveGenerator, CalculateDTFT &fftCalc, GraphAnalyser &gAnalyser)
 {
     calculator_FFT = &fftCalc;
     oscillator = &waveGenerator;
     graphAnalyser = &gAnalyser;
-    
-    wPitchBand.setRange(0, sampRate/2.0, 0.000001);
-    wPitchBand.setValue(172.0);
-    wPitchBand.setSkewFactorFromMidPoint(1000);
 }
 
 

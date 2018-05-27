@@ -162,16 +162,6 @@
       <Option compile="0"/>
       <Option link="0"/>
     </Unit>
-    <Unit filename="../../Source/FFTInterface.cpp">
-      <Option target="App | Debug"/>
-      <Option target="App | Release"/>
-    </Unit>
-    <Unit filename="../../Source/FFTInterface.h">
-      <Option target="App | Debug"/>
-      <Option target="App | Release"/>
-      <Option compile="0"/>
-      <Option link="0"/>
-    </Unit>
     <Unit filename="../../Source/OscInterface.cpp">
       <Option target="App | Debug"/>
       <Option target="App | Release"/>
@@ -182,21 +172,41 @@
       <Option compile="0"/>
       <Option link="0"/>
     </Unit>
-    <Unit filename="../../Source/WavesGen.cpp">
-      <Option target="App | Debug"/>
-      <Option target="App | Release"/>
-    </Unit>
-    <Unit filename="../../Source/WavesGen.h">
-      <Option target="App | Debug"/>
-      <Option target="App | Release"/>
-      <Option compile="0"/>
-      <Option link="0"/>
-    </Unit>
     <Unit filename="../../Source/AudioPlayer.cpp">
       <Option target="App | Debug"/>
       <Option target="App | Release"/>
     </Unit>
     <Unit filename="../../Source/AudioPlayer.h">
+      <Option target="App | Debug"/>
+      <Option target="App | Release"/>
+      <Option compile="0"/>
+      <Option link="0"/>
+    </Unit>
+    <Unit filename="../../Source/FFTInterface.cpp">
+      <Option target="App | Debug"/>
+      <Option target="App | Release"/>
+    </Unit>
+    <Unit filename="../../Source/FFTInterface.h">
+      <Option target="App | Debug"/>
+      <Option target="App | Release"/>
+      <Option compile="0"/>
+      <Option link="0"/>
+    </Unit>
+    <Unit filename="../../Source/PitchShiftingGUI.cpp">
+      <Option target="App | Debug"/>
+      <Option target="App | Release"/>
+    </Unit>
+    <Unit filename="../../Source/PitchShiftingGUI.h">
+      <Option target="App | Debug"/>
+      <Option target="App | Release"/>
+      <Option compile="0"/>
+      <Option link="0"/>
+    </Unit>
+    <Unit filename="../../Source/WavesGen.cpp">
+      <Option target="App | Debug"/>
+      <Option target="App | Release"/>
+    </Unit>
+    <Unit filename="../../Source/WavesGen.h">
       <Option target="App | Debug"/>
       <Option target="App | Release"/>
       <Option compile="0"/>

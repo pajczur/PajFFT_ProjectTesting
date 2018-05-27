@@ -30,7 +30,7 @@ public:
     int getDisplayMargXLeft();
     int getDisplayMargYTop();
     void setSampRate(double buffSize);
-    void setFFTcalc(GraphAnalyser &graph);
+    void whatToDisplay(GraphAnalyser &graph);
 
 
 private:

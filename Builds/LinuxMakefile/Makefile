@@ -75,10 +75,11 @@ OBJECTS_APP := \
   $(JUCE_OBJDIR)/PajFFT_HandyFunc_338ea57f.o \
   $(JUCE_OBJDIR)/Main_90ebc5c2.o \
   $(JUCE_OBJDIR)/MainComponent_a6ffb4a5.o \
-  $(JUCE_OBJDIR)/FFTInterface_6c7425ee.o \
   $(JUCE_OBJDIR)/OscInterface_62257083.o \
-  $(JUCE_OBJDIR)/WavesGen_a829ebdf.o \
   $(JUCE_OBJDIR)/AudioPlayer_39c70138.o \
+  $(JUCE_OBJDIR)/FFTInterface_6c7425ee.o \
+  $(JUCE_OBJDIR)/PitchShiftingGUI_a0449aa4.o \
+  $(JUCE_OBJDIR)/WavesGen_a829ebdf.o \
   $(JUCE_OBJDIR)/Display_Logarithmic_f197c883.o \
   $(JUCE_OBJDIR)/Display_Linear_55b8ebeb.o \
   $(JUCE_OBJDIR)/CalculateDTFT_8f6aeb25.o \
@@ -145,24 +146,29 @@ $(JUCE_OBJDIR)/MainComponent_a6ffb4a5.o: ../../Source/MainComponent.cpp
 	@echo "Compiling MainComponent.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
 
-$(JUCE_OBJDIR)/FFTInterface_6c7425ee.o: ../../Source/FFTInterface.cpp
-	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling FFTInterface.cpp"
-	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
-
 $(JUCE_OBJDIR)/OscInterface_62257083.o: ../../Source/OscInterface.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
 	@echo "Compiling OscInterface.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
 
-$(JUCE_OBJDIR)/WavesGen_a829ebdf.o: ../../Source/WavesGen.cpp
-	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling WavesGen.cpp"
-	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
-
 $(JUCE_OBJDIR)/AudioPlayer_39c70138.o: ../../Source/AudioPlayer.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
 	@echo "Compiling AudioPlayer.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/FFTInterface_6c7425ee.o: ../../Source/FFTInterface.cpp
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling FFTInterface.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/PitchShiftingGUI_a0449aa4.o: ../../Source/PitchShiftingGUI.cpp
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling PitchShiftingGUI.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/WavesGen_a829ebdf.o: ../../Source/WavesGen.cpp
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling WavesGen.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/Display_Logarithmic_f197c883.o: ../../Source/Display_Logarithmic.cpp

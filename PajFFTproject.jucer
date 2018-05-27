@@ -27,16 +27,20 @@
       <FILE id="ZFxA7k" name="MainComponent.cpp" compile="1" resource="0"
             file="Source/MainComponent.cpp"/>
       <FILE id="TLL4np" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
-      <FILE id="Bydtt0" name="FFTInterface.cpp" compile="1" resource="0"
-            file="Source/FFTInterface.cpp"/>
-      <FILE id="pWyKcQ" name="FFTInterface.h" compile="0" resource="0" file="Source/FFTInterface.h"/>
       <FILE id="lD9Q8j" name="OscInterface.cpp" compile="1" resource="0"
             file="Source/OscInterface.cpp"/>
       <FILE id="CeSxuH" name="OscInterface.h" compile="0" resource="0" file="Source/OscInterface.h"/>
-      <FILE id="XmlAJl" name="WavesGen.cpp" compile="1" resource="0" file="Source/WavesGen.cpp"/>
-      <FILE id="gBKmhB" name="WavesGen.h" compile="0" resource="0" file="Source/WavesGen.h"/>
       <FILE id="VrMNqA" name="AudioPlayer.cpp" compile="1" resource="0" file="Source/AudioPlayer.cpp"/>
       <FILE id="eGnZnY" name="AudioPlayer.h" compile="0" resource="0" file="Source/AudioPlayer.h"/>
+      <FILE id="Bydtt0" name="FFTInterface.cpp" compile="1" resource="0"
+            file="Source/FFTInterface.cpp"/>
+      <FILE id="pWyKcQ" name="FFTInterface.h" compile="0" resource="0" file="Source/FFTInterface.h"/>
+      <FILE id="q9JjuI" name="PitchShiftingGUI.cpp" compile="1" resource="0"
+            file="Source/PitchShiftingGUI.cpp"/>
+      <FILE id="gua0AA" name="PitchShiftingGUI.h" compile="0" resource="0"
+            file="Source/PitchShiftingGUI.h"/>
+      <FILE id="XmlAJl" name="WavesGen.cpp" compile="1" resource="0" file="Source/WavesGen.cpp"/>
+      <FILE id="gBKmhB" name="WavesGen.h" compile="0" resource="0" file="Source/WavesGen.h"/>
       <FILE id="LZisKI" name="Display_Logarithmic.cpp" compile="1" resource="0"
             file="Source/Display_Logarithmic.cpp"/>
       <FILE id="mzUBoR" name="Display_Logarithmic.h" compile="0" resource="0"

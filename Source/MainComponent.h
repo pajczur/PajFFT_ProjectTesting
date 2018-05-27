@@ -10,8 +10,9 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "OscInterface.h"
-#include "FFTInterface.h"
 #include "AudioPlayer.h"
+#include "FFTInterface.h"
+#include "PitchShiftingGUI.h"
 #include "WavesGen.h"
 #include "Display_Logarithmic.h"
 #include "Display_Linear.h"
@@ -25,7 +26,7 @@
     This component lives inside our window, and this is where you should put all
     your controls and content.
 */
-class MainComponent   : public AudioAppComponent, private Timer, private Slider::Listener
+class MainComponent   : public AudioAppComponent, private Timer /*, private Slider::Listener */
 {
 public:
     //==============================================================================
@@ -34,7 +35,7 @@ public:
     
     void timerCallback() override;
     void updateToggleState(Button* button, int buttonID);
-    void sliderValueChanged (Slider *slider) override;
+//    void sliderValueChanged (Slider *slider) override;
 
     //==============================================================================
     void prepareToPlay (int samplesPerBlockExpected, double sampleRate) override;
@@ -69,14 +70,10 @@ private:
     OscInterface oscInterface;
     WavesGen oscillator;
     AudioPlayer wAudioPlayer;
+    PitchShiftingGUI pitchShiftGui;
     
     double wSampleRate;
     double deviceBufferSize;
-    
-//    ToggleButton selectFreqDisp;
-//    ToggleButton selectTimeDisp;
-//    const int freqDisp_ID=1;
-//    const int timeDisp_ID=2;
     
     ToggleButton selectOscill;
     ToggleButton selectPlayer;
@@ -95,12 +92,6 @@ private:
     std::vector<float> signalToFFT;
     int fftOutputIndex;
     double fPi;
-    
-    Slider wPitchShift;
-    Label wPitchShiftLabel;
-    
-    ToggleButton pitchShiftON;
-    const int pitchShiftON_ID=3;
     
     ToggleButton freqDisp;
     const int freqDisp_ID=4;

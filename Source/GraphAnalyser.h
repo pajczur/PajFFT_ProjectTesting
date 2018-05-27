@@ -36,8 +36,8 @@ public:
     void paint (Graphics&) override;
     void resized() override;
     
-    void drawLinearGraph();
-    void drawLogarGraph3();
+    void drawLinGraph();
+    void drawLogGraph();
     void clearDisplay();
     
     double wDecibels  (double linearMag, int freqIndex);
@@ -47,43 +47,26 @@ public:
 private:
     Path fftGraph;
     CalculateDTFT *dataSource;
-    WavesGen *oscSource;
-    AudioPlayer *audioSource;
+    WavesGen      *oscilSource;
+    AudioPlayer   *audioSource;
     
     
     double wSampleRate;
-    double newBufferSize;
-    double radix2BuffSize;
+    double wBufferSize;
     double nyquist;
     double buffNyquist;
     float maxResolution;
-    
-    double dispResol;
+
     double dispLogScale;
-    float zero_dB; // position on the displey of 0 dB
+    float zero_dB;
     double dispWidth;
-    float logScaleWidth1;
-    float logNyquist;
+    float logScaleWidth;
     float low_End;
     float low_End_index;
     float top_End;
-    float top_End_index;
     float timeStart;
     float timeEnd;
     float linearDivider;
-    
-    
-    // F-Weighting
-    double gg;
-    double zz1;
-    double zz2;
-    double zz3;
-    double pp1;
-    double pp2;
-    double pp3;
-    double pp4;
-    
-    int fff=0;
     
 public:
     bool isDWeighting;

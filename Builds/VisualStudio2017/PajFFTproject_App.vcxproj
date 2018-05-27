@@ -155,10 +155,11 @@
     <ClCompile Include="..\..\Source\PajFFT\PajFFT_HandyFunc.cpp"/>
     <ClCompile Include="..\..\Source\Main.cpp"/>
     <ClCompile Include="..\..\Source\MainComponent.cpp"/>
-    <ClCompile Include="..\..\Source\FFTInterface.cpp"/>
     <ClCompile Include="..\..\Source\OscInterface.cpp"/>
-    <ClCompile Include="..\..\Source\WavesGen.cpp"/>
     <ClCompile Include="..\..\Source\AudioPlayer.cpp"/>
+    <ClCompile Include="..\..\Source\FFTInterface.cpp"/>
+    <ClCompile Include="..\..\Source\PitchShiftingGUI.cpp"/>
+    <ClCompile Include="..\..\Source\WavesGen.cpp"/>
     <ClCompile Include="..\..\Source\Display_Logarithmic.cpp"/>
     <ClCompile Include="..\..\Source\Display_Linear.cpp"/>
     <ClCompile Include="..\..\Source\CalculateDTFT.cpp"/>
@@ -1833,10 +1834,11 @@
     <ClInclude Include="..\..\Source\PajFFT\PajFFT_Radix2.h"/>
     <ClInclude Include="..\..\Source\PajFFT\PajFFT_HandyFunc.h"/>
     <ClInclude Include="..\..\Source\MainComponent.h"/>
-    <ClInclude Include="..\..\Source\FFTInterface.h"/>
     <ClInclude Include="..\..\Source\OscInterface.h"/>
-    <ClInclude Include="..\..\Source\WavesGen.h"/>
     <ClInclude Include="..\..\Source\AudioPlayer.h"/>
+    <ClInclude Include="..\..\Source\FFTInterface.h"/>
+    <ClInclude Include="..\..\Source\PitchShiftingGUI.h"/>
+    <ClInclude Include="..\..\Source\WavesGen.h"/>
     <ClInclude Include="..\..\Source\Display_Logarithmic.h"/>
     <ClInclude Include="..\..\Source\Display_Linear.h"/>
     <ClInclude Include="..\..\Source\CalculateDTFT.h"/>

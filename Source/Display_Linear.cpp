@@ -96,7 +96,7 @@ void Display_Linear::sliderValueChanged (Slider *slider)
     }
 }
 
-void Display_Linear::setFFTcalc(GraphAnalyser &graph)
+void Display_Linear::whatToDisplay(GraphAnalyser &graph)
 {
     graphAnalyser = &graph;
 }

@@ -28,7 +28,7 @@ public:
     
     void changeListenerCallback (ChangeBroadcaster* source) override;
 
-private:
+public:
     
     enum TransportState
     {
@@ -51,8 +51,8 @@ private:
     TextButton stopButton;
     
     AudioFormatManager formatManager;
-    TransportState state;
 public:
+    TransportState state;
     std::unique_ptr<AudioFormatReaderSource> readerSource;
     AudioTransportSource transportSource;
     

@@ -16,10 +16,10 @@ FFTInterface::FFTInterface(AudioAppComponent *wAudioApp)
 {
     wAudioApplication = wAudioApp;
     wSampleRate=0;
+    isPitchShiftON = false;
     
     addAndMakeVisible(&fftBufSizeEdit);
     fftBufSizeEdit.setEditable(true);
-    fftBufSizeEdit.setText("512", dontSendNotification);
     fftBufSizeEdit.setJustificationType(Justification::centred);
     fftBufSizeEdit.addListener(this);
     
@@ -44,8 +44,10 @@ FFTInterface::FFTInterface(AudioAppComponent *wAudioApp)
     selectRegDFT.setButtonText("Regular DFT");
  */
     
+    addAndMakeVisible(&wInverseFFT);
     wInverseFFT.onClick = [this] { updateToggleState(&wInverseFFT, wInverse_ID); };
     wInverseFFT.setButtonText("INVERSE");
+    wInverseFFT.setVisible(false);
     addAndMakeVisible(&alreadyInversed);
     alreadyInversed.setVisible(false);
     alreadyInversed.setJustificationType(Justification::centredTop);
@@ -123,7 +125,7 @@ FFTInterface::~FFTInterface()
 }
 
 
-void FFTInterface::wSettings                (CalculateDTFT &fftCalc, OscInterface &osPan, GraphAnalyser &graph, AudioPlayer &player, WavesGen &oscill)
+void FFTInterface::setReferences                (CalculateDTFT &fftCalc, OscInterface &osPan, GraphAnalyser &graph, AudioPlayer &player, WavesGen &oscill)
 {
     calculator_FFT = &fftCalc;
     oscPan = &osPan;
@@ -493,6 +495,12 @@ void FFTInterface::setSampleRate            (double sample_rate)
     filterSetTopEnd.setSkewFactorFromMidPoint(1000);
 }
 
+void FFTInterface::setBufferSize(double buffer_size)
+{
+    newBufferSize = buffer_size;
+    fftBufSizeEdit.setText(to_string((int)buffer_size), dontSendNotification);
+}
+
 
 
 
@@ -521,6 +529,9 @@ void FFTInterface::setOFF_fft               ()
     wInverseFFT.setVisible(false);
     filtersDescript.setVisible(false);
 
+    if(!graphAnalyser->isTimerRunning())
+        graphAnalyser->startTimer(40);
+
     repaint();
 }
 
@@ -533,12 +544,16 @@ void FFTInterface::setON_matrixfft          ()
 //        zerosPaddingDescript.setVisible(false);
 //        zeroPadding.setVisible(false);
         
-        addAndMakeVisible(&wInverseFFT);
-        if(wInverseFFT.getToggleState())
+        if(!isPitchShiftON)
         {
-            setPhase.setVisible(true);
-            wWindowBut.setVisible(true);
+            wInverseFFT.setVisible(true);
+            if(wInverseFFT.getToggleState())
+            {
+                setPhase.setVisible(true);
+                wWindowBut.setVisible(true);
+            }
         }
+            
         if(calculator_FFT->isPitchON)
         {
             alreadyWindow.setVisible(true);

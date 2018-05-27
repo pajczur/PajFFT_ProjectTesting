@@ -32,7 +32,7 @@ public:
     
     void timerCallback() override;
     
-    void wSettings(CalculateDTFT &fftCalc, OscInterface &osPan, GraphAnalyser &graph, AudioPlayer &player, WavesGen &oscill);
+    void setReferences(CalculateDTFT &fftCalc, OscInterface &osPan, GraphAnalyser &graph, AudioPlayer &player, WavesGen &oscill);
     
     void paint (Graphics&) override;
     void resized() override;
@@ -44,6 +44,7 @@ public:
 //    void updateToggleZeroPad(Button* button, int fftIdentifier);
     
     void setSampleRate(double sample_rate);
+    void setBufferSize(double buffer_size);
     
     void setOFF_fft();
     void setON_matrixfft();
@@ -59,8 +60,8 @@ public:
     
     
     double            rememberedBuffer;
-private:
     CalculateDTFT     *calculator_FFT;
+private:
     GraphAnalyser     *graphAnalyser;
     OscInterface      *oscPan;
     AudioAppComponent *wAudioApplication;
@@ -127,7 +128,9 @@ private:
     Rectangle<int>    matrixSizeInfoBox;
 
     string            matrixDimToString();
+    
 public:
+    bool              isPitchShiftON;
     bool              pauseGetNextAudioBlock;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FFTInterface)

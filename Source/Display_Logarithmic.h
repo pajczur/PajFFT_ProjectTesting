@@ -30,7 +30,7 @@ public:
     int getDisplayMargXLeft();
     int getDisplayMargYTop();
     void setNyquist(double nyquistFreq);
-    void setFFTcalc(GraphAnalyser &graph);
+    void whatToDisplay(GraphAnalyser &graph);
     
 //    void set
 

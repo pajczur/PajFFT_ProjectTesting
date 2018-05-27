@@ -43,14 +43,16 @@ add_library( ${BINARY_NAME}
     "../../../Source/Main.cpp"
     "../../../Source/MainComponent.cpp"
     "../../../Source/MainComponent.h"
-    "../../../Source/FFTInterface.cpp"
-    "../../../Source/FFTInterface.h"
     "../../../Source/OscInterface.cpp"
     "../../../Source/OscInterface.h"
-    "../../../Source/WavesGen.cpp"
-    "../../../Source/WavesGen.h"
     "../../../Source/AudioPlayer.cpp"
     "../../../Source/AudioPlayer.h"
+    "../../../Source/FFTInterface.cpp"
+    "../../../Source/FFTInterface.h"
+    "../../../Source/PitchShiftingGUI.cpp"
+    "../../../Source/PitchShiftingGUI.h"
+    "../../../Source/WavesGen.cpp"
+    "../../../Source/WavesGen.h"
     "../../../Source/Display_Logarithmic.cpp"
     "../../../Source/Display_Logarithmic.h"
     "../../../Source/Display_Linear.cpp"
@@ -1312,10 +1314,11 @@ set_source_files_properties("../../../Source/PajFFT/PajFFT_MixedRadix.h" PROPERT
 set_source_files_properties("../../../Source/PajFFT/PajFFT_Radix2.h" PROPERTIES HEADER_FILE_ONLY TRUE)
 set_source_files_properties("../../../Source/PajFFT/PajFFT_HandyFunc.h" PROPERTIES HEADER_FILE_ONLY TRUE)
 set_source_files_properties("../../../Source/MainComponent.h" PROPERTIES HEADER_FILE_ONLY TRUE)
-set_source_files_properties("../../../Source/FFTInterface.h" PROPERTIES HEADER_FILE_ONLY TRUE)
 set_source_files_properties("../../../Source/OscInterface.h" PROPERTIES HEADER_FILE_ONLY TRUE)
-set_source_files_properties("../../../Source/WavesGen.h" PROPERTIES HEADER_FILE_ONLY TRUE)
 set_source_files_properties("../../../Source/AudioPlayer.h" PROPERTIES HEADER_FILE_ONLY TRUE)
+set_source_files_properties("../../../Source/FFTInterface.h" PROPERTIES HEADER_FILE_ONLY TRUE)
+set_source_files_properties("../../../Source/PitchShiftingGUI.h" PROPERTIES HEADER_FILE_ONLY TRUE)
+set_source_files_properties("../../../Source/WavesGen.h" PROPERTIES HEADER_FILE_ONLY TRUE)
 set_source_files_properties("../../../Source/Display_Logarithmic.h" PROPERTIES HEADER_FILE_ONLY TRUE)
 set_source_files_properties("../../../Source/Display_Linear.h" PROPERTIES HEADER_FILE_ONLY TRUE)
 set_source_files_properties("../../../Source/CalculateDTFT.h" PROPERTIES HEADER_FILE_ONLY TRUE)
