@@ -59,6 +59,7 @@ public:
     Display_Logarithmic display_logarithmic;
     Display_Linear      display_linear;
 private:
+    AudioDeviceSelectorComponent adsc;
     //==============================================================================
     // Your private member variables go here...
     CalculateDTFT calculator_FFT;
@@ -104,6 +105,6 @@ private:
     
     
     long tempp=0;
-    
+    int ttt=0;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

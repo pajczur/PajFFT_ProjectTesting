@@ -44,8 +44,10 @@ public:
     double a_weighting(int freqIndex);
     double d_weighting(int freqIndex);
 
+    double deviceBufferSize;
 private:
     Path fftGraph;
+    Path wavGraph;
     CalculateDTFT *dataSource;
     WavesGen      *oscilSource;
     AudioPlayer   *audioSource;
@@ -69,6 +71,8 @@ private:
     float linearDivider;
     
 public:
+    int ttt=0;
+    bool isFFTon;
     bool isDWeighting;
     bool isFreqAnalyser;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GraphAnalyser)

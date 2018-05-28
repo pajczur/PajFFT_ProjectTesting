@@ -18,6 +18,7 @@ GraphAnalyser::GraphAnalyser()
     maxResolution = 1000;
     isFreqAnalyser = true;
     isDWeighting = false;
+    isFFTon=false;
 }
 
 GraphAnalyser::~GraphAnalyser()
@@ -28,7 +29,10 @@ void GraphAnalyser::paint (Graphics& g)
 {
     g.setColour (Colours::red);
 
-    g.strokePath(fftGraph, PathStrokeType(2));
+    if(!isFreqAnalyser)
+        g.strokePath(wavGraph, PathStrokeType(2));
+    else
+        g.strokePath(fftGraph, PathStrokeType(2));
 }
 
 void GraphAnalyser::resized()
@@ -43,12 +47,18 @@ void GraphAnalyser::timerCallback()
     {
         if(!dataSource->backFFTout.empty())
         {
-            fftGraph.clear();
             
             if(!isFreqAnalyser)
+            {
+                wavGraph.clear();
                 drawLinGraph();
+            }
             else
-                drawLogGraph();
+            {
+                fftGraph.clear();
+                if(isFFTon)
+                    drawLogGraph();
+            }
             
             repaint();
         }
@@ -56,7 +66,7 @@ void GraphAnalyser::timerCallback()
     else
     {
         stopTimer();
-        if(!fftGraph.isEmpty())
+//        if(!fftGraph.isEmpty())
             clearDisplay();
     }
     
@@ -77,7 +87,7 @@ void GraphAnalyser::drawLinGraph()
     }
     
     int startPoint = (int)timeStart%(int)(wBufferSize-1);
-    fftGraph.startNewSubPath(0, -(env[startPoint] * zero_dB/2.0) + (zero_dB/2.0));
+    wavGraph.startNewSubPath(0, -(env[startPoint] * zero_dB/2.0) + (zero_dB/2.0));
     
     double avarage = 0.0;
     for(float i=timeStart+1.0; i<=wSampleRate; i++)
@@ -91,7 +101,7 @@ void GraphAnalyser::drawLinGraph()
         {
             avarage = avarage/linearDivider;
             double wCurrent   = dispWidth * ((i)-timeStart);
-            fftGraph.lineTo(wCurrent, -(avarage * zero_dB/2.0) + (zero_dB/2.0));
+            wavGraph.lineTo(wCurrent, -(avarage * zero_dB/2.0) + (zero_dB/2.0));
             avarage = 0.0;
         }
     }

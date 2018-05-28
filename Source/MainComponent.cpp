@@ -11,8 +11,12 @@
 
 
 //==============================================================================
-MainComponent::MainComponent() : fftInterface(this)
+MainComponent::MainComponent() : adsc(deviceManager, 0, 0, 0, 0, false, false, false, false), fftInterface(this)
 {
+    addAndMakeVisible(adsc);
+    adsc.setAlwaysOnTop(true);
+    
+    
     
     setSize (1000, 600);
     fPi = 4.0 * atan(1.0);
@@ -174,9 +178,11 @@ void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRat
 {
     wSampleRate = sampleRate;
     deviceBufferSize = samplesPerBlockExpected;
+//    deviceBufferSize = 441.0;
     wAudioPlayer.transportSource.prepareToPlay(samplesPerBlockExpected, sampleRate);
     tempBuff.setSize(2, samplesPerBlockExpected);
     fft_defaultSettings();
+    std::cout << samplesPerBlockExpected << std::endl;
 }
 
 void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill)
@@ -351,8 +357,9 @@ void MainComponent::paint (Graphics& g)
     g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
     g.setColour (Colours::grey);
     g.drawRect(getWidth()-140, 10, 130, 80);
+    g.drawRect(30 + 485-140+ 485, 430, 130, 160);
     
-    if(!fftInterface.wInverseFFT.getToggleState())
+    if(!fftInterface.wInverseFFT.getToggleState() || fftInterface.whatIsChanged_ID==0)
     {
         hearFFTinversedSignal = false;
     }
@@ -377,8 +384,9 @@ void MainComponent::resized()
     display_linear.setBounds                (150, 10, 700, 410);
     pitchShiftGui.setBounds(860, 100, 130, 320);
     oscInterface.setBounds(10, 10, 130, 410);
-    fftInterface.setBounds((getWidth()/2) + 5, 430, 485, 160);
-    wAudioPlayer.setBounds(10, 430, 485, 160);
+    wAudioPlayer.setBounds(10, 430, 485-140, 160);
+    fftInterface.setBounds((getWidth()/2) + 5-140, 430, 485, 160);
+    adsc.setBounds(485-140+ 480, 440, 155, 160);
     
     fftTimeElapsedInfo.setBounds(getWidth()-130, 10, 110, 60);
     fftTimeElapsedLabel.setBounds(getWidth()-130, 60, 110, 30);
@@ -425,6 +433,7 @@ void MainComponent::fft_defaultSettings()
     
     graphAnalyser.setSampleRate(wSampleRate);
     graphAnalyser.setNewBufSize(deviceBufferSize);
+    graphAnalyser.deviceBufferSize = deviceBufferSize;
     
     
 }

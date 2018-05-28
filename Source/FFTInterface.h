@@ -53,6 +53,7 @@ public:
     void setInverse_fft();
     void setWindowing();
 
+    void pauseFFT(bool pauseFALSE_ResumeTRUE);
     void refresh();
 
     
@@ -61,6 +62,7 @@ public:
     
     double            rememberedBuffer;
     CalculateDTFT     *calculator_FFT;
+    int               whatIsChanged_ID;
 private:
     GraphAnalyser     *graphAnalyser;
     OscInterface      *oscPan;
@@ -83,11 +85,10 @@ private:
     
 //    ToggleButton      selectRadix2FFT;
 //    const int         selectRadix2FFT_ID=2;
-//    
+//
 //    ToggleButton      selectRegDFT;
 //    const int         selectRegDFT_ID=3;
     
-    int               whatIsChanged_ID;
     
 public:
     ToggleButton      wInverseFFT;

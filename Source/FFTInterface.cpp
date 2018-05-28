@@ -348,30 +348,18 @@ void FFTInterface::sliderValueChanged       (Slider *slider)
 
 void FFTInterface::labelTextChanged         (Label *labelThatHasChanged)
 {
-    calculator_FFT->dataIsReadyToFFT = false;
-    calculator_FFT->fftType = 0;
-    rememberedWaveType = oscillator->getWaveType();
-    oscillator->selectWave(0);
-    pauseGetNextAudioBlock = true;
-    
-    
-    
+    pauseFFT(false);
     
     if(labelThatHasChanged == &fftBufSizeEdit)
     {
         whatIsChanged_ID = fftBufSizeEdit_ID;
-//        startTimer(ceil((calculator_FFT->timeElapsed/1000.0f)*10.0f));
         startTimer(1000);
     }
-    
-    
-    
     else if(labelThatHasChanged == &matrixDividerEdit)
     {
         whatIsChanged_ID = matrixDividerEdit_ID;
         startTimer(1000);
     }
-    
 }
 
 
@@ -383,18 +371,14 @@ void FFTInterface::updateToggleState        (Button* button, int fftIdentifier)
     switch (fftIdentifier)
     {
         case 0: // FFT OFF
-            calculator_FFT->selectFFT(0);
-            if(graphAnalyser->isTimerRunning())
-                graphAnalyser->stopTimer();
             whatIsChanged_ID = turnOFF_ID;
+            pauseFFT(false);
             startTimer(ceil((calculator_FFT->timeElapsed/1000.0f)*10.0f));
             break;
             
         case 1: // MIXED RADIX
-            rememberedWaveType=oscillator->getWaveType();
-            oscillator->selectWave(0);
-            calculator_FFT->selectFFT(0);
             whatIsChanged_ID = selectMatrixFFT_ID;
+            pauseFFT(false);
             startTimer(ceil((calculator_FFT->timeElapsed/1000.0f)*10.0f));
             break;
             
@@ -415,20 +399,14 @@ void FFTInterface::updateToggleState        (Button* button, int fftIdentifier)
             break;
             
         case 4: // INVERSE
-            rememberedWaveType=oscillator->getWaveType();
-            oscillator->selectWave(0);
-            calculator_FFT->selectFFT(0);
             whatIsChanged_ID = wInverse_ID;
-            rememberInvWasClicked = wInverseFFT.getToggleState();
+            pauseFFT(false);
             startTimer(ceil((calculator_FFT->timeElapsed/1000.0f)*10.0f));
             break;
             
         case 5: // WINDOWING & OVERLAPING
-            rememberedWaveType=oscillator->getWaveType();
-            oscillator->selectWave(0);
-            calculator_FFT->selectFFT(0);
             whatIsChanged_ID = winHann_ID;
-            remembereWinWasClicked=wWindowBut.getToggleState();
+            pauseFFT(false);
             startTimer(ceil((calculator_FFT->timeElapsed/1000.0f)*10.0f));
 //            setWindowing();
             break;
@@ -507,7 +485,7 @@ void FFTInterface::setBufferSize(double buffer_size)
 
 void FFTInterface::setOFF_fft               ()
 {
-    graphAnalyser->clearDisplay();
+    
     
     matrixDividerEdit.setVisible(false);
     matrixSizeInfo.setVisible(false);
@@ -529,9 +507,13 @@ void FFTInterface::setOFF_fft               ()
     wInverseFFT.setVisible(false);
     filtersDescript.setVisible(false);
 
+    calculator_FFT->isForward = true;
+    calculator_FFT->isWindowed = false;
+    pauseGetNextAudioBlock = false;
+    oscillator->selectWave(rememberedWaveType);
+    graphAnalyser->isFFTon=false;
     if(!graphAnalyser->isTimerRunning())
         graphAnalyser->startTimer(40);
-
     repaint();
 }
 
@@ -539,7 +521,7 @@ void FFTInterface::setON_matrixfft          ()
 {
     if(selectMatrixFFT.getToggleState())
     {
-        pauseGetNextAudioBlock = true;
+        
         
 //        zerosPaddingDescript.setVisible(false);
 //        zeroPadding.setVisible(false);
@@ -553,13 +535,23 @@ void FFTInterface::setON_matrixfft          ()
                 wWindowBut.setVisible(true);
             }
         }
-            
-        if(calculator_FFT->isPitchON)
+        else
         {
             alreadyWindow.setVisible(true);
             alreadyInversed.setVisible(true);
             wWindowBut.setVisible(false);
         }
+        
+        if(rememberInvWasClicked)
+            calculator_FFT->isForward = false;
+        else
+            calculator_FFT->isForward = true;
+        
+        if(remembereWinWasClicked)
+            calculator_FFT->isWindowed = true;
+        else
+            calculator_FFT->isWindowed = false;
+            
         
         addAndMakeVisible(&filterSetLowEnd);
         addAndMakeVisible(&filterSetTopEnd);
@@ -586,7 +578,7 @@ void FFTInterface::setON_matrixfft          ()
         calculator_FFT->resetOutputData();
         graphAnalyser->setLowEndIndex();
         repaint();
-        
+        graphAnalyser->isFFTon=true;
         if(!graphAnalyser->isTimerRunning())
             graphAnalyser->startTimer(40);
 
@@ -731,6 +723,20 @@ void FFTInterface::setWindowing             ()
     }
 }
 */
+
+void FFTInterface::pauseFFT(bool pauseFALSE_ResumeTRUE)
+{
+    if(graphAnalyser->isTimerRunning())
+        graphAnalyser->stopTimer();
+    
+    pauseGetNextAudioBlock = true;
+    calculator_FFT->dataIsReadyToFFT = false;
+    calculator_FFT->selectFFT(0);
+    rememberedWaveType=oscillator->getWaveType();
+    oscillator->selectWave(0);
+    rememberInvWasClicked = wInverseFFT.getToggleState();
+    remembereWinWasClicked=wWindowBut.getToggleState();
+}
 
 void FFTInterface::refresh                  ()
 {
