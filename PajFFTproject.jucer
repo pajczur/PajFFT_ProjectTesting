@@ -18,10 +18,7 @@
         <FILE id="caJ51m" name="PajFFT_Radix2.cpp" compile="1" resource="0"
               file="Source/PajFFT/PajFFT_Radix2.cpp"/>
         <FILE id="UHu9GC" name="PajFFT_Radix2.h" compile="0" resource="0" file="Source/PajFFT/PajFFT_Radix2.h"/>
-        <FILE id="PUiFvc" name="PajFFT_HandyFunc.cpp" compile="1" resource="0"
-              file="Source/PajFFT/PajFFT_HandyFunc.cpp"/>
-        <FILE id="fQGWeH" name="PajFFT_HandyFunc.h" compile="0" resource="0"
-              file="Source/PajFFT/PajFFT_HandyFunc.h"/>
+
       </GROUP>
       <FILE id="wtj5Q6" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
       <FILE id="ZFxA7k" name="MainComponent.cpp" compile="1" resource="0"
