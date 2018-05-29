@@ -92,7 +92,7 @@ void GraphAnalyser::drawLinGraph()
     double avarage = 0.0;
     for(float i=timeStart+1.0; i<=wSampleRate; i++)
     {
-        if(dataSource->isWindowed)
+        if(dataSource->isWindowed   &&   !dataSource->isForward)
             avarage += dataSource->windowedBackFFTout[(int)i%(int)(wBufferSize-1)];
         else
             avarage += env[(int)i%(int)(wBufferSize-1)];

@@ -53,8 +53,8 @@ MainComponent::MainComponent() : adsc(deviceManager, 0, 0, 0, 0, false, false, f
     fftTimeElapsedInfo.setEditable(false);
     addAndMakeVisible(&fftTimeElapsedInfo);
     fftTimeElapsedInfo.setJustificationType(Justification::centredTop);
-    fftTimeElapsedInfo.setText("Time needs to calc FFT forw or forw AND back, in micro sec", dontSendNotification);
-
+    fftTimeElapsedInfo.setText("Time needs to calc FFT forw or forw and back [micro sec]", dontSendNotification);
+    fftTimeElapsedLabel.setColour(Label::textColourId, Colours::red);
   
     // == Choose Frequency graph == //
     addAndMakeVisible(&freqDisp);
@@ -182,7 +182,7 @@ void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRat
     wAudioPlayer.transportSource.prepareToPlay(samplesPerBlockExpected, sampleRate);
     tempBuff.setSize(2, samplesPerBlockExpected);
     fft_defaultSettings();
-    std::cout << samplesPerBlockExpected << std::endl;
+    std::cout << sampleRate << std::endl;
 }
 
 void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill)
@@ -357,7 +357,7 @@ void MainComponent::paint (Graphics& g)
     g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
     g.setColour (Colours::grey);
     g.drawRect(getWidth()-140, 10, 130, 80);
-    g.drawRect(30 + 485-140+ 485, 430, 130, 160);
+    g.drawRect(30 + 485-140+ 485-215, 430, 130+215, 160);
     
     if(!fftInterface.wInverseFFT.getToggleState() || fftInterface.whatIsChanged_ID==0)
     {
@@ -384,12 +384,12 @@ void MainComponent::resized()
     display_linear.setBounds                (150, 10, 700, 410);
     pitchShiftGui.setBounds(860, 100, 130, 320);
     oscInterface.setBounds(10, 10, 130, 410);
-    wAudioPlayer.setBounds(10, 430, 485-140, 160);
-    fftInterface.setBounds((getWidth()/2) + 5-140, 430, 485, 160);
-    adsc.setBounds(485-140+ 480, 440, 155, 160);
+    wAudioPlayer.setBounds(10, 430, 130, 160);
+    fftInterface.setBounds((getWidth()/2) + 5-140-215, 430, 485, 160);
+    adsc.setBounds(660, 420, 330, 160);
     
-    fftTimeElapsedInfo.setBounds(getWidth()-130, 10, 110, 60);
-    fftTimeElapsedLabel.setBounds(getWidth()-130, 60, 110, 30);
+    fftTimeElapsedInfo.setBounds(getWidth()-135, 15, 120, 60);
+    fftTimeElapsedLabel.setBounds(getWidth()-135, 65, 120, 30);
 
     selectOscill.setBounds(12, 12, 25, 25);
     selectPlayer.setBounds(12, 432, 25, 25);

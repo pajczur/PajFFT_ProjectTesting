@@ -17,12 +17,14 @@
 //==============================================================================
 /*
 */
-class PitchShiftingGUI    : public Component, private Slider::Listener
+class PitchShiftingGUI    : public Component, private Slider::Listener, private Timer
 {
 public:
     PitchShiftingGUI();
     ~PitchShiftingGUI();
 
+    void timerCallback() override;
+    
     void paint (Graphics&) override;
     void resized() override;
     
@@ -38,8 +40,9 @@ private:
     Slider wPitchShift;
     Label wPitchShiftLabel;
     
-    ToggleButton pitchShiftON;
-    const int pitchShiftON_ID=1;
+    ToggleButton pitchShiftOnOff;
+    Label pitchShiftOnOffLabel;
+    const int pitchShiftOnOff_ID=1;
     
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PitchShiftingGUI)

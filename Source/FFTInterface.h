@@ -115,6 +115,11 @@ private:
     Slider            filterSetLowEnd;
     Slider            filterSetTopEnd;
     Label             filtersDescript;
+    ToggleButton      linkFilters;
+    const int         linkFilters_ID=20;
+    Label             linkFiltersLabel;
+    bool              areFiltersLinked;
+    double            filterDiff;
     
     Slider            setPhase;
     Label             setPhaseLabel;

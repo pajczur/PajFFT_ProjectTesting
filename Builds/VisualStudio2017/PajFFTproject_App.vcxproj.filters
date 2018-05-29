@@ -388,9 +388,6 @@
     <ClCompile Include="..\..\Source\PajFFT\PajFFT_Radix2.cpp">
       <Filter>PajFFTproject\Source\PajFFT</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\PajFFT\PajFFT_HandyFunc.cpp">
-      <Filter>PajFFTproject\Source\PajFFT</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Main.cpp">
       <Filter>PajFFTproject\Source</Filter>
     </ClCompile>
@@ -2248,9 +2245,6 @@
       <Filter>PajFFTproject\Source\PajFFT</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\PajFFT\PajFFT_Radix2.h">
-      <Filter>PajFFTproject\Source\PajFFT</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\PajFFT\PajFFT_HandyFunc.h">
       <Filter>PajFFTproject\Source\PajFFT</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\MainComponent.h">

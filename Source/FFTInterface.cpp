@@ -32,6 +32,7 @@ FFTInterface::FFTInterface(AudioAppComponent *wAudioApp)
     selectMatrixFFT.setRadioGroupId(fftSelectorButtons);
     selectMatrixFFT.onClick = [this] { updateToggleState(&selectMatrixFFT, selectMatrixFFT_ID); };
     selectMatrixFFT.setButtonText("Matrix FFT");
+    
 /*
     addAndMakeVisible(&selectRadix2FFT);
     selectRadix2FFT.setRadioGroupId(fftSelectorButtons);
@@ -71,6 +72,9 @@ FFTInterface::FFTInterface(AudioAppComponent *wAudioApp)
     zerosPaddingDescript.setText("Uses all 512\nof samples");
 */
     
+    addAndMakeVisible(&filterSetLowEnd);
+    addAndMakeVisible(&filterSetTopEnd);
+    addAndMakeVisible(&filtersDescript);
     filterSetLowEnd.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
     filterSetLowEnd.setTextBoxStyle(Slider::TextBoxBelow, false, 70, 20);
     filterSetLowEnd.setTextValueSuffix(" Hz");
@@ -79,6 +83,17 @@ FFTInterface::FFTInterface(AudioAppComponent *wAudioApp)
     filterSetTopEnd.setTextBoxStyle(Slider::TextBoxBelow, false, 70, 20);
     filterSetTopEnd.setTextValueSuffix(" Hz");
     filterSetTopEnd.addListener(this);
+    filterSetLowEnd.setVisible(false);
+    filterSetTopEnd.setVisible(false);
+    filtersDescript.setVisible(false);
+    
+    addAndMakeVisible(&linkFilters);
+    linkFilters.onClick = [this] { updateToggleState(&linkFilters, linkFilters_ID); };
+    linkFilters.setVisible(false);
+    addAndMakeVisible(&linkFiltersLabel);
+    linkFiltersLabel.setText("link", dontSendNotification);
+    linkFiltersLabel.setEditable(false);
+    linkFiltersLabel.setVisible(false);
     
     addAndMakeVisible(&setPhase);
     setPhase.setVisible(false);
@@ -232,15 +247,17 @@ void FFTInterface::paint                    (Graphics& g)
 
 void FFTInterface::resized                  ()
 {
-    fftBufSizeEditBox.setBounds          (100, 3, 80, 25);
-    fftBufSizeEdit.setBounds             (100, 3, 80, 25);
+    fftBufSizeEditBox.setBounds          (103, 7, 80, 25);
+    fftBufSizeEdit.setBounds             (103, 7, 80, 25);
 
 //    zeroPadding.setBounds                (200, 5, 100, 20);
 //    zerosPaddingDescript.setBounds       (200, 28, 160, 35);
 
-    filterSetLowEnd.setBounds            (200, 87, 70, 50);
-    filterSetTopEnd.setBounds            (290, 87, 70, 50);
+    filterSetLowEnd.setBounds            (195, 87, 70, 50);
+    filterSetTopEnd.setBounds            (295, 87, 70, 50);
     filtersDescript.setBounds            (175, 135, 210, 25);
+    linkFilters.setBounds                (268, 110, 20, 16);
+    linkFiltersLabel.setBounds           (263, 95, 30, 10);
     
     setPhase.setBounds                   (390, (getHeight()/2)-55, 80, 80);
     wWindowBut.setBounds                    (385, getHeight()-50, 90, 50);
@@ -282,12 +299,19 @@ void FFTInterface::sliderValueChanged       (Slider *slider)
             calculator_FFT->setLowEnd(filterSetLowEnd.getValue());
             calculator_FFT->mixedRadix_FFT.setLowEnd(filterSetLowEnd.getValue());
             
-            if(filterSetLowEnd.getValue()+11.0 > filterSetTopEnd.getValue())
+            if(areFiltersLinked)
             {
-                filterSetTopEnd.setValue(filterSetLowEnd.getValue()+10.0);
+                filterSetTopEnd.setValue(filterSetLowEnd.getValue()+filterDiff);
                 calculator_FFT->setTopEnd(filterSetTopEnd.getValue());
                 calculator_FFT->mixedRadix_FFT.setTopEnd(filterSetTopEnd.getValue());
             }
+            else if(filterSetLowEnd.getValue()+3.0 > filterSetTopEnd.getValue()   &&   !areFiltersLinked)
+            {
+                filterSetTopEnd.setValue(filterSetLowEnd.getValue()+2.0);
+                calculator_FFT->setTopEnd(filterSetTopEnd.getValue());
+                calculator_FFT->mixedRadix_FFT.setTopEnd(filterSetTopEnd.getValue());
+            }
+            
             if(round(filterSetLowEnd.getValue()*(calculator_FFT->mixedRadix_FFT.getBufferSize()/wSampleRate))>=0)
             {
                 int tempIndex = round(filterSetLowEnd.getValue()*(calculator_FFT->mixedRadix_FFT.getBufferSize()/wSampleRate));
@@ -311,9 +335,15 @@ void FFTInterface::sliderValueChanged       (Slider *slider)
             calculator_FFT->setTopEnd(filterSetTopEnd.getValue());
             calculator_FFT->mixedRadix_FFT.setTopEnd(filterSetTopEnd.getValue());
             
-            if(filterSetTopEnd.getValue()-11.0 < filterSetLowEnd.getValue())
+            if(areFiltersLinked)
             {
-                filterSetLowEnd.setValue(filterSetTopEnd.getValue()-10.0);
+                filterSetLowEnd.setValue(filterSetTopEnd.getValue()-filterDiff);
+                calculator_FFT->mixedRadix_FFT.setLowEnd(filterSetLowEnd.getValue());
+                calculator_FFT->setLowEnd(filterSetLowEnd.getValue());
+            }
+            else if(filterSetTopEnd.getValue()-3.0 < filterSetLowEnd.getValue()   &&   !areFiltersLinked)
+            {
+                filterSetLowEnd.setValue(filterSetTopEnd.getValue()-2.0);
                 calculator_FFT->mixedRadix_FFT.setLowEnd(filterSetLowEnd.getValue());
                 calculator_FFT->setLowEnd(filterSetLowEnd.getValue());
             }
@@ -411,6 +441,16 @@ void FFTInterface::updateToggleState        (Button* button, int fftIdentifier)
 //            setWindowing();
             break;
             
+        case 20:
+            if(linkFilters.getToggleState())
+            {
+                filterDiff = filterSetTopEnd.getValue() - filterSetLowEnd.getValue();
+                areFiltersLinked = true;
+            }
+            else
+                areFiltersLinked = false;
+            break;
+            
         default:
             return;
     }
@@ -506,6 +546,8 @@ void FFTInterface::setOFF_fft               ()
     setPhase.setVisible(false);
     wInverseFFT.setVisible(false);
     filtersDescript.setVisible(false);
+    linkFiltersLabel.setVisible(false);
+    linkFilters.setVisible(false);
 
     calculator_FFT->isForward = true;
     calculator_FFT->isWindowed = false;
@@ -529,11 +571,11 @@ void FFTInterface::setON_matrixfft          ()
         if(!isPitchShiftON)
         {
             wInverseFFT.setVisible(true);
-            if(wInverseFFT.getToggleState())
-            {
+//            if(wInverseFFT.getToggleState())
+//            {
                 setPhase.setVisible(true);
                 wWindowBut.setVisible(true);
-            }
+//            }
         }
         else
         {
@@ -541,21 +583,23 @@ void FFTInterface::setON_matrixfft          ()
             alreadyInversed.setVisible(true);
             wWindowBut.setVisible(false);
         }
-        
+
         if(rememberInvWasClicked)
             calculator_FFT->isForward = false;
         else
             calculator_FFT->isForward = true;
-        
+
         if(remembereWinWasClicked)
             calculator_FFT->isWindowed = true;
         else
             calculator_FFT->isWindowed = false;
-            
         
-        addAndMakeVisible(&filterSetLowEnd);
-        addAndMakeVisible(&filterSetTopEnd);
-        addAndMakeVisible(&filtersDescript);
+        
+        filterSetLowEnd.setVisible(true);
+        filterSetTopEnd.setVisible(true);
+        filtersDescript.setVisible(true);
+        linkFilters.setVisible(true);
+        linkFiltersLabel.setVisible(true);
         filtersDescript.setText("Works only with windowing", dontSendNotification);
         
         addAndMakeVisible(&matrixDividerEdit);

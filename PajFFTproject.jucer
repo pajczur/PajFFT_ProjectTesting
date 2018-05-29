@@ -2,7 +2,8 @@
 
 <JUCERPROJECT name="PajFFTproject" projectType="guiapp" jucerVersion="5.3.2"
               companyName="Pajczur Company" companyCopyright="Pajczur Company"
-              bundleIdentifier="com.pajczurcompany.PajFFTproject" id="Owg32u">
+              bundleIdentifier="com.pajczurcompany.PajFFTproject" id="Owg32u"
+              cppLanguageStandard="17">
   <MAINGROUP id="ACkfm9" name="PajFFTproject">
     <GROUP id="{0A6B6ACA-BE6D-F128-9279-CDDF90AB5AEB}" name="Source">
       <GROUP id="{7FC05475-7400-5EC2-80BC-351C13991B0F}" name="PajFFT">
@@ -18,10 +19,6 @@
         <FILE id="caJ51m" name="PajFFT_Radix2.cpp" compile="1" resource="0"
               file="Source/PajFFT/PajFFT_Radix2.cpp"/>
         <FILE id="UHu9GC" name="PajFFT_Radix2.h" compile="0" resource="0" file="Source/PajFFT/PajFFT_Radix2.h"/>
-        <FILE id="PUiFvc" name="PajFFT_HandyFunc.cpp" compile="1" resource="0"
-              file="Source/PajFFT/PajFFT_HandyFunc.cpp"/>
-        <FILE id="fQGWeH" name="PajFFT_HandyFunc.h" compile="0" resource="0"
-              file="Source/PajFFT/PajFFT_HandyFunc.h"/>
       </GROUP>
       <FILE id="wtj5Q6" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
       <FILE id="ZFxA7k" name="MainComponent.cpp" compile="1" resource="0"

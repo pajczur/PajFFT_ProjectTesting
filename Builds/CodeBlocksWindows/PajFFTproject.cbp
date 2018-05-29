@@ -31,7 +31,7 @@
           <Add option="-DJucePlugin_Build_Standalone=0"/>
           <Add option="-m64"/>
           <Add option="-O0"/>
-          <Add option="-std=c++14"/>
+          <Add option="-std=c++17"/>
           <Add option="-mstackrealign"/>
           <Add option="-g"/>
           <Add directory="."/>
@@ -78,7 +78,7 @@
           <Add option="-DJucePlugin_Build_Standalone=0"/>
           <Add option="-m64"/>
           <Add option="-O3"/>
-          <Add option="-std=c++14"/>
+          <Add option="-std=c++17"/>
           <Add option="-mstackrealign"/>
           <Add directory="."/>
           <Add directory="../../JuceLibraryCode"/>
@@ -150,16 +150,6 @@
       <Option target="App | Release"/>
     </Unit>
     <Unit filename="../../Source/PajFFT/PajFFT_Radix2.h">
-      <Option target="App | Debug"/>
-      <Option target="App | Release"/>
-      <Option compile="0"/>
-      <Option link="0"/>
-    </Unit>
-    <Unit filename="../../Source/PajFFT/PajFFT_HandyFunc.cpp">
-      <Option target="App | Debug"/>
-      <Option target="App | Release"/>
-    </Unit>
-    <Unit filename="../../Source/PajFFT/PajFFT_HandyFunc.h">
       <Option target="App | Debug"/>
       <Option target="App | Release"/>
       <Option compile="0"/>

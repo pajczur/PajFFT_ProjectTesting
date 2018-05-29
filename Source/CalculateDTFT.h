@@ -17,6 +17,7 @@
 #include "PajFFT/PajFFT_Radix2.h"
 #include "PajFFT/PajFFT_fRange.h"
 #include "Clock.h"
+//#include "PajFFT/PajFFT_HandyFunc.h"
 
 #define MAX_FRAME_LENGTH 44100
 
@@ -49,7 +50,8 @@ public:
 //    PajDFT            regular_IDFT;
 
     void smbPitchShift(float pitchShift, long fftFrameSize, long osamp, float sampleRate, std::vector<std::complex<float>> indata, std::vector<float> &outdata);
-    void makeFFT_WindowOverlap(long fftFrameSize, long osamp, float sampleRate, std::vector<std::complex<float>> indata, std::vector<float> &outdata);
+    void windowOverlap_ForwBackFFT(long fftFrameSize, long osamp, float sampleRate, std::vector<std::complex<float>> indata, std::vector<float> &outdata);
+    void windowOverlap_ForwFFT(long fftFrameSize, long osamp, float sampleRate, std::vector<std::complex<float>> indata/*, std::vector<float> &outdata*/);
     
     bool dataIsReadyToFFT;
     bool isForward;
@@ -74,15 +76,10 @@ private:
     std::vector<std::complex<float>> forwFFTout;
     std::vector<float>               wOutput;
     std::vector<float>               tempOutput;
-    std::vector<float>               outRealRadix2;
-    std::vector<float>               outRealDFT;
     
     std::vector<float>               freqOutput;
     
-    std::vector<std::complex<float>> outCompMixed;
-    std::vector<std::complex<float>> outCompRadix2;
-    std::vector<std::complex<float>> outCompRadix22;
-    std::vector<std::complex<float>> outCompDFT;
+//    std::vector<std::complex<float>> outCompMixed;
     
     
     
@@ -113,7 +110,6 @@ private:
     std::vector<std::complex<float>> outPP2; 
     float gLastPhase[MAX_FRAME_LENGTH/2+1];
     float gSumPhase[MAX_FRAME_LENGTH/2+1];
-//    float gOutputAccum[2*MAX_FRAME_LENGTH];
     float gOutputAccum[MAX_FRAME_LENGTH];
     float gAnaFreq[MAX_FRAME_LENGTH];
     float gAnaMagn[MAX_FRAME_LENGTH];

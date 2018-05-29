@@ -28,7 +28,6 @@
 		E13CEC1048837E3532B04E1E = {isa = PBXBuildFile; fileRef = C0AAEA98EBFF335C2488FA3A; };
 		1C4B9F76E2A0085D3B571869 = {isa = PBXBuildFile; fileRef = 02E96FA25D442C6C6C0C165C; };
 		6B92C1049DDA8C40D918A5A8 = {isa = PBXBuildFile; fileRef = 97D0647E425D80F311DB0FF8; };
-		1E38AA3346F3E7DE5CA9FF3B = {isa = PBXBuildFile; fileRef = E7B4B9B2178858069315C4EC; };
 		44F47A6D8AD27F2061585CFE = {isa = PBXBuildFile; fileRef = AAE6F79B2A6353A8FCFD19D0; };
 		E190EEEA34B97E179770C642 = {isa = PBXBuildFile; fileRef = AC6D08440E5AA0605DCF3263; };
 		036C34C62CC96B082C6B7001 = {isa = PBXBuildFile; fileRef = 1B6E0801CAF1D00FD3C230EC; };
@@ -129,11 +128,9 @@
 		DC14102204CEEF14EF7F12D9 = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = "include_juce_gui_basics.mm"; path = "../../JuceLibraryCode/include_juce_gui_basics.mm"; sourceTree = "SOURCE_ROOT"; };
 		DDBAFA5DDB9833D5C9DF77D1 = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = PitchShiftingGUI.cpp; path = ../../Source/PitchShiftingGUI.cpp; sourceTree = "SOURCE_ROOT"; };
 		E58231C933D15AA40B924922 = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = "include_juce_data_structures.mm"; path = "../../JuceLibraryCode/include_juce_data_structures.mm"; sourceTree = "SOURCE_ROOT"; };
-		E7B4B9B2178858069315C4EC = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = "PajFFT_HandyFunc.cpp"; path = "../../Source/PajFFT/PajFFT_HandyFunc.cpp"; sourceTree = "SOURCE_ROOT"; };
 		E7D4B24E3C473FA4F9E3012B = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		E8B7E067F3139BA6A944C39B = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		EB371E4B37BFDCC6A9D7D9C7 = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AppConfig.h; path = ../../JuceLibraryCode/AppConfig.h; sourceTree = "SOURCE_ROOT"; };
-		EE40528FAA4FE3D88CFA3363 = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "PajFFT_HandyFunc.h"; path = "../../Source/PajFFT/PajFFT_HandyFunc.h"; sourceTree = "SOURCE_ROOT"; };
 		F6B38E895559C93504509604 = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PajDFT.h; path = ../../Source/PajFFT/PajDFT.h; sourceTree = "SOURCE_ROOT"; };
 		FF4DDEAE52D083EF3E3C2C32 = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CalculateDTFT.h; path = ../../Source/CalculateDTFT.h; sourceTree = "SOURCE_ROOT"; };
 		FFC159A42126B13703153254 = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Info-App.plist"; path = "Info-App.plist"; sourceTree = "SOURCE_ROOT"; };
@@ -145,9 +142,7 @@
 					02E96FA25D442C6C6C0C165C,
 					0D44411A9C3A0CE3A676ADD4,
 					97D0647E425D80F311DB0FF8,
-					0FBC5EBF14293C9DEE8D8644,
-					E7B4B9B2178858069315C4EC,
-					EE40528FAA4FE3D88CFA3363, ); name = PajFFT; sourceTree = "<group>"; };
+					0FBC5EBF14293C9DEE8D8644, ); name = PajFFT; sourceTree = "<group>"; };
 		C8EF69AFDED3F71D0F8C0903 = {isa = PBXGroup; children = (
 					428F06068D6AB99FE66F488C,
 					AAE6F79B2A6353A8FCFD19D0,
@@ -239,7 +234,7 @@
 		4925677961D8F654C1A45F94 = {isa = XCBuildConfiguration; buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_LINK_OBJC_RUNTIME = NO;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -270,7 +265,7 @@
 		CFD83EE40F70B106831D6DB2 = {isa = XCBuildConfiguration; buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_LINK_OBJC_RUNTIME = NO;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -396,7 +391,6 @@
 					E13CEC1048837E3532B04E1E,
 					1C4B9F76E2A0085D3B571869,
 					6B92C1049DDA8C40D918A5A8,
-					1E38AA3346F3E7DE5CA9FF3B,
 					44F47A6D8AD27F2061585CFE,
 					E190EEEA34B97E179770C642,
 					036C34C62CC96B082C6B7001,

@@ -284,10 +284,9 @@ public:
 
             if (sampleRateDropDown != nullptr)
             {
-                r.removeFromTop (space);
                 sampleRateDropDown->setVisible (advancedSettingsVisible);
                 sampleRateDropDown->setBounds (r.removeFromTop (h));
-                r.removeFromTop (space+35);
+                r.removeFromTop (space);
             }
 
             if (bufferSizeDropDown != nullptr)
@@ -657,7 +656,7 @@ private:
             addAndMakeVisible (sampleRateDropDown.get());
 
             sampleRateLabel.reset (new Label ({}, TRANS("Sample rate:")));
-            sampleRateLabel->attachToComponent (sampleRateDropDown.get(), false);
+            sampleRateLabel->attachToComponent (sampleRateDropDown.get(), true);
         }
         else
         {
@@ -683,7 +682,7 @@ private:
             addAndMakeVisible (bufferSizeDropDown.get());
 
             bufferSizeLabel.reset (new Label ({}, TRANS("Audio buffer size:")));
-            bufferSizeLabel->attachToComponent (bufferSizeDropDown.get(), false);
+            bufferSizeLabel->attachToComponent (bufferSizeDropDown.get(), true);
         }
         else
         {

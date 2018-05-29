@@ -38,8 +38,6 @@ add_library( ${BINARY_NAME}
     "../../../Source/PajFFT/PajFFT_MixedRadix.h"
     "../../../Source/PajFFT/PajFFT_Radix2.cpp"
     "../../../Source/PajFFT/PajFFT_Radix2.h"
-    "../../../Source/PajFFT/PajFFT_HandyFunc.cpp"
-    "../../../Source/PajFFT/PajFFT_HandyFunc.h"
     "../../../Source/Main.cpp"
     "../../../Source/MainComponent.cpp"
     "../../../Source/MainComponent.h"
@@ -1312,7 +1310,6 @@ set_source_files_properties("../../../Source/PajFFT/PajDFT.h" PROPERTIES HEADER_
 set_source_files_properties("../../../Source/PajFFT/PajFFT_fRange.h" PROPERTIES HEADER_FILE_ONLY TRUE)
 set_source_files_properties("../../../Source/PajFFT/PajFFT_MixedRadix.h" PROPERTIES HEADER_FILE_ONLY TRUE)
 set_source_files_properties("../../../Source/PajFFT/PajFFT_Radix2.h" PROPERTIES HEADER_FILE_ONLY TRUE)
-set_source_files_properties("../../../Source/PajFFT/PajFFT_HandyFunc.h" PROPERTIES HEADER_FILE_ONLY TRUE)
 set_source_files_properties("../../../Source/MainComponent.h" PROPERTIES HEADER_FILE_ONLY TRUE)
 set_source_files_properties("../../../Source/OscInterface.h" PROPERTIES HEADER_FILE_ONLY TRUE)
 set_source_files_properties("../../../Source/AudioPlayer.h" PROPERTIES HEADER_FILE_ONLY TRUE)
