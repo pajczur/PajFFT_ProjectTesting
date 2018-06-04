@@ -19,11 +19,13 @@ FFTInterface::FFTInterface(AudioAppComponent *wAudioApp)
     isPitchShiftON = false;
     
     addAndMakeVisible(&fftBufSizeEdit);
+    fftBufSizeEdit.setVisible(false);
     fftBufSizeEdit.setEditable(true);
     fftBufSizeEdit.setJustificationType(Justification::centred);
     fftBufSizeEdit.addListener(this);
     
     addAndMakeVisible(&fftBufSizeEditDescript);
+    fftBufSizeEditDescript.setVisible(false);
     fftBufSizeEditDescript.attachToComponent(&fftBufSizeEdit, true);
     fftBufSizeEditDescript.setText("Set buffer size: ", dontSendNotification);
     fftBufSizeEditDescript.setJustificationType(Justification::centredRight);
@@ -33,12 +35,12 @@ FFTInterface::FFTInterface(AudioAppComponent *wAudioApp)
     selectMatrixFFT.onClick = [this] { updateToggleState(&selectMatrixFFT, selectMatrixFFT_ID); };
     selectMatrixFFT.setButtonText("Matrix FFT");
     
-/*
+
     addAndMakeVisible(&selectRadix2FFT);
     selectRadix2FFT.setRadioGroupId(fftSelectorButtons);
     selectRadix2FFT.onClick = [this] { updateToggleState(&selectRadix2FFT, selectRadix2FFT_ID); };
     selectRadix2FFT.setButtonText("Radix-2 FFT");
-    
+/*
     addAndMakeVisible(&selectRegDFT);
     selectRegDFT.setRadioGroupId(fftSelectorButtons);
     selectRegDFT.onClick = [this] { updateToggleState(&selectRegDFT, selectRegDFT_ID); };
@@ -60,17 +62,21 @@ FFTInterface::FFTInterface(AudioAppComponent *wAudioApp)
     turnOFF.setRadioGroupId(fftSelectorButtons);
     turnOFF.onClick = [this] { updateToggleState(&turnOFF, turnOFF_ID); };
 
-/*
+
+    addAndMakeVisible(&zeroPadding);
+    zeroPadding.setVisible(false);
     zeroPadding.setToggleState(true, dontSendNotification);
     zeroPadding.onClick = [this] { updateToggleZeroPad(&zeroPadding, selectRadix2FFT_ID); };
     zeroPadding.setButtonText("Zeros padding");
 
+    addAndMakeVisible(&zerosPaddingDescript);
+    zerosPaddingDescript.setVisible(false);
     zerosPaddingDescript.setReadOnly(true);
     zerosPaddingDescript.setMultiLine(true);
     zerosPaddingDescript.setCaretVisible(false);
 
     zerosPaddingDescript.setText("Uses all 512\nof samples");
-*/
+
     
     addAndMakeVisible(&filterSetLowEnd);
     addAndMakeVisible(&filterSetTopEnd);
@@ -123,11 +129,17 @@ FFTInterface::FFTInterface(AudioAppComponent *wAudioApp)
     filtersDescript.setEditable(false);
     filtersDescript.setJustificationType(Justification::centred);
     
+    addAndMakeVisible(&matrixSizeInfo);
+    matrixSizeInfo.setVisible(false);
     matrixSizeInfo.setEditable(false);
     matrixSizeInfo.setJustificationType(Justification::topLeft);
+    addAndMakeVisible(&matrixDividerEdit);
+    matrixDividerEdit.setVisible(false);
     matrixDividerEdit.setEditable(true);
     matrixDividerEdit.setJustificationType(Justification::centredLeft);
     matrixDividerEdit.addListener(this);
+    addAndMakeVisible(&matrixDividerEditDescript);
+    matrixDividerEditDescript.setVisible(false);
     matrixDividerEditDescript.setEditable(false);
     matrixDividerEditDescript.setText("Divider (click to change)", dontSendNotification);
     matrixDividerEditDescript.setJustificationType(Justification::centredLeft);
@@ -162,6 +174,10 @@ void FFTInterface::timerCallback()
     {
         setON_matrixfft();
     }
+    else if (whatIsChanged_ID==selectRadix2FFT_ID)
+    {
+        setON_radix2fft();
+    }
     
     
     
@@ -182,8 +198,16 @@ void FFTInterface::timerCallback()
         else
             newBufferSize = 512.0;
         
-        calculator_FFT->mixedRadix_FFT.wSettings(wSampleRate, newBufferSize);
-        rememberedBuffer = newBufferSize;
+        if(selectMatrixFFT.getToggleState())
+        {
+            calculator_FFT->mixedRadix_FFT.wSettings(wSampleRate, newBufferSize);
+            rememberedBuffer = newBufferSize;
+        }
+        else if (selectRadix2FFT.getToggleState())
+        {
+            calculator_FFT->radix2_FFT.wSettings(wSampleRate, newBufferSize);
+            rememberedBuffer = newBufferSize;
+        }
         
         refresh();
     }
@@ -250,8 +274,8 @@ void FFTInterface::resized                  ()
     fftBufSizeEditBox.setBounds          (103, 7, 80, 25);
     fftBufSizeEdit.setBounds             (103, 7, 80, 25);
 
-//    zeroPadding.setBounds                (200, 5, 100, 20);
-//    zerosPaddingDescript.setBounds       (200, 28, 160, 35);
+    zeroPadding.setBounds                (200, 5, 100, 20);
+    zerosPaddingDescript.setBounds       (200, 28, 160, 35);
 
     filterSetLowEnd.setBounds            (195, 87, 70, 50);
     filterSetTopEnd.setBounds            (295, 87, 70, 50);
@@ -273,11 +297,11 @@ void FFTInterface::resized                  ()
     matrixSizeInfo.setBounds             (200, 30, 160, 50);
     
     selectMatrixFFT.setBounds            (65, 35, 80, 30);
-//    selectRadix2FFT.setBounds            (65, 65, 80, 30);
+    selectRadix2FFT.setBounds            (65, 65, 80, 30);
 //    selectRegDFT.setBounds               (65, 95, 80, 30);
     turnOFF.setBounds                    (10, 40, 50, 110);
     selectMatrixFFT.changeWidthToFitText();
-//    selectRadix2FFT.changeWidthToFitText();
+    selectRadix2FFT.changeWidthToFitText();
 //    selectRegDFT.changeWidthToFitText();
     
     wInverseFFT.setBounds                (85, 125, 80, 30);
@@ -298,18 +322,21 @@ void FFTInterface::sliderValueChanged       (Slider *slider)
         {
             calculator_FFT->setLowEnd(filterSetLowEnd.getValue());
             calculator_FFT->mixedRadix_FFT.setLowEnd(filterSetLowEnd.getValue());
+            calculator_FFT->radix2_FFT.setLowEnd(filterSetLowEnd.getValue());
             
             if(areFiltersLinked)
             {
                 filterSetTopEnd.setValue(filterSetLowEnd.getValue()+filterDiff);
                 calculator_FFT->setTopEnd(filterSetTopEnd.getValue());
                 calculator_FFT->mixedRadix_FFT.setTopEnd(filterSetTopEnd.getValue());
+                calculator_FFT->radix2_FFT.setTopEnd(filterSetTopEnd.getValue());
             }
             else if(filterSetLowEnd.getValue()+3.0 > filterSetTopEnd.getValue()   &&   !areFiltersLinked)
             {
                 filterSetTopEnd.setValue(filterSetLowEnd.getValue()+2.0);
                 calculator_FFT->setTopEnd(filterSetTopEnd.getValue());
                 calculator_FFT->mixedRadix_FFT.setTopEnd(filterSetTopEnd.getValue());
+                calculator_FFT->radix2_FFT.setTopEnd(filterSetTopEnd.getValue());
             }
             
             if(round(filterSetLowEnd.getValue()*(calculator_FFT->mixedRadix_FFT.getBufferSize()/wSampleRate))>=0)
@@ -334,17 +361,20 @@ void FFTInterface::sliderValueChanged       (Slider *slider)
         {
             calculator_FFT->setTopEnd(filterSetTopEnd.getValue());
             calculator_FFT->mixedRadix_FFT.setTopEnd(filterSetTopEnd.getValue());
+            calculator_FFT->radix2_FFT.setTopEnd(filterSetTopEnd.getValue());
             
             if(areFiltersLinked)
             {
                 filterSetLowEnd.setValue(filterSetTopEnd.getValue()-filterDiff);
                 calculator_FFT->mixedRadix_FFT.setLowEnd(filterSetLowEnd.getValue());
+                calculator_FFT->radix2_FFT.setLowEnd(filterSetLowEnd.getValue());
                 calculator_FFT->setLowEnd(filterSetLowEnd.getValue());
             }
             else if(filterSetTopEnd.getValue()-3.0 < filterSetLowEnd.getValue()   &&   !areFiltersLinked)
             {
                 filterSetLowEnd.setValue(filterSetTopEnd.getValue()-2.0);
                 calculator_FFT->mixedRadix_FFT.setLowEnd(filterSetLowEnd.getValue());
+                calculator_FFT->radix2_FFT.setLowEnd(filterSetLowEnd.getValue());
                 calculator_FFT->setLowEnd(filterSetLowEnd.getValue());
             }
             if(round(filterSetTopEnd.getValue()*(calculator_FFT->mixedRadix_FFT.getBufferSize()/wSampleRate))<=(wSampleRate/2.0))
@@ -368,6 +398,7 @@ void FFTInterface::sliderValueChanged       (Slider *slider)
         if(selectMatrixFFT.getToggleState())
         {
             calculator_FFT->mixedRadix_FFT.setPhase(setPhase.getValue());
+            calculator_FFT->radix2_FFT.setPhase(setPhase.getValue());
         }
         else
         {
@@ -413,11 +444,9 @@ void FFTInterface::updateToggleState        (Button* button, int fftIdentifier)
             break;
             
         case 2: // RADIX-2
-//            rememberedWaveType=oscillator->getWaveType();
-//            oscillator->selectWave(0);
-//            calculator_FFT->selectFFT(0);
-//            whatIsChanged_ID = selectRadix2FFT_ID;
-//            setON_radix2fft();
+            whatIsChanged_ID = selectRadix2FFT_ID;
+            pauseFFT(false);
+            startTimer(ceil((calculator_FFT->timeElapsed/1000.0f)*10.0f));
             break;
             
         case 3: // REGULAR DFT
@@ -456,7 +485,7 @@ void FFTInterface::updateToggleState        (Button* button, int fftIdentifier)
     }
 }
 
-/*
+
 void FFTInterface::updateToggleZeroPad      (Button* button, int fftIdentifier)
 {
     switch (fftIdentifier)
@@ -472,15 +501,9 @@ void FFTInterface::updateToggleZeroPad      (Button* button, int fftIdentifier)
                 calculator_FFT->radix2_FFT.setZeroPadding(true);
             }
             
-            if(wInverseFFT.getToggleState())
-            {
-                calculator_FFT->radix2_FFT.wSettings(wSampleRate, rememberedBuffer, calculator_FFT->outCompRadix2, true);
-                calculator_FFT->radix2_IFFT.wSettings(wSampleRate, calculator_FFT->radix2_FFT.getBufferSize(), calculator_FFT->outRealRadix2, false);
-            }
-            else
-            {
-                calculator_FFT->radix2_FFT.wSettings(wSampleRate, rememberedBuffer, calculator_FFT->outRealRadix2, true);
-            }
+
+            calculator_FFT->radix2_FFT.wSettings(wSampleRate, rememberedBuffer);
+
             
             double tempBuf = calculator_FFT->radix2_FFT.getBufferSize();
             calculator_FFT->setNewBufSize(tempBuf);
@@ -496,7 +519,7 @@ void FFTInterface::updateToggleZeroPad      (Button* button, int fftIdentifier)
             break;
     }
 }
-*/
+
 
 
 
@@ -526,7 +549,8 @@ void FFTInterface::setBufferSize(double buffer_size)
 void FFTInterface::setOFF_fft               ()
 {
     
-    
+    fftBufSizeEdit.setVisible(false);
+    fftBufSizeEditDescript.setVisible(false);
     matrixDividerEdit.setVisible(false);
     matrixSizeInfo.setVisible(false);
     matrixDividerEditDescript.setVisible(false);
@@ -564,18 +588,16 @@ void FFTInterface::setON_matrixfft          ()
     if(selectMatrixFFT.getToggleState())
     {
         
-        
-//        zerosPaddingDescript.setVisible(false);
-//        zeroPadding.setVisible(false);
+        fftBufSizeEdit.setVisible(true);
+        fftBufSizeEditDescript.setVisible(true);
+        zerosPaddingDescript.setVisible(false);
+        zeroPadding.setVisible(false);
         
         if(!isPitchShiftON)
         {
             wInverseFFT.setVisible(true);
-//            if(wInverseFFT.getToggleState())
-//            {
-                setPhase.setVisible(true);
-                wWindowBut.setVisible(true);
-//            }
+            setPhase.setVisible(true);
+            wWindowBut.setVisible(true);
         }
         else
         {
@@ -602,10 +624,10 @@ void FFTInterface::setON_matrixfft          ()
         linkFiltersLabel.setVisible(true);
         filtersDescript.setText("Works only with windowing", dontSendNotification);
         
-        addAndMakeVisible(&matrixDividerEdit);
-        addAndMakeVisible(&matrixSizeInfo);
-        addAndMakeVisible(&matrixDividerEditDescript);
-
+        matrixSizeInfo.setVisible(true);
+        matrixDividerEdit.setVisible(true);
+        matrixDividerEditDescript.setVisible(true);
+        
         matrixSizeInfo.setText(matrixDimToString(), dontSendNotification);
         matrixDividerEdit.setText(to_string(calculator_FFT->mixedRadix_FFT.getRadDivider()), dontSendNotification);
         
@@ -619,7 +641,7 @@ void FFTInterface::setON_matrixfft          ()
         fftBufSizeEdit.setText(to_string((int)tempBuf), dontSendNotification);
         
         
-        calculator_FFT->resetOutputData();
+//        calculator_FFT->resetOutputData();
         graphAnalyser->setLowEndIndex();
         repaint();
         graphAnalyser->isFFTon=true;
@@ -634,32 +656,52 @@ void FFTInterface::setON_matrixfft          ()
 }
 
 
-/*
+
 void FFTInterface::setON_radix2fft          ()
 {
     if(selectRadix2FFT.getToggleState())
     {
-        calculator_FFT->selectFFT(0);
+        fftBufSizeEdit.setVisible(true);
+        fftBufSizeEditDescript.setVisible(true);
+        zerosPaddingDescript.setVisible(true);
+        zeroPadding.setVisible(true);
         
-        matrixDividerEdit.setVisible(false);
+        if(!isPitchShiftON)
+        {
+            wInverseFFT.setVisible(true);
+            setPhase.setVisible(true);
+            wWindowBut.setVisible(true);
+        }
+        else
+        {
+            alreadyWindow.setVisible(true);
+            alreadyInversed.setVisible(true);
+            wWindowBut.setVisible(false);
+        }
+        
+        if(rememberInvWasClicked)
+            calculator_FFT->isForward = false;
+        else
+            calculator_FFT->isForward = true;
+        
+        if(remembereWinWasClicked)
+            calculator_FFT->isWindowed = true;
+        else
+            calculator_FFT->isWindowed = false;
+        
+        filterSetLowEnd.setVisible(true);
+        filterSetTopEnd.setVisible(true);
+        filtersDescript.setVisible(true);
+        linkFilters.setVisible(true);
+        linkFiltersLabel.setVisible(true);
+        filtersDescript.setText("Works only with windowing", dontSendNotification);
+        
         matrixSizeInfo.setVisible(false);
+        matrixDividerEdit.setVisible(false);
         matrixDividerEditDescript.setVisible(false);
-    
-        addAndMakeVisible(&wInverseFFT);
-        if(wInverseFFT.getToggleState())
-            addAndMakeVisible(&setPhase);
-        
-        addAndMakeVisible(&filterSetLowEnd);
-        addAndMakeVisible(&filterSetTopEnd);
-        addAndMakeVisible(&filtersDescript);
-        filtersDescript.setText("Filters don't impact on sound", dontSendNotification);
-        
-        addAndMakeVisible(&zeroPadding);
-        addAndMakeVisible(&zerosPaddingDescript);
-        
+
         filterSetLowEnd.setValue(calculator_FFT->radix2_FFT.getLowEnd());
         filterSetTopEnd.setValue(calculator_FFT->radix2_FFT.getTopEnd());
-        setPhase.setValue(calculator_FFT->radix2_IFFT.getPhase());
         
 
         double tempBuf = calculator_FFT->radix2_FFT.getBufferSize();
@@ -669,20 +711,20 @@ void FFTInterface::setON_radix2fft          ()
         zerosPaddingDescript.setText(setZerosInfo(rememberedBuffer>tempBuf?tempBuf:rememberedBuffer,
                                                   rememberedBuffer, tempBuf-rememberedBuffer));
         
-        calculator_FFT->setRadix2BuffSize(rememberedBuffer);
-        calculator_FFT->resetOutputData();
-        calculator_FFT->selectFFT(2);
         graphAnalyser->setLowEndIndex();
         repaint();
-        
+        graphAnalyser->isFFTon=true;
         if(!graphAnalyser->isTimerRunning())
             graphAnalyser->startTimer(40);
         
-//        calculator_FFT->calculatorIsBusy = false;
+        pauseGetNextAudioBlock = false;
+        calculator_FFT->dataIsReadyToFFT = true;
+        oscillator->selectWave(rememberedWaveType);
+        calculator_FFT->selectFFT(2);
     }
 }
 
-
+/*
 void FFTInterface::setON_regular_DFT        ()
 {
     if(selectRegDFT.getToggleState())
@@ -786,8 +828,8 @@ void FFTInterface::refresh                  ()
 {
     if(selectMatrixFFT.getToggleState())
         setON_matrixfft();
-//    else if(selectRadix2FFT.getToggleState())
-//        setON_radix2fft();
+    else if(selectRadix2FFT.getToggleState())
+        setON_radix2fft();
 //    else if(selectRegDFT.getToggleState())
 //        setON_regular_DFT();
     else
@@ -813,7 +855,7 @@ string FFTInterface::matrixDimToString      ()
 }
 
 
-/*
+
 string FFTInterface::setZerosInfo           (int use, int bufSize, int zero)
 {
     string uses = "Uses ";
@@ -833,4 +875,4 @@ string FFTInterface::setZerosInfo           (int use, int bufSize, int zero)
     
     return uses + to_string(used) + offf + to_string(buf) + samplll;
 }
-*/
+

@@ -41,14 +41,14 @@ public:
     void labelTextChanged (Label *labelThatHasChanged) override;
     
     void updateToggleState(Button* button, int fftIdentifier);
-//    void updateToggleZeroPad(Button* button, int fftIdentifier);
+/* ======================================= */    void updateToggleZeroPad(Button* button, int fftIdentifier);
     
     void setSampleRate(double sample_rate);
     void setBufferSize(double buffer_size);
     
     void setOFF_fft();
     void setON_matrixfft();
-//    void setON_radix2fft();
+/* ======================================= */    void setON_radix2fft();
 //    void setON_regular_DFT();
     void setInverse_fft();
     void setWindowing();
@@ -83,8 +83,8 @@ private:
     ToggleButton      selectMatrixFFT;
     const int         selectMatrixFFT_ID=1;
     
-//    ToggleButton      selectRadix2FFT;
-//    const int         selectRadix2FFT_ID=2;
+    ToggleButton      selectRadix2FFT;
+    const int         selectRadix2FFT_ID=2;
 //
 //    ToggleButton      selectRegDFT;
 //    const int         selectRegDFT_ID=3;
@@ -101,9 +101,9 @@ private:
     const int         turnOFF_ID=0;
     int               fftSelectorButtons=1;
 
-//    ToggleButton      zeroPadding;
-//    TextEditor        zerosPaddingDescript;
-//    string            setZerosInfo          (int use, int bufSize, int zero);
+    ToggleButton      zeroPadding;
+    TextEditor        zerosPaddingDescript;
+    string            setZerosInfo          (int use, int bufSize, int zero);
     
     const int         winHann_ID=5;
 public:

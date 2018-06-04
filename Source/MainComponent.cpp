@@ -429,7 +429,7 @@ void MainComponent::fft_defaultSettings()
     
 //    calculator_FFT.regular_DFT.wSettings(wSampleRate, wBufferSize, calculator_FFT.outRealDFT, true);
     
-    calculator_FFT.resetOutputData();
+//    calculator_FFT.resetOutputData();
     
     graphAnalyser.setSampleRate(wSampleRate);
     graphAnalyser.setNewBufSize(deviceBufferSize);

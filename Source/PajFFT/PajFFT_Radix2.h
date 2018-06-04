@@ -91,11 +91,10 @@ public:
 private:
     void setSampleRate            (float sampleR);
     void setBufferSize            (float bufferS);
-    void resetOutputData          ();
+    void resetData          ();
     void updateFreqRangeScale     (float lEnd, float tEnd);
 public:
-    void wSettings                (float sampleRate, float bufferSize, std::vector<             float>  &wOutput , bool forwardTRUE_backwardFALSE);
-    void wSettings                (float sampleRate, float bufferSize, std::vector<std::complex<float>> &wOutputC, bool forwardTRUE_backwardFALSE);
+    void wSettings                (float sampleRate, float bufferSize);
     void setLowEnd                (float lowEnd);
     void setTopEnd                (float topEnd);
     void setZeroPadding           (bool  trueON_falseOFF);
@@ -107,7 +106,7 @@ public:
     // == PRE CREATION ==============================================================
 private:
     void bitReversal              (float bufSize);
-    void prepareTwiddlesArray     (bool forwardOrBackward);
+    void prepareTwiddlesArray     ();
     void prepare_sN0_matrix       ();
     void prepareWindowingArray    ();
     
@@ -115,23 +114,26 @@ private:
     
     // == F F T - RADIX 2 - ALGORITHM ===============================================
 public:
-    void makeFFT                  (std::vector<             float>  inputSignal);
-    void makeFFT                  (std::vector<std::complex<float>> inputSignalC);
+    void makeFFT                  (std::vector<             float>  inputSignal,  std::vector<std::complex<float>> &wOutputC, bool isForwardOrNot);
+    void makeFFT                  (std::vector<std::complex<float>> inputSignalC, std::vector<std::complex<float>> &wOutputC, bool isForwardOrNot);
 private:
     void firstStepFFT             (std::vector<             float>  inputSignal,  int fft);
     void firstStepFFTc            (std::vector<std::complex<float>> inputSignalC, int fft);
-    void divideAndConquereFFT     (int fft);
-    void lastStepFFT              (int fft);
+    void divideAndConquereFFT     (int fft, std::vector<std::complex<float>> &twiddle);
+    void lastStepFFT              (int fft, std::vector<std::complex<float>> &twiddle);
     
     
     
     // == CALCULATORS ===============================================================
 private:
     std::complex<float>    twiddleCalculator        (float nXk);
-    void                   freqMagnitudeCalculator  (std::complex<float> fftOutput, int freqBin);
-    void                   freqMagnCalc_ComplexOut  (std::complex<float> fftOutput, int freqBin);
-    void                   waveAmplitudeCalculator  (std::complex<float> fftOutput, int index);
-    void  (PajFFT_Radix2::*forwBackChooser)         (std::complex<float> fftOutput, int freqBinOrIndex);
+public:
+    float                  freqMagnitudeCalc        (std::complex<float> fftOutput, long freqBin);
+    float                  waveEnvelopeCalc         (std::complex<float> fftOutput, long index);
+    float                  phaseCalculator          (std::complex<float> fftOutput, long index);
+    std::complex<float>    windowing                (std::complex<float> dataToWindowing, long index);
+    float                  windowing                (float dataToWindowing, long index);
+//    void  (PajFFT_Radix2::*forwBackChooser)         (std::complex<float> fftOutput, int freqBinOrIndex);
     
     
     
@@ -155,8 +157,9 @@ private:
     float fZero;
     std::complex<float> phaseRotation;
     
-    float wBufferSize;
     float wSampleRate;
+    float wBufferSize;
+    float wBufNyquist;
     float low_End;
     float top_End;
     float lEndScale;
@@ -165,18 +168,22 @@ private:
     bool  zeroPadding;
     bool  resizeInput;
     bool  rememberedForwardOrBackward;
-    bool  dataPreparedConfirm;
     double wPhase;
     
     std::vector<std::complex<float>> wnkN;         // Array of precalculated forward twiddle - W^nk
+    std::vector<std::complex<float>> wnkN_forw;    // Array of precalculated forward twiddle
+    std::vector<std::complex<float>> wnkN_back;    // Array of precalculated backward twiddle
     std::vector<int>                 bitReversed;  // Array of bit reversed indexes
     
     std::vector<std::vector<std::vector<std::complex<float>>>> sN0;  // Temporarily input complex FFT - S(n)
     std::vector<float>               windowHann;
     
+    bool dataPreparedConfirm;
+    bool sampleRateConfirm;
+    bool bufferSizeConfirm;
     bool isWindowing;
-    bool isComplexOutput;
+    bool isForward;
 public:
-    std::vector<float> *wOutputData;
-    std::vector<std::complex<float>> *wOutputDataC;
+//    std::vector<float> *wOutputData;
+    std::vector<std::complex<float>> *wOutputData;
 };

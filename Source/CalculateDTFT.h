@@ -43,8 +43,8 @@ public:
     void setSampleRate(float sampR);
 
     PajFFT_MixedRadix mixedRadix_FFT;
+    PajFFT_Radix2     radix2_FFT;
     
-//    PajFFT_Radix2     radix2_FFT;
 //    PajFFT_Radix2     radix2_IFFT;
 //    PajDFT            regular_DFT;
 //    PajDFT            regular_IDFT;
