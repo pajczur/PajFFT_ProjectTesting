@@ -514,15 +514,6 @@ float PajFFT_Radix2::freqMagnitudeCalc               (std::complex<float> fftOut
 float PajFFT_Radix2::waveEnvelopeCalc                       (std::complex<float> fftOutput, long index)
 {
     fftOutput *= phaseRotation;
-    
-    float window;
-    
-    if(isWindowing)
-        window = windowHann[index];
-    else
-        window = 1.0;
-    
-    wOutputData->at(index) = (fftOutput.real()*window)/wBufferSize;
     return windowing(fftOutput.real(), index)/((long)wBufferSize);
 }
 

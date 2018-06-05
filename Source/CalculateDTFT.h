@@ -39,7 +39,6 @@ public:
     
     void defineDeviceBuffSize(long dev_buf_size);
     void setNewBufSize(double new_buf_size);
-    void setRadix2BuffSize(double buf_size);
     void setSampleRate(float sampR);
 
     PajFFT_MixedRadix mixedRadix_FFT;
@@ -63,7 +62,6 @@ public:
     double newBufferSize;
 private:
     long deviceBuffSize;
-    double radix2BuffSize;
  public:
     std::vector<float>               inputData;
     std::vector<float>               tempInput;
@@ -115,7 +113,7 @@ private:
     float gAnaMagn[MAX_FRAME_LENGTH];
     float gSynFreq[MAX_FRAME_LENGTH];
     float gSynMagn[MAX_FRAME_LENGTH];
-    long gRover = false, gInit = false;
+    long gInit = false;
     float magn, phase, window, tmp, real, imag;
     double freqPerBin, expct;
     long qpd, index, inFifoLatency, stepSize, fftFrameSize2;

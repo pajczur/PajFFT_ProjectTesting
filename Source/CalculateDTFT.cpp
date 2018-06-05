@@ -41,7 +41,7 @@ void CalculateDTFT::fftCalculator(AudioBuffer<float> &inp)
         tempInput[indexFFToutSize] = inp.getSample(0, i);
         indexFFToutSize++;
 
-        if(indexFFToutSize >= (fftType!=2 ? newBufferSize : radix2BuffSize) )
+        if(indexFFToutSize >= newBufferSize)
         {
             inputData = tempInput;
             fftCalc();
@@ -76,7 +76,7 @@ void CalculateDTFT::fftCalculator(std::vector<float> &inp)
         tempInput[indexFFToutSize] = inp[i];
         indexFFToutSize++;
 
-        if(indexFFToutSize >= (fftType!=2 ? newBufferSize : radix2BuffSize) )
+        if(indexFFToutSize >= newBufferSize)
         {
             inputData = tempInput;
             fftCalc();
@@ -107,7 +107,7 @@ void CalculateDTFT::getInputData(AudioBuffer<float> &inp)
         tempInput[indexFFToutSize] = inp.getSample(0, i);
         indexFFToutSize++;
         
-        if(indexFFToutSize >= (fftType!=2 ? newBufferSize : radix2BuffSize) )
+        if(indexFFToutSize >= newBufferSize)
         {
             inputData = tempInput;
             indexFFToutSize = 0;
@@ -217,11 +217,6 @@ void CalculateDTFT::setNewBufSize(double new_buf_size)
     resetOutputData();
 }
 
-void CalculateDTFT::setRadix2BuffSize(double buf_size)
-{
-    radix2BuffSize = buf_size;
-}
-
 void CalculateDTFT::selectFFT(int identifier)
 {
     fftType = identifier;
@@ -291,8 +286,6 @@ void CalculateDTFT::resetOutputData()
     memset(gAnaMagn, 0, MAX_FRAME_LENGTH*sizeof(float));
     memset(gSynMagn, 0, MAX_FRAME_LENGTH*sizeof(float));
     memset(gSynFreq, 0, MAX_FRAME_LENGTH*sizeof(float));
-    gRover=false;
-
 }
 
 
@@ -305,7 +298,7 @@ void CalculateDTFT::smbPitchShift(float pitchShift, long fftFrameSize, long osam
  */
 {
     /* set up some handy variables */
-    gRover=false;
+    long gRover=false;
     fftFrameSize2 = fftFrameSize/2;
     stepSize = fftFrameSize/osamp;
     freqPerBin = sampleRate/(double)fftFrameSize;
@@ -456,7 +449,7 @@ void CalculateDTFT::smbPitchShift(float pitchShift, long fftFrameSize, long osam
 
 void CalculateDTFT::windowOverlap_ForwBackFFT(long fftFrameSize, long osamp, float sampleRate, std::vector<std::complex<float>> indata, std::vector<float> &outdata)
 {
-    gRover=false;
+    long gRover=false;
     fftFrameSize2 = fftFrameSize/2;
     stepSize = fftFrameSize/osamp;
     freqPerBin = sampleRate/(double)fftFrameSize;
@@ -571,7 +564,7 @@ void CalculateDTFT::windowOverlap_ForwBackFFT(long fftFrameSize, long osamp, flo
 
 void CalculateDTFT::windowOverlap_ForwFFT(long fftFrameSize, long osamp, float sampleRate, std::vector<std::complex<float>> indata/*, std::vector<float> &outdata*/)
 {
-    gRover=false;
+    long gRover=false;
     fftFrameSize2 = fftFrameSize/2;
     stepSize = fftFrameSize/osamp;
     freqPerBin = sampleRate/(double)fftFrameSize;

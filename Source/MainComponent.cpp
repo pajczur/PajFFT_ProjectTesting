@@ -182,7 +182,6 @@ void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRat
     wAudioPlayer.transportSource.prepareToPlay(samplesPerBlockExpected, sampleRate);
     tempBuff.setSize(2, samplesPerBlockExpected);
     fft_defaultSettings();
-    std::cout << sampleRate << std::endl;
 }
 
 void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill)
@@ -192,7 +191,6 @@ void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
 //        bufferToFill.clearActiveBufferRegion();
 //        return;
 //    }
-    
     if(oscillator.getWaveType()!=0   ||   (wAudioPlayer.transportSource.isPlaying() && !fftInterface.pauseGetNextAudioBlock))
     {
         if(playerOrOscillat)
@@ -373,8 +371,11 @@ void MainComponent::paint (Graphics& g)
         g.drawText("Choose FFT type and sound source", 10, 50, getWidth()-20, 50, Justification::centredTop);
     if(freqDisp.getToggleState() && calculator_FFT.fftType==0 && (oscillator.getWaveType()!=0 || (wAudioPlayer.state == wAudioPlayer.Playing)))
         g.drawText("Choose FFT type", 10, 50, getWidth()-20, 50, Justification::centredTop);
-    if(freqDisp.getToggleState() && calculator_FFT.fftType!=0 && oscillator.getWaveType()==0 && (wAudioPlayer.state == wAudioPlayer.Playing))
+    if(freqDisp.getToggleState() && calculator_FFT.fftType!=0 && oscillator.getWaveType()==0 && (wAudioPlayer.state != wAudioPlayer.Playing))
         g.drawText("Choose sound source", 10, 50, getWidth()-20, 50, Justification::centredTop);
+    
+    if(wAudioPlayer.state == wAudioPlayer.Playing   &&   !graphAnalyser.isTimerRunning())
+        graphAnalyser.startTimer(40);
 }
 
 void MainComponent::resized()
@@ -406,11 +407,14 @@ void MainComponent::fft_defaultSettings()
     oscillator.setFrequency(220.0);
     oscillator.setAmplitude(0.5);
     oscInterface.setSampleRate(wSampleRate);
+    oscInterface.updateToggleState(&oscInterface.wMuteButton, 0);
+    wAudioPlayer.stopButtonClicked();
 
     
     fftInterface.setSampleRate(wSampleRate);
     fftInterface.setBufferSize(deviceBufferSize);
     fftInterface.rememberedBuffer = deviceBufferSize;
+    fftInterface.updateToggleState(&fftInterface.turnOFF, 0);
     
     
     display_logarithmic.setNyquist(wSampleRate/2.0);
@@ -424,8 +428,8 @@ void MainComponent::fft_defaultSettings()
     calculator_FFT.setSampleRate(wSampleRate);
     calculator_FFT.mixedRadix_FFT.wSettings(wSampleRate, deviceBufferSize);
     
-//    calculator_FFT.radix2_FFT.wSettings(wSampleRate, wBufferSize, calculator_FFT.outRealRadix2, true);
-    calculator_FFT.setRadix2BuffSize(deviceBufferSize);
+    calculator_FFT.radix2_FFT.wSettings(wSampleRate, deviceBufferSize);
+//    calculator_FFT.setRadix2BuffSize(deviceBufferSize);
     
 //    calculator_FFT.regular_DFT.wSettings(wSampleRate, wBufferSize, calculator_FFT.outRealDFT, true);
     
@@ -434,6 +438,7 @@ void MainComponent::fft_defaultSettings()
     graphAnalyser.setSampleRate(wSampleRate);
     graphAnalyser.setNewBufSize(deviceBufferSize);
     graphAnalyser.deviceBufferSize = deviceBufferSize;
+    
     
     
 }
