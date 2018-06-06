@@ -31,6 +31,7 @@ public:
     int getDisplayMargYTop();
     void setSampRate(double buffSize);
     void whatToDisplay(GraphAnalyser &graph);
+    void updateZoom();
 
 
 private:
@@ -68,7 +69,9 @@ private:
     float margYBot;
     float margYTop;
     
+public:
     Slider wZoom;
+private:
     GraphAnalyser *graphAnalyser;
     
     float _winX;

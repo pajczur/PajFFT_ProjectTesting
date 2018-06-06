@@ -61,7 +61,7 @@ MainComponent::MainComponent() : adsc(deviceManager, 0, 0, 0, 0, false, false, f
     freqDisp.setRadioGroupId(selectorFreqTimeButton);
     freqDisp.setAlwaysOnTop(true);
     freqDisp.setButtonText("Freq");
-    freqDisp.setToggleState(false, dontSendNotification);
+    freqDisp.setToggleState(true, dontSendNotification);
     freqDisp.onClick = [this] { updateToggleState(&freqDisp, freqDisp_ID); };
   
     // == D-weighting correction == //
@@ -76,9 +76,9 @@ MainComponent::MainComponent() : adsc(deviceManager, 0, 0, 0, 0, false, false, f
     timeDisp.setRadioGroupId(selectorFreqTimeButton);
     timeDisp.setAlwaysOnTop(true);
     timeDisp.setButtonText("Time");
-    timeDisp.setToggleState(true, dontSendNotification);
+    timeDisp.setToggleState(false, dontSendNotification);
     timeDisp.onClick = [this] { updateToggleState(&timeDisp, timeDisp_ID); };
-    updateToggleState(&timeDisp, timeDisp_ID);
+    updateToggleState(&freqDisp, freqDisp_ID);
   
     // == set up all references == //
     oscInterface.setReferences(oscillator, calculator_FFT, graphAnalyser);
@@ -137,13 +137,14 @@ void MainComponent::updateToggleState(Button* button, int buttonID)
             graphAnalyser.setVisible(true);
             break;
             
-        case 5:
+        case 5: 
             graphAnalyser.isFreqAnalyser = false;
             d_weightingDisp.setVisible(false);
             display_logarithmic.setVisible(false);
             display_linear.setVisible(true);
             graphAnalyser.setBounds(display_linear.getDisplayMargXLeft()+151, display_linear.getDisplayMargYTop()+10, 644+36-2, 338);
             graphAnalyser.setVisible(true);
+            display_linear.updateZoom();
             break;
             
         case 6:
@@ -334,7 +335,7 @@ void MainComponent::paint (Graphics& g)
         g.drawText("Choose FFT type and sound source", 10, 50, getWidth()-20, 50, Justification::centredTop);
     if(freqDisp.getToggleState() && calculator_FFT.fftType==0 && (oscillator.getWaveType()!=0 || (wAudioPlayer.state == wAudioPlayer.Playing)))
         g.drawText("Choose FFT type", 10, 50, getWidth()-20, 50, Justification::centredTop);
-    if(freqDisp.getToggleState() && calculator_FFT.fftType!=0 && oscillator.getWaveType()==0 && (wAudioPlayer.state != wAudioPlayer.Playing))
+    if(((freqDisp.getToggleState() && calculator_FFT.fftType!=0) || timeDisp.getToggleState()) && oscillator.getWaveType()==0 && (wAudioPlayer.state != wAudioPlayer.Playing))
         g.drawText("Choose sound source", 10, 50, getWidth()-20, 50, Justification::centredTop);
     
     if(wAudioPlayer.state == wAudioPlayer.Playing   &&   !graphAnalyser.isTimerRunning())

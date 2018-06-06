@@ -81,22 +81,21 @@ void Display_Linear::sliderValueChanged (Slider *slider)
 {
     if(slider == &wZoom)
     {
-        //        double wMin = wZoom.getMinValue();
-        //        double wMid = wZoom.getValue();
-        //        double wMax = wZoom.getMaxValue();
-        //        wZoom.setMinAndMaxValues(wMid-((wMax-wMin)/2.0), wMid+((wMax-wMin)/2.0));
         wZoom.setValue(((wZoom.getMaxValue()-wZoom.getMinValue())/2.0)+wZoom.getMinValue());
-        
+
         lowEnd = wZoom.getMinValue();
         topEnd = wZoom.getMaxValue();
         repaint();
         graphAnalyser->setZoomLinear(wZoom.getMinValue(), wZoom.getMaxValue());
-        //        wZoom.setMinValue(wMid-((wMax-wMin)/2.0));
-        //        wZoom.setMaxValue(wMid+((wMax-wMin)/2.0));
     }
 }
 
 void Display_Linear::whatToDisplay(GraphAnalyser &graph)
 {
     graphAnalyser = &graph;
+}
+
+void Display_Linear::updateZoom()
+{
+    sliderValueChanged(&wZoom);
 }

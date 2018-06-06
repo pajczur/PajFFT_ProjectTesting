@@ -369,6 +369,7 @@ void CalculateDTFT::smbPitchShift(float pitchShift, long fftFrameSize, long osam
     }
 }
 
+
 void CalculateDTFT::windowOverlap_ForwBackFFT(long fftFrameSize, long osamp, float sampleRate, std::vector<std::complex<float>> indata, std::vector<float> &outdata)
 {
     fftFrameSize2 = fftFrameSize/2;
@@ -377,24 +378,24 @@ void CalculateDTFT::windowOverlap_ForwBackFFT(long fftFrameSize, long osamp, flo
     expct = 2.*fPi*(double)stepSize/(double)fftFrameSize;
     inFifoLatency = fftFrameSize-stepSize;
     long gRover = inFifoLatency;
-    
+
     for (int i = 0; i < fftFrameSize; i++){
 
         gInFIFO[gRover] = indata[i];
         outdata[i] = gOutFIFO[gRover-inFifoLatency].real();
         gRover++;
-        
+
         if (gRover >= fftFrameSize) {
             gRover = inFifoLatency;
 
             windowingOverlap_FFT(fftFrameSize);
-            
+
             analyzeData(osamp);
 
             for (long k = fftFrameSize2+1; k < fftFrameSize; k++) forwFFTout[k] = 0.0f;
 
             inverseFFT_windowingOverlap(fftFrameSize, osamp);
-            
+
             for (long k = 0; k < stepSize; k++) gOutFIFO[k] = gOutputAccum[k];
 
             memmove(gOutputAccum, gOutputAccum+stepSize, fftFrameSize*sizeof(float));
@@ -513,6 +514,28 @@ void CalculateDTFT::analyzeData(long overSamp)
         /* store magnitude and true frequency in analysis arrays */
         gAnaMagn[k] = magn;
         gAnaFreq[k] = tmp;
+        
+        if(!isPitchON) {
+            /* subtract bin mid frequency */
+            tmp -= (double)k*freqPerBin;
+            
+            /* get bin deviation from freq deviation */
+            tmp /= freqPerBin;
+            
+            /* take osamp into account */
+            tmp = 2.*fPi*tmp/overSamp;
+            
+            /* add the overlap phase advance back in */
+            tmp += (double)k*expct;
+            
+            /* accumulate delta phase to get bin phase */
+            gSumPhase[k] += tmp;
+            phase = gSumPhase[k];
+
+            /* get real and imag part and re-interleave */
+            forwFFTout[k].real(magn*cos(phase));
+            forwFFTout[k].imag(magn*sin(phase));
+        }
     }
 }
 

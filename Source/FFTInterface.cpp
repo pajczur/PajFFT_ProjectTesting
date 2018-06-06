@@ -460,7 +460,6 @@ void FFTInterface::updateToggleState        (Button* button, int fftIdentifier)
         switch (fftIdentifier)
         {
             case 0: // FFT OFF
-                std::cout << "dupa" << std::endl;
                 whatIsChanged_ID = turnOFF_ID;
                 pauseFFT(false);
                 startTimer(ceil((calculator_FFT->timeElapsed/1000.0f)*10.0f));
@@ -513,6 +512,8 @@ void FFTInterface::setSampleRate            (double sample_rate)
     filterSetTopEnd.setRange(0.0, wSampleRate/2.0, 1.0);
     filterSetTopEnd.setValue(wSampleRate/2.0);
 //    filterSetTopEnd.setSkewFactorFromMidPoint(1000);
+    
+    filterDiff = filterSetTopEnd.getValue() - filterSetLowEnd.getValue();
 }
 
 void FFTInterface::setBufferSize(double buffer_size)
