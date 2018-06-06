@@ -133,13 +133,13 @@ void CalculateDTFT::fftCalc()
                     if(isForward)
                     {
                         if(isWindowed)
-                            windowOverlap_ForwFFT(newBufferSize, 4, 44100.0f, inputDataC);
+                            windowOverlap_ForwFFT(newBufferSize, 4, wSampleRate, inputDataC);
                         else
                             mixedRadix_FFT.makeFFT(inputDataC, forwFFTout, true);
                     }
                     else
                         if(isWindowed)
-                            windowOverlap_ForwBackFFT(newBufferSize, 4, 44100.0f, inputDataC, windowedBackFFTout);
+                            windowOverlap_ForwBackFFT(newBufferSize, 4, wSampleRate, inputDataC, windowedBackFFTout);
                         else
                         {
                             mixedRadix_FFT.makeFFT(inputDataC, forwFFTout, true);
@@ -152,7 +152,7 @@ void CalculateDTFT::fftCalc()
                 }
                 else
                 {
-                    smbPitchShift(wPitchShift, newBufferSize, 4, 44100.0f, inputDataC, windowedBackFFTout);
+                    smbPitchShift(wPitchShift, newBufferSize, 4, wSampleRate, inputDataC, windowedBackFFTout);
                 }
                 break;
                 
@@ -162,13 +162,13 @@ void CalculateDTFT::fftCalc()
                     if(isForward)
                     {
                         if(isWindowed)
-                            windowOverlap_ForwFFT(newBufferSize, 4, 44100.0f, inputDataC);
+                            windowOverlap_ForwFFT(newBufferSize, 4, wSampleRate, inputDataC);
                         else
                             radix2_FFT.makeFFT(inputDataC, forwFFTout, true);
                     }
                     else
                         if(isWindowed)
-                            windowOverlap_ForwBackFFT(newBufferSize, 4, 44100.0f, inputDataC, windowedBackFFTout);
+                            windowOverlap_ForwBackFFT(newBufferSize, 4, wSampleRate, inputDataC, windowedBackFFTout);
                         else
                         {
                             radix2_FFT.makeFFT(inputDataC, forwFFTout, true);
@@ -181,7 +181,7 @@ void CalculateDTFT::fftCalc()
                 }
                 else
                 {
-                    smbPitchShift(wPitchShift, newBufferSize, 4, 44100.0f, inputDataC, windowedBackFFTout);
+                    smbPitchShift(wPitchShift, newBufferSize, 4, wSampleRate, inputDataC, windowedBackFFTout);
                 }
                 break;
                 

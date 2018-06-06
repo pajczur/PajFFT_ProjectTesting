@@ -595,8 +595,7 @@ float PajFFT_MixedRadix::freqMagnitudeCalc (std::complex<float> fftOutput, long 
 {
     if(freqBin<lEndScale  ||  freqBin>tEndScale)
         return fZero;
-    else
-    {
+    else {
         float re_2;
         float im_2;
         re_2 = fftOutput.real() * fftOutput.real();

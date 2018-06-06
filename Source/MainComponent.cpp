@@ -90,8 +90,6 @@ MainComponent::MainComponent() : adsc(deviceManager, 0, 0, 0, 0, false, false, f
     
     startTimer(1000);
     
-    // specify the number of input and output channels that we want to open
-    
     setAudioChannels (1, 1);
 }
 
@@ -162,14 +160,6 @@ void MainComponent::updateToggleState(Button* button, int buttonID)
     }
 }
 
-//void MainComponent::sliderValueChanged (Slider *slider)
-//{
-//    if(slider == &wPitchShift)
-//    {
-//        calculator_FFT.wPitchShift = wPitchShift.getValue();
-//    }
-//}
-
 
 
 
@@ -178,7 +168,6 @@ void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRat
 {
     wSampleRate = sampleRate;
     deviceBufferSize = samplesPerBlockExpected;
-//    deviceBufferSize = 441.0;
     wAudioPlayer.transportSource.prepareToPlay(samplesPerBlockExpected, sampleRate);
     tempBuff.setSize(2, samplesPerBlockExpected);
     fft_defaultSettings();
@@ -229,11 +218,6 @@ void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
 void MainComponent::releaseResources()
 {
     wAudioPlayer.transportSource.releaseResources();
-    
-//    AudioDeviceManager::AudioDeviceSetup currentAudioSetup;
-//    deviceManager.getAudioDeviceSetup (currentAudioSetup);
-//    currentAudioSetup.bufferSize = 1024;
-//    deviceManager.setAudioDeviceSetup (currentAudioSetup, true);
 }
 
 
@@ -263,17 +247,6 @@ void MainComponent::playInversedFFTWaveGen(const AudioSourceChannelInfo& bufferT
         for(int sample = bufferToFill.startSample; sample<bufferToFill.buffer->getNumSamples(); sample++)
         {
             float windowing;
-            
-//            if(fftOutputIndex < calculator_FFT.newBufferSize)
-//            {
-//                fftOutputIndex++;
-//            }
-//            else
-//            {
-//                fftOutputIndex = 1;
-//            }
-//            windowing = calculator_FFT.outRealMixed[fftOutputIndex-1];
-//            windowing = calculator_FFT.wOutput[fftOutputIndex-1];
             
             windowing = calculator_FFT.wOutput[sample];
             
@@ -318,16 +291,6 @@ void MainComponent::playInversedFFTAudioFile(const AudioSourceChannelInfo& buffe
         for(int sample = bufferToFill.startSample; sample<bufferToFill.buffer->getNumSamples(); sample++)
         {
             float windowing;
-            
-//            if(fftOutputIndex < calculator_FFT.newBufferSize)
-//            {
-//                fftOutputIndex++;
-//            }
-//            else
-//            {
-//                fftOutputIndex = 1;
-//            }
-//            windowing = calculator_FFT.outRealMixed[fftOutputIndex-1];
             
             windowing = calculator_FFT.wOutput[sample];
             bufferToFill.buffer->addSample(0, sample, windowing);
@@ -429,17 +392,9 @@ void MainComponent::fft_defaultSettings()
     calculator_FFT.mixedRadix_FFT.wSettings(wSampleRate, deviceBufferSize);
     
     calculator_FFT.radix2_FFT.wSettings(wSampleRate, deviceBufferSize);
-//    calculator_FFT.setRadix2BuffSize(deviceBufferSize);
-    
-//    calculator_FFT.regular_DFT.wSettings(wSampleRate, wBufferSize, calculator_FFT.outRealDFT, true);
-    
-//    calculator_FFT.resetOutputData();
     
     graphAnalyser.setSampleRate(wSampleRate);
     graphAnalyser.setNewBufSize(deviceBufferSize);
     graphAnalyser.deviceBufferSize = deviceBufferSize;
-    
-    
-    
 }
 
