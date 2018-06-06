@@ -35,7 +35,6 @@ public:
     
     void timerCallback() override;
     void updateToggleState(Button* button, int buttonID);
-//    void sliderValueChanged (Slider *slider) override;
 
     //==============================================================================
     void prepareToPlay (int samplesPerBlockExpected, double sampleRate) override;
