@@ -80,7 +80,7 @@
 // ==== PUBLIC: ====
 PajFFT_Radix2::PajFFT_Radix2()
 {
-    fPi = 4.0f * atan(1.0f);
+    fPi = 4.0 * atan(1.0);
 
     wSampleRate = 0.0f;
     wBufferSize = 0.0f;
@@ -323,15 +323,8 @@ void PajFFT_Radix2::prepareWindowingArray                  ()
     windowHann.clear();
     for(int i=0; i<wBufferSize; ++i)
     {
-        if(i==0  ||  i==wBufferSize-1)
-        {
-            windowHann.push_back(0.0f);
-        }
-        else
-        {
-            float windowSample = -0.5*cos(2.*fPi*(double)i/(double)wBufferSize)+0.5;
-            windowHann.push_back(windowSample);
-        }
+        float windowSample = -0.5*cos(2.*fPi*(double)i/(double)wBufferSize)+0.5;
+        windowHann.push_back(windowSample);
     }
 }
 

@@ -47,6 +47,10 @@ public:
 //    PajFFT_Radix2     radix2_IFFT;
 //    PajDFT            regular_DFT;
 //    PajDFT            regular_IDFT;
+    
+    void windowingOverlap_FFT(long frameSize);
+    void inverseFFT_windowingOverlap(long frameSize, long overSamp);
+    void analyzeData(long overSamp);
 
     void smbPitchShift(float pitchShift, long fftFrameSize, long osamp, float sampleRate, std::vector<std::complex<float>> indata, std::vector<float> &outdata);
     void windowOverlap_ForwBackFFT(long fftFrameSize, long osamp, float sampleRate, std::vector<std::complex<float>> indata, std::vector<float> &outdata);

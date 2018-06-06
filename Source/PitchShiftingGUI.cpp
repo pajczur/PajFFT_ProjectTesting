@@ -44,6 +44,7 @@ void PitchShiftingGUI::timerCallback()
     if(pitchShiftOnOff.getToggleState())
     {
         calculator_FFT->mixedRadix_FFT.setWindowing(true);
+        calculator_FFT->radix2_FFT.setWindowing(true);
         
         fftInterface->wInverseFFT.setToggleState(true, dontSendNotification);
         fftInterface->setInverse_fft();
@@ -63,6 +64,7 @@ void PitchShiftingGUI::timerCallback()
     else
     {
         calculator_FFT->mixedRadix_FFT.setWindowing(fftInterface->remembereWinWasClicked);
+        calculator_FFT->radix2_FFT.setWindowing(fftInterface->remembereWinWasClicked);
         
         fftInterface->wInverseFFT.setToggleState(fftInterface->rememberInvWasClicked, dontSendNotification);
         fftInterface->setInverse_fft();

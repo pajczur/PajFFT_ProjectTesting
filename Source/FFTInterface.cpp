@@ -237,11 +237,13 @@ void FFTInterface::timerCallback()
         {
             calculator_FFT->isWindowed = true;
             calculator_FFT->mixedRadix_FFT.setWindowing(true);
+            calculator_FFT->radix2_FFT.setWindowing(true);
         }
         else
         {
             calculator_FFT->isWindowed = false;
             calculator_FFT->mixedRadix_FFT.setWindowing(false);
+            calculator_FFT->radix2_FFT.setWindowing(false);
         }
         refresh();
     }
@@ -321,21 +323,21 @@ void FFTInterface::sliderValueChanged       (Slider *slider)
 {
     if(slider == &filterSetLowEnd)
     {
-        calculator_FFT->setLowEnd(filterSetLowEnd.getValue());
+//        calculator_FFT->setLowEnd(filterSetLowEnd.getValue());
         calculator_FFT->mixedRadix_FFT.setLowEnd(filterSetLowEnd.getValue());
         calculator_FFT->radix2_FFT.setLowEnd(filterSetLowEnd.getValue());
         
         if(areFiltersLinked)
         {
             filterSetTopEnd.setValue(filterSetLowEnd.getValue()+filterDiff);
-            calculator_FFT->setTopEnd(filterSetTopEnd.getValue());
+//            calculator_FFT->setTopEnd(filterSetTopEnd.getValue());
             calculator_FFT->mixedRadix_FFT.setTopEnd(filterSetTopEnd.getValue());
             calculator_FFT->radix2_FFT.setTopEnd(filterSetTopEnd.getValue());
         }
         else if(filterSetLowEnd.getValue()+3.0 > filterSetTopEnd.getValue()   &&   !areFiltersLinked)
         {
             filterSetTopEnd.setValue(filterSetLowEnd.getValue()+2.0);
-            calculator_FFT->setTopEnd(filterSetTopEnd.getValue());
+//            calculator_FFT->setTopEnd(filterSetTopEnd.getValue());
             calculator_FFT->mixedRadix_FFT.setTopEnd(filterSetTopEnd.getValue());
             calculator_FFT->radix2_FFT.setTopEnd(filterSetTopEnd.getValue());
         }
@@ -350,7 +352,7 @@ void FFTInterface::sliderValueChanged       (Slider *slider)
         else
             return;
         
-        if(round(filterSetLowEnd.getValue()*(calculator_FFT->mixedRadix_FFT.getBufferSize()/wSampleRate))>=0)
+        if(tempIndex>=0)
         {
             for(int k=tempIndex; k>0; k--)
             {
@@ -361,23 +363,23 @@ void FFTInterface::sliderValueChanged       (Slider *slider)
     
     if(slider == &filterSetTopEnd)
     {
-        calculator_FFT->setTopEnd(filterSetTopEnd.getValue());
+//        calculator_FFT->setTopEnd(filterSetTopEnd.getValue());
         calculator_FFT->mixedRadix_FFT.setTopEnd(filterSetTopEnd.getValue());
         calculator_FFT->radix2_FFT.setTopEnd(filterSetTopEnd.getValue());
         
         if(areFiltersLinked)
         {
             filterSetLowEnd.setValue(filterSetTopEnd.getValue()-filterDiff);
+//            calculator_FFT->setLowEnd(filterSetLowEnd.getValue());
             calculator_FFT->mixedRadix_FFT.setLowEnd(filterSetLowEnd.getValue());
             calculator_FFT->radix2_FFT.setLowEnd(filterSetLowEnd.getValue());
-            calculator_FFT->setLowEnd(filterSetLowEnd.getValue());
         }
         else if(filterSetTopEnd.getValue()-3.0 < filterSetLowEnd.getValue()   &&   !areFiltersLinked)
         {
             filterSetLowEnd.setValue(filterSetTopEnd.getValue()-2.0);
+//            calculator_FFT->setLowEnd(filterSetLowEnd.getValue());
             calculator_FFT->mixedRadix_FFT.setLowEnd(filterSetLowEnd.getValue());
             calculator_FFT->radix2_FFT.setLowEnd(filterSetLowEnd.getValue());
-            calculator_FFT->setLowEnd(filterSetLowEnd.getValue());
         }
         
         int tempIndex;

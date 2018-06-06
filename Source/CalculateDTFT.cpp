@@ -257,54 +257,43 @@ void CalculateDTFT::resetOutputData()
     
     
     
-    gInFIFO.resize(MAX_FRAME_LENGTH);
-    gOutFIFO.resize(MAX_FRAME_LENGTH);
-//    gFFTworksp.resize(2*MAX_FRAME_LENGTH);
-    gFFTworksp.resize(MAX_FRAME_LENGTH);
-//    outPP.resize(2*MAX_FRAME_LENGTH);
-    outPP.resize(MAX_FRAME_LENGTH);
-//    outPP2.resize(2*MAX_FRAME_LENGTH);
-    outPP2.resize(MAX_FRAME_LENGTH);
-    
-//    for(int i=0; i<2*MAX_FRAME_LENGTH; i++)
-    for(int i=0; i<MAX_FRAME_LENGTH; i++)
+    gInFIFO.resize(2*newBufferSize);
+    gOutFIFO.resize(2*newBufferSize);
+    gFFTworksp.resize(2*newBufferSize);
+    outPP.resize(2*newBufferSize);
+    outPP2.resize(2*newBufferSize);
+
+    for(int i=0; i<2*newBufferSize; i++)
     {
         gFFTworksp[i] = 0.0f;
         outPP[i] = 0.0f;
         outPP2[i] = 0.0f;
-        if(i<MAX_FRAME_LENGTH)
-        {
-            gInFIFO[i] = 0.0f;
-            gOutFIFO[i] = 0.0f;
-        }
+        gInFIFO[i] = 0.0f;
+        gOutFIFO[i] = 0.0f;
     }
-    memset(gLastPhase, 0, (MAX_FRAME_LENGTH/2+1)*sizeof(float));
-    memset(gSumPhase, 0, (MAX_FRAME_LENGTH/2+1)*sizeof(float));
-//    memset(gOutputAccum, 0, 2*MAX_FRAME_LENGTH*sizeof(float));
-    memset(gOutputAccum, 0, MAX_FRAME_LENGTH*sizeof(float));
-    memset(gAnaFreq, 0, MAX_FRAME_LENGTH*sizeof(float));
-    memset(gAnaMagn, 0, MAX_FRAME_LENGTH*sizeof(float));
-    memset(gSynMagn, 0, MAX_FRAME_LENGTH*sizeof(float));
-    memset(gSynFreq, 0, MAX_FRAME_LENGTH*sizeof(float));
+    memset(gLastPhase, 0, ((2*newBufferSize)/2+1)*sizeof(float));
+    memset(gSumPhase, 0, ((2*newBufferSize)/2+1)*sizeof(float));
+    memset(gOutputAccum, 0, (2*newBufferSize)*sizeof(float));
+    memset(gAnaFreq, 0, (2*newBufferSize)*sizeof(float));
+    memset(gAnaMagn, 0, (2*newBufferSize)*sizeof(float));
+    memset(gSynMagn, 0, (2*newBufferSize)*sizeof(float));
+    memset(gSynFreq, 0, (2*newBufferSize)*sizeof(float));
 }
 
 
 void CalculateDTFT::smbPitchShift(float pitchShift, long fftFrameSize, long osamp, float sampleRate, std::vector<std::complex<float>> indata, std::vector<float> &outdata)
 /*
- Routine smbPitchShift(). See top of file for explanation
- Purpose: doing pitch shifting while maintaining duration using the Short
- Time Fourier Transform.
+ I was hardly inspired by:
  Author: (c)1999-2015 Stephan M. Bernsee <s.bernsee [AT] zynaptiq [DOT] com>
  */
 {
     /* set up some handy variables */
-    long gRover=false;
     fftFrameSize2 = fftFrameSize/2;
     stepSize = fftFrameSize/osamp;
     freqPerBin = sampleRate/(double)fftFrameSize;
     expct = 2.*fPi*(double)stepSize/(double)fftFrameSize;
     inFifoLatency = fftFrameSize-stepSize;
-    if (gRover == false) gRover = inFifoLatency;
+    long gRover = inFifoLatency;
 
     
     /* main processing loop */
@@ -319,58 +308,9 @@ void CalculateDTFT::smbPitchShift(float pitchShift, long fftFrameSize, long osam
         if (gRover >= fftFrameSize) {
             gRover = inFifoLatency;
             
-            /* do windowing and re,im interleave */
-            for (long k = 0; k < fftFrameSize; k++)
-            {
-                gFFTworksp[k] = mixedRadix_FFT.windowing(gInFIFO[k], k);
-            }
+            windowingOverlap_FFT(fftFrameSize);
             
-            
-            /* ***************** ANALYSIS ******************* */
-            /* do transform */
-            if(fftType==1)
-                mixedRadix_FFT.makeFFT(gFFTworksp, forwFFTout, true);
-            else if(fftType==2)
-                radix2_FFT.makeFFT(gFFTworksp, forwFFTout, true);
-            
-            /* this is the analysis step */
-            for (long k = 0; k <= fftFrameSize2; k++) {
-                
-                /* compute magnitude and phase */
-                if(fftType==1)
-                {
-                    magn = 2.0*mixedRadix_FFT.freqMagnitudeCalc(forwFFTout[k], k);
-                    phase = mixedRadix_FFT.phaseCalculator(forwFFTout[k], k);
-                }
-                else if(fftType==2)
-                {
-                    magn = 2.0*radix2_FFT.freqMagnitudeCalc(forwFFTout[k], k);
-                    phase = radix2_FFT.phaseCalculator(forwFFTout[k], k);
-                }
-
-                /* compute phase difference */
-                tmp = phase - gLastPhase[k];
-                gLastPhase[k] = phase;
-
-                /* subtract expected phase difference */
-                tmp -= (double)k*expct;
-
-                /* map delta phase into +/- Pi interval */
-                qpd = tmp/fPi;
-                if (qpd >= 0) qpd += qpd&1;
-                else          qpd -= qpd&1;
-                tmp -= fPi*(double)qpd;
-
-                /* get deviation from bin frequency from the +/- Pi interval */
-                tmp = osamp*tmp/(2.*fPi);
-
-                /* compute the k-th partials' true frequency */
-                tmp = (double)k*freqPerBin + tmp*freqPerBin;
-
-                /* store magnitude and true frequency in analysis arrays */
-                gAnaMagn[k] = magn;
-                gAnaFreq[k] = tmp;
-            }
+            analyzeData(osamp);
             
             /* ***************** PROCESSING ******************* */
             /* this does the actual pitch shifting */
@@ -406,7 +346,6 @@ void CalculateDTFT::smbPitchShift(float pitchShift, long fftFrameSize, long osam
                 /* accumulate delta phase to get bin phase */
                 gSumPhase[k] += tmp;
                 phase = gSumPhase[k];
-//                                                                                    phase = 0.0f;
                 
                 /* get real and imag part and re-interleave */
                 forwFFTout[k].real(magn*cos(phase));
@@ -416,24 +355,7 @@ void CalculateDTFT::smbPitchShift(float pitchShift, long fftFrameSize, long osam
             /* zero negative frequencies */
             for (long k = fftFrameSize2+1; k < fftFrameSize; k++) forwFFTout[k] = 0.0f;
             
-            /* do inverse transform */
-            if(fftType==1)
-            {
-                mixedRadix_FFT.makeFFT(forwFFTout, outPP2, false);
-                /* do windowing and add to output accumulator */
-                for(long k=0; k < fftFrameSize; k++) {
-                    gOutputAccum[k] += 2.0*(mixedRadix_FFT.waveEnvelopeCalc(outPP2[k], k)/osamp);
-                }
-            }
-            else if(fftType==2)
-            {
-                radix2_FFT.makeFFT(forwFFTout, outPP2, false);
-                /* do windowing and add to output accumulator */
-                for(long k=0; k < fftFrameSize; k++) {
-                    gOutputAccum[k] += 2.0*(radix2_FFT.waveEnvelopeCalc(outPP2[k], k)/osamp);
-                }
-            }
-
+            inverseFFT_windowingOverlap(fftFrameSize, osamp);
             
             for (long k = 0; k < stepSize; k++) gOutFIFO[k] = gOutputAccum[k];
             
@@ -449,13 +371,12 @@ void CalculateDTFT::smbPitchShift(float pitchShift, long fftFrameSize, long osam
 
 void CalculateDTFT::windowOverlap_ForwBackFFT(long fftFrameSize, long osamp, float sampleRate, std::vector<std::complex<float>> indata, std::vector<float> &outdata)
 {
-    long gRover=false;
     fftFrameSize2 = fftFrameSize/2;
     stepSize = fftFrameSize/osamp;
     freqPerBin = sampleRate/(double)fftFrameSize;
     expct = 2.*fPi*(double)stepSize/(double)fftFrameSize;
     inFifoLatency = fftFrameSize-stepSize;
-    if (gRover == false) gRover = inFifoLatency;
+    long gRover = inFifoLatency;
     
     for (int i = 0; i < fftFrameSize; i++){
 
@@ -466,188 +387,132 @@ void CalculateDTFT::windowOverlap_ForwBackFFT(long fftFrameSize, long osamp, flo
         if (gRover >= fftFrameSize) {
             gRover = inFifoLatency;
 
-            for (long k = 0; k < fftFrameSize; k++)
-            {
-                gFFTworksp[k] = mixedRadix_FFT.windowing(gInFIFO[k], k);
-            }
-            if(fftType==1)
-                mixedRadix_FFT.makeFFT(gFFTworksp, forwFFTout, true);
-            else if(fftType==2)
-                radix2_FFT.makeFFT(gFFTworksp, forwFFTout, true);
+            windowingOverlap_FFT(fftFrameSize);
             
-            for (long k = 0; k <= fftFrameSize2; k++) {
-                
-                /* compute magnitude and phase */
-                if(fftType==1)
-                {
-                    magn = 2.0*mixedRadix_FFT.freqMagnitudeCalc(forwFFTout[k], k);
-                    phase = mixedRadix_FFT.phaseCalculator(forwFFTout[k], k);
-                }
-                else if(fftType==2)
-                {
-                    magn = 2.0*radix2_FFT.freqMagnitudeCalc(forwFFTout[k], k);
-                    phase = radix2_FFT.phaseCalculator(forwFFTout[k], k);
-                }
-                
-                /* compute phase difference */
-                tmp = phase - gLastPhase[k];
-                gLastPhase[k] = phase;
-                
-                /* subtract expected phase difference */
-                tmp -= (double)k*expct;
-                
-                /* map delta phase into +/- Pi interval */
-                qpd = tmp/fPi;
-                if (qpd >= 0) qpd += qpd&1;
-                else          qpd -= qpd&1;
-                tmp -= fPi*(double)qpd;
-                
-                /* get deviation from bin frequency from the +/- Pi interval */
-                tmp = osamp*tmp/(2.*fPi);
-                
-                /* compute the k-th partials' true frequency */
-                tmp = (double)k*freqPerBin + tmp*freqPerBin;
-                
-                /* subtract bin mid frequency */
-                tmp -= (double)k*freqPerBin;
-                
-                /* get bin deviation from freq deviation */
-                tmp /= freqPerBin;
-                
-                /* take osamp into account */
-                tmp = 2.*fPi*tmp/osamp;
-                
-                /* add the overlap phase advance back in */
-                tmp += (double)k*expct;
-                
-                /* accumulate delta phase to get bin phase */
-                gSumPhase[k] += tmp;
-                phase = gSumPhase[k];
-                //                                                                                    phase = 0.0f;
-                
-                /* get real and imag part and re-interleave */
-                forwFFTout[k].real(magn*cos(phase));
-                forwFFTout[k].imag(magn*sin(phase));
-            }
-            
-            /* zero negative frequencies */
+            analyzeData(osamp);
+
             for (long k = fftFrameSize2+1; k < fftFrameSize; k++) forwFFTout[k] = 0.0f;
-            
-            /* do inverse transform */
-            if(fftType==1)
-            {
-                mixedRadix_FFT.makeFFT(forwFFTout, outPP2, false);
-                /* do windowing and add to output accumulator */
-                for(long k=0; k < fftFrameSize; k++) {
-                    gOutputAccum[k] += 2.0*(mixedRadix_FFT.waveEnvelopeCalc(outPP2[k], k) / osamp);
-                }
-            }
-            else if(fftType==2)
-            {
-                radix2_FFT.makeFFT(forwFFTout, outPP2, false);
-                /* do windowing and add to output accumulator */
-                for(long k=0; k < fftFrameSize; k++) {
-                    gOutputAccum[k] += 2.0*(radix2_FFT.waveEnvelopeCalc(outPP2[k], k) / osamp);
-                }
-            }
+
+            inverseFFT_windowingOverlap(fftFrameSize, osamp);
             
             for (long k = 0; k < stepSize; k++) gOutFIFO[k] = gOutputAccum[k];
-            
-            /* shift accumulator */
+
             memmove(gOutputAccum, gOutputAccum+stepSize, fftFrameSize*sizeof(float));
-            
-            /* move input FIFO */
+
             for (long k = 0; k < inFifoLatency; k++) gInFIFO[k] = gInFIFO[k+stepSize];
         }
     }
 }
 
+
 void CalculateDTFT::windowOverlap_ForwFFT(long fftFrameSize, long osamp, float sampleRate, std::vector<std::complex<float>> indata/*, std::vector<float> &outdata*/)
 {
-    long gRover=false;
     fftFrameSize2 = fftFrameSize/2;
     stepSize = fftFrameSize/osamp;
     freqPerBin = sampleRate/(double)fftFrameSize;
     expct = 2.*fPi*(double)stepSize/(double)fftFrameSize;
     inFifoLatency = fftFrameSize-stepSize;
-    if (gRover == false) gRover = inFifoLatency;
+    long gRover = inFifoLatency;
     
     for (int i = 0; i < fftFrameSize; i++){
         
         gInFIFO[gRover] = indata[i];
-//        outdata[i] = gOutFIFO[gRover-inFifoLatency].real();
         gRover++;
         
         if (gRover >= fftFrameSize) {
             gRover = inFifoLatency;
             
-            for (long k = 0; k < fftFrameSize; k++)
-            {
-                gFFTworksp[k] = mixedRadix_FFT.windowing(gInFIFO[k], k);
-            }
+            windowingOverlap_FFT(fftFrameSize);
             
-            if(fftType==1)
-                mixedRadix_FFT.makeFFT(gFFTworksp, forwFFTout, true);
-            else if(fftType==2)
-                radix2_FFT.makeFFT(gFFTworksp, forwFFTout, true);
-            for (long k = 0; k <= fftFrameSize2; k++) {
-                
-                /* compute magnitude and phase */
-                if(fftType==1)
-                {
-                    magn = 2.0*mixedRadix_FFT.freqMagnitudeCalc(forwFFTout[k], k);
-                    phase = mixedRadix_FFT.phaseCalculator(forwFFTout[k], k);
-                }
-                else if(fftType==2)
-                {
-                    magn = 2.0*radix2_FFT.freqMagnitudeCalc(forwFFTout[k], k);
-                    phase = radix2_FFT.phaseCalculator(forwFFTout[k], k);
-                }
-                
-                /* compute phase difference */
-                tmp = phase - gLastPhase[k];
-                gLastPhase[k] = phase;
-                
-                /* subtract expected phase difference */
-                tmp -= (double)k*expct;
-                
-                /* map delta phase into +/- Pi interval */
-                qpd = tmp/fPi;
-                if (qpd >= 0) qpd += qpd&1;
-                else          qpd -= qpd&1;
-                tmp -= fPi*(double)qpd;
-                
-                /* get deviation from bin frequency from the +/- Pi interval */
-                tmp = osamp*tmp/(2.*fPi);
-                
-                /* compute the k-th partials' true frequency */
-                tmp = (double)k*freqPerBin + tmp*freqPerBin;
-                
-                /* subtract bin mid frequency */
-                tmp -= (double)k*freqPerBin;
-                
-                /* get bin deviation from freq deviation */
-                tmp /= freqPerBin;
-                
-                /* take osamp into account */
-                tmp = 2.*fPi*tmp/osamp;
-                
-                /* add the overlap phase advance back in */
-                tmp += (double)k*expct;
-                
-                /* accumulate delta phase to get bin phase */
-                gSumPhase[k] += tmp;
-                phase = gSumPhase[k];
-                //                                                                                    phase = 0.0f;
-                
-                /* get real and imag part and re-interleave */
-                forwFFTout[k].real(magn*cos(phase));
-                forwFFTout[k].imag(magn*sin(phase));
-            }
-
-            // move input FIFO
+            analyzeData(osamp);
+            
             for (long k = 0; k < inFifoLatency; k++) gInFIFO[k] = gInFIFO[k+stepSize];
         }
+    }
+}
+
+void CalculateDTFT::windowingOverlap_FFT(long frameSize)
+{
+    /* do windowing and re,im interleave */
+    /* ***************** ANALYSIS ******************* */
+    /* do transform */
+    if(fftType==1) {
+        for (long k = 0; k < frameSize; k++)
+        {
+            gFFTworksp[k] = mixedRadix_FFT.windowing(gInFIFO[k], k);
+        }
+        mixedRadix_FFT.makeFFT(gFFTworksp, forwFFTout, true);
+    }
+    else if(fftType==2) {
+        for (long k = 0; k < frameSize; k++)
+        {
+            gFFTworksp[k] = radix2_FFT.windowing(gInFIFO[k], k);
+        }
+        radix2_FFT.makeFFT(gFFTworksp, forwFFTout, true);
+    }
+}
+
+
+void CalculateDTFT::inverseFFT_windowingOverlap(long frameSize, long overSamp)
+{
+    /* do inverse transform */
+    if(fftType==1)
+    {
+        mixedRadix_FFT.makeFFT(forwFFTout, outPP2, false);
+        /* do windowing and add to output accumulator */
+        for(long k=0; k < frameSize; k++) {
+            gOutputAccum[k] += 2.0*(mixedRadix_FFT.waveEnvelopeCalc(outPP2[k], k)/overSamp);
+        }
+    }
+    else if(fftType==2)
+    {
+        radix2_FFT.makeFFT(forwFFTout, outPP2, false);
+        /* do windowing and add to output accumulator */
+        for(long k=0; k < frameSize; k++) {
+            gOutputAccum[k] += 2.0*(radix2_FFT.waveEnvelopeCalc(outPP2[k], k)/overSamp);
+        }
+    }
+}
+
+void CalculateDTFT::analyzeData(long overSamp)
+{
+    /* this is the analysis step */
+    for (long k = 0; k <= fftFrameSize2; k++) {
+        
+        /* compute magnitude and phase */
+        if(fftType==1)
+        {
+            magn = 2.0*mixedRadix_FFT.freqMagnitudeCalc(forwFFTout[k], k);
+            phase = mixedRadix_FFT.phaseCalculator(forwFFTout[k], k);
+        }
+        else if(fftType==2)
+        {
+            magn = 2.0*radix2_FFT.freqMagnitudeCalc(forwFFTout[k], k);
+            phase = radix2_FFT.phaseCalculator(forwFFTout[k], k);
+        }
+        
+        /* compute phase difference */
+        tmp = phase - gLastPhase[k];
+        gLastPhase[k] = phase;
+        
+        /* subtract expected phase difference */
+        tmp -= (double)k*expct;
+        
+        /* map delta phase into +/- Pi interval */
+        qpd = tmp/fPi;
+        if (qpd >= 0) qpd += qpd&1;
+        else          qpd -= qpd&1;
+        tmp -= fPi*(double)qpd;
+        
+        /* get deviation from bin frequency from the +/- Pi interval */
+        tmp = overSamp*tmp/(2.*fPi);
+        
+        /* compute the k-th partials' true frequency */
+        tmp = (double)k*freqPerBin + tmp*freqPerBin;
+        
+        /* store magnitude and true frequency in analysis arrays */
+        gAnaMagn[k] = magn;
+        gAnaFreq[k] = tmp;
     }
 }
 
@@ -663,7 +528,6 @@ void CalculateDTFT::setLowEnd(float lowE)
 {
     lowEnd = newBufferSize * (lowE/wSampleRate);
 }
-
 
 void CalculateDTFT::setTopEnd(float topE)
 {

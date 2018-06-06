@@ -424,8 +424,8 @@ void MainComponent::fft_defaultSettings()
     display_linear.repaint();
     
     calculator_FFT.defineDeviceBuffSize((long)deviceBufferSize);
-    calculator_FFT.setNewBufSize(deviceBufferSize);
     calculator_FFT.setSampleRate(wSampleRate);
+    calculator_FFT.setNewBufSize(deviceBufferSize);
     calculator_FFT.mixedRadix_FFT.wSettings(wSampleRate, deviceBufferSize);
     
     calculator_FFT.radix2_FFT.wSettings(wSampleRate, deviceBufferSize);
