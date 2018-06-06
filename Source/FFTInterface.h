@@ -41,19 +41,20 @@ public:
     void labelTextChanged (Label *labelThatHasChanged) override;
     
     void updateToggleState(Button* button, int fftIdentifier);
-//    void updateToggleZeroPad(Button* button, int fftIdentifier);
     
     void setSampleRate(double sample_rate);
     void setBufferSize(double buffer_size);
     
     void setOFF_fft();
     void setON_matrixfft();
-//    void setON_radix2fft();
-//    void setON_regular_DFT();
+    void setON_radix2fft();
+    
     void setInverse_fft();
-    void setWindowing();
 
     void pauseFFT(bool pauseFALSE_ResumeTRUE);
+    
+    void rememberedInvPitchWin();
+    void setVisibleFiltersAndBuffSize();
     void refresh();
 
     
@@ -83,11 +84,9 @@ private:
     ToggleButton      selectMatrixFFT;
     const int         selectMatrixFFT_ID=1;
     
-//    ToggleButton      selectRadix2FFT;
-//    const int         selectRadix2FFT_ID=2;
-//
-//    ToggleButton      selectRegDFT;
-//    const int         selectRegDFT_ID=3;
+    ToggleButton      selectRadix2FFT;
+    const int         selectRadix2FFT_ID=2;
+
     
     
 public:
@@ -96,14 +95,15 @@ public:
     bool              rememberInvWasClicked;
     Label             alreadyInversed;
     
-private:
     TextButton        turnOFF;
+private:
     const int         turnOFF_ID=0;
     int               fftSelectorButtons=1;
 
-//    ToggleButton      zeroPadding;
-//    TextEditor        zerosPaddingDescript;
-//    string            setZerosInfo          (int use, int bufSize, int zero);
+    ToggleButton      zeroPadding;
+    const int         zeroPadding_ID=3;
+    TextEditor        zerosPaddingDescript;
+    string            setZerosInfo          (int use, int bufSize, int zero);
     
     const int         winHann_ID=5;
 public:

@@ -55,8 +55,10 @@ void PitchShiftingGUI::timerCallback()
         
         fftInterface->isPitchShiftON = true;
         
+        
         calculator_FFT->isWindowed = true;
         calculator_FFT->isPitchON = true;
+        fftInterface->refresh();
     }
     else
     {
@@ -65,12 +67,12 @@ void PitchShiftingGUI::timerCallback()
         fftInterface->wInverseFFT.setToggleState(fftInterface->rememberInvWasClicked, dontSendNotification);
         fftInterface->setInverse_fft();
         fftInterface->wInverseFFT.setVisible(true);
+        fftInterface->wWindowBut.setVisible(true);
         
         fftInterface->alreadyInversed.setVisible(false);
         fftInterface->alreadyWindow.setVisible(false);
         
         //            if(fftInterface->wInverseFFT.getToggleState())
-        fftInterface->wWindowBut.setVisible(true);
         //            else
         //                fftInterface->wWindowBut.setVisible(false);
         
@@ -78,6 +80,7 @@ void PitchShiftingGUI::timerCallback()
         
         calculator_FFT->isWindowed = fftInterface->remembereWinWasClicked;
         calculator_FFT->isPitchON = false;
+        fftInterface->refresh();
     }
     
 //    fftInterface->refresh();
