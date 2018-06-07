@@ -15,10 +15,11 @@
 GraphAnalyser::GraphAnalyser()
 {
     wSampleRate = 0.0;
-    maxResolution = 1000;
+    maxResolution = 1000.0f;
     isFreqAnalyser = true;
     isDWeighting = false;
     isFFTon=false;
+    timeTrue_waveFalse = false;
 }
 
 GraphAnalyser::~GraphAnalyser()
@@ -50,8 +51,12 @@ void GraphAnalyser::timerCallback()
             
             if(!isFreqAnalyser)
             {
-                wavGraph.clear();
-                drawLinGraph();
+                if(timeTrue_waveFalse)
+                    drawtimeGraph();
+                else {
+                    wavGraph.clear();
+                    drawLinGraph();
+                }
             }
             else
             {
@@ -71,7 +76,6 @@ void GraphAnalyser::timerCallback()
     }
     
 }
-
 
 void GraphAnalyser::drawLinGraph()
 {
@@ -96,7 +100,7 @@ void GraphAnalyser::drawLinGraph()
             avarage += dataSource->windowedBackFFTout[(int)i%(int)(wBufferSize-1)];
         else
             avarage += env[(int)i%(int)(wBufferSize-1)];
-
+        
         if(fmod(round(i), linearDivider)==0)
         {
             avarage = avarage/linearDivider;
@@ -106,6 +110,41 @@ void GraphAnalyser::drawLinGraph()
         }
     }
 }
+
+void GraphAnalyser::drawtimeGraph()
+{
+    std::vector<float> env;
+    if(dataSource->isForward)
+    {
+        env = dataSource->inputData;
+    }
+    else
+    {
+        env.clear();
+        env = dataSource->backFFTout;
+    }
+    
+
+    
+    double amplitude;
+    for(float i=timeStart+1.0; i<=10; i++)
+    {
+        if(ttt==0) {
+            wavGraph.startNewSubPath(getWidth()-10, -(env[0] * zero_dB/2.0) + (zero_dB/2.0));
+            ttt++;
+        }
+        else {
+            wavGraph.applyTransform(AffineTransform::translation(-0.8, 0));
+            amplitude = env[round((ttt%10)*(wBufferSize/9.0f))];
+            ttt++;
+            if(ttt==1000) { ttt=0; wavGraph.clear(); }
+            wavGraph.lineTo(getWidth(), -(amplitude * zero_dB/2.0) + (zero_dB/2.0));
+        
+        }
+    }
+}
+
+
 
 void GraphAnalyser::drawLogGraph()
 {
@@ -145,15 +184,18 @@ void GraphAnalyser::setSampleRate(double sample_rate)
     low_End = 10.0f;
     top_End = nyquist;
     low_End_index = round(1.0f * ( wBufferSize / wSampleRate));
-    timeStart = 0.0f;
-    timeEnd = wSampleRate;
-    dispWidth = (double)getWidth() / (timeEnd - timeStart);
-    linearDivider = floor(wSampleRate/1000.0f);
+
 }
 
 void GraphAnalyser::setNewBufSize(double new_buf_size)
 {
+    wavGraph.clear();
+    fftGraph.clear();
     wBufferSize = new_buf_size;
+    timeStart = 0.0f;
+    timeEnd = wBufferSize;
+    dispWidth = (double)getWidth() / (timeEnd - timeStart);
+    linearDivider = ceil(wBufferSize/1000.0f);
     buffNyquist = wBufferSize/2.0;
     low_End_index = round(low_End * ( wBufferSize / wSampleRate));
     logScaleWidth = nyquist/(wBufferSize/2.0);
@@ -180,7 +222,7 @@ void GraphAnalyser::setZoomLinear(double startTime, double endTime)
     else
         dispWidth = (double)getWidth() / ((endTime - startTime)-1.0);
     
-    linearDivider = floor((endTime - startTime)/maxResolution);
+    linearDivider = ceil((endTime - startTime)/maxResolution);
 }
 
 void GraphAnalyser::setLowEndIndex()

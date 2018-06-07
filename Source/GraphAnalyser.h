@@ -37,6 +37,7 @@ public:
     void resized() override;
     
     void drawLinGraph();
+    void drawtimeGraph();
     void drawLogGraph();
     void clearDisplay();
     
@@ -47,7 +48,9 @@ public:
     double deviceBufferSize;
 private:
     Path fftGraph;
+public:
     Path wavGraph;
+private:
     CalculateDTFT *dataSource;
     WavesGen      *oscilSource;
     AudioPlayer   *audioSource;
@@ -75,5 +78,6 @@ public:
     bool isFFTon;
     bool isDWeighting;
     bool isFreqAnalyser;
+    bool timeTrue_waveFalse;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GraphAnalyser)
 };

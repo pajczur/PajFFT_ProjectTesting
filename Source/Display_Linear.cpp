@@ -67,7 +67,7 @@ int Display_Linear::getDisplayMargYTop()
     return margYTop;
 }
 
-void Display_Linear::setSampRate(double sampRat)
+void Display_Linear::setBuffSize(double sampRat)
 {
     wSampleRateToDisplay = sampRat;
     
