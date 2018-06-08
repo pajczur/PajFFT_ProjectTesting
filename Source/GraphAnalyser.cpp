@@ -150,7 +150,8 @@ void GraphAnalyser::drawLogGraph()
 {
     float linearMagnitude=abs(dataSource->forwFFTout[low_End_index].real()) / (wBufferSize/2.0f);
 
-    fftGraph.startNewSubPath(low_End_index, wDecibels(linearMagnitude, low_End_index) );
+    Path dupa;
+    dupa.startNewSubPath(low_End_index, wDecibels(linearMagnitude, low_End_index) );
     
     linearMagnitude=0.0;
 
@@ -164,10 +165,12 @@ void GraphAnalyser::drawLogGraph()
 
         if(round(wCurrent) != round(wBefore))
         {
-            fftGraph.lineTo(wCurrent, wDecibels(linearMagnitude, i));
+            dupa.lineTo(wCurrent, wDecibels(linearMagnitude, i));
             linearMagnitude=0.0;
         }
     }
+
+    fftGraph = dupa.createPathWithRoundedCorners(20.0f);
 }
 
 

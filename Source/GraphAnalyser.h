@@ -75,6 +75,7 @@ private:
     
 public:
     int ttt=0;
+    int ccc=0;
     bool isFFTon;
     bool isDWeighting;
     bool isFreqAnalyser;

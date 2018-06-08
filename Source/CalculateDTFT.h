@@ -19,7 +19,7 @@
 #include "Clock.h"
 //#include "PajFFT/PajFFT_HandyFunc.h"
 
-#define MAX_FRAME_LENGTH 44100
+#define MAX_FRAME_LENGTH 200000
 
 //==============================================================================
 /*

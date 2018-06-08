@@ -575,6 +575,8 @@ void FFTInterface::setON_matrixfft          ()
         graphAnalyser->setNewBufSize(tempBuf);
         fftBufSizeEdit.setText(to_string((int)tempBuf), dontSendNotification);
         dispLine->setBuffSize(tempBuf);
+        
+        sliderValueChanged(&filterSetTopEnd);
 
         graphAnalyser->setLowEndIndex();
         repaint();
@@ -610,6 +612,7 @@ void FFTInterface::setON_radix2fft          ()
         else
             dispLine->setBuffSize(tempBuf);
 
+        sliderValueChanged(&filterSetTopEnd);
         
         graphAnalyser->setLowEndIndex();
         repaint();
@@ -668,6 +671,7 @@ void FFTInterface::pauseFFT(bool pauseFALSE_ResumeTRUE)
 
 void FFTInterface::refresh                  ()
 {
+    
     if(selectMatrixFFT.getToggleState())
         setON_matrixfft();
     else if(selectRadix2FFT.getToggleState())

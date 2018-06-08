@@ -262,7 +262,7 @@ void CalculateDTFT::resetOutputData()
     gFFTworksp.resize(2*newBufferSize);
     outPP.resize(2*newBufferSize);
     outPP2.resize(2*newBufferSize);
-
+    
     for(int i=0; i<2*newBufferSize; i++)
     {
         gFFTworksp[i] = 0.0f;
@@ -271,6 +271,10 @@ void CalculateDTFT::resetOutputData()
         gInFIFO[i] = 0.0f;
         gOutFIFO[i] = 0.0f;
     }
+    
+    
+    
+    
     memset(gLastPhase, 0, ((2*newBufferSize)/2+1)*sizeof(float));
     memset(gSumPhase, 0, ((2*newBufferSize)/2+1)*sizeof(float));
     memset(gOutputAccum, 0, (2*newBufferSize)*sizeof(float));
