@@ -32,6 +32,8 @@ public:
     void setBuffSize(double buffSize);
     void whatToDisplay(GraphAnalyser &graph);
     void updateZoom();
+    void setZoomRangeOscil();
+    void setZoomRangeTime();
 
 
 private:

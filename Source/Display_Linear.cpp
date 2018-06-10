@@ -71,11 +71,6 @@ int Display_Linear::getDisplayMargYTop()
 void Display_Linear::setBuffSize(double buffSize)
 {
     wSampleRateToDisplay = buffSize;
-    
-    wZoom.setRange(0.0, wSampleRateToDisplay, 0.001);
-    
-    wZoom.setMinAndMaxValues(0.0, wSampleRateToDisplay);
-    wZoom.setValue( ((wZoom.getMaxValue()-wZoom.getMinValue())/2.0) + wZoom.getMinValue() );
 }
 
 void Display_Linear::sliderValueChanged (Slider *slider)
@@ -88,7 +83,8 @@ void Display_Linear::sliderValueChanged (Slider *slider)
         topEnd = wZoom.getMaxValue();
         repaint();
         graphAnalyser->setZoomLinear(wZoom.getMinValue(), wZoom.getMaxValue());
-        graphAnalyser->waveFormZoom = wZoom.getMinValue()*1000;
+        graphAnalyser->waveFormZoom = wZoom.getMinValue();
+        
     }
 }
 
@@ -100,4 +96,22 @@ void Display_Linear::whatToDisplay(GraphAnalyser &graph)
 void Display_Linear::updateZoom()
 {
     sliderValueChanged(&wZoom);
+}
+
+
+void Display_Linear::setZoomRangeOscil()
+{
+    wZoom.setRange(0.0, wSampleRateToDisplay, 0.001);
+    
+    wZoom.setMinAndMaxValues(0.0, wSampleRateToDisplay);
+    wZoom.setValue( ((wZoom.getMaxValue()-wZoom.getMinValue())/2.0) + wZoom.getMinValue() );
+}
+
+
+void Display_Linear::setZoomRangeTime()
+{
+    wZoom.setRange(0.0, 100.0, 0.001);
+    
+    wZoom.setMinAndMaxValues(0.0, 100.0);
+    wZoom.setValue( ((wZoom.getMaxValue()-wZoom.getMinValue())/2.0) + wZoom.getMinValue() );
 }

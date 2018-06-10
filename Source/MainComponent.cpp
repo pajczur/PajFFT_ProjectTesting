@@ -78,6 +78,7 @@ MainComponent::MainComponent() : adsc(deviceManager, 0, 0, 0, 0, false, false, f
     timeDisp.setButtonText("Time");
     timeDisp.setToggleState(false, dontSendNotification);
     timeDisp.onClick = [this] { updateToggleState(&timeDisp, timeDisp_ID); };
+    timeDisp.setVisible(false);
     
     // == Choose Wave graph == //
     addAndMakeVisible(&waveDisp);
@@ -126,6 +127,11 @@ void MainComponent::updateToggleState(Button* button, int buttonID)
             playerOrOscillat = false;
             wAudioPlayer.setControlsVisible(false);
             oscInterface.setControlsVisible(true);
+            timeDisp.setVisible(false);
+            if(timeDisp.getToggleState()) {
+                freqDisp.setToggleState(true, dontSendNotification);
+                updateToggleState(&freqDisp, 4);
+            }
             break;
             
         case 2: // USE AUDIO PLAYER
@@ -133,6 +139,7 @@ void MainComponent::updateToggleState(Button* button, int buttonID)
             playerOrOscillat = true;
             wAudioPlayer.setControlsVisible(true);
             oscInterface.setControlsVisible(false);
+            timeDisp.setVisible(true);
             break;
 
             
@@ -150,6 +157,7 @@ void MainComponent::updateToggleState(Button* button, int buttonID)
             graphAnalyser.timeTrue_waveFalse = true;
             graphAnalyser.wavGraph.clear();
             d_weightingDisp.setVisible(false);
+            display_linear.setZoomRangeTime();
             display_logarithmic.setVisible(false);
             display_linear.wZoom.setMinValue(0.0f);
             display_linear.wZoom.setMaxValue(display_linear.wZoom.getMaximum());
@@ -165,6 +173,7 @@ void MainComponent::updateToggleState(Button* button, int buttonID)
             graphAnalyser.timeTrue_waveFalse = false;
             graphAnalyser.wavGraph.clear();
             d_weightingDisp.setVisible(false);
+            display_linear.setZoomRangeOscil();
             display_logarithmic.setVisible(false);
             display_linear.wZoom.setMinValue(0.0f);
             display_linear.wZoom.setMaxValue(display_linear.wZoom.getMaximum());
