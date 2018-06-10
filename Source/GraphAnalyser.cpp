@@ -12,7 +12,7 @@
 #include "GraphAnalyser.h"
 
 //==============================================================================
-GraphAnalyser::GraphAnalyser()
+GraphAnalyser::GraphAnalyser() 
 {
     wSampleRate = 0.0;
     maxResolution = 1000.0f;
@@ -20,6 +20,12 @@ GraphAnalyser::GraphAnalyser()
     isDWeighting = false;
     isFFTon=false;
     timeTrue_waveFalse = false;
+    ttt=0;
+    ccc=0;
+    clearBegin = false;
+    sourceIsReady = false;
+    
+    waveFormZoom = 500;
 }
 
 GraphAnalyser::~GraphAnalyser()
@@ -29,11 +35,30 @@ GraphAnalyser::~GraphAnalyser()
 void GraphAnalyser::paint (Graphics& g)
 {
     g.setColour (Colours::red);
+    
+    g.drawVerticalLine(120, 50, 200);
+    g.drawVerticalLine(getWidth()-1, 50, 200);
+    
+    
+    Rectangle<int> thumbnailBounds (0, 100, waveFormZoom, getHeight() - 120);
 
-    if(!isFreqAnalyser)
-        g.strokePath(wavGraph, PathStrokeType(2));
-    else
-        g.strokePath(fftGraph, PathStrokeType(2));
+    if(sourceIsReady) {
+        if (thumbnail->getNumChannels() == 0)
+            paintIfNoFileLoaded (g, thumbnailBounds);
+        else
+            paintIfFileLoaded (g, thumbnailBounds);
+    }
+    
+//    if(!isFreqAnalyser) {
+//        if(timeTrue_waveFalse) {
+//            for(int i=0; i<timeGraph.size(); i++)
+//                g.strokePath(timeGraph[i], PathStrokeType(2));
+//        }
+//        else
+//            g.strokePath(wavGraph, PathStrokeType(2));
+//    }
+//    else
+//        g.strokePath(fftGraph, PathStrokeType(2));
 }
 
 void GraphAnalyser::resized()
@@ -43,37 +68,43 @@ void GraphAnalyser::resized()
 
 void GraphAnalyser::timerCallback()
 {
-    
-    if(oscilSource->getWaveType() != 0   ||   audioSource->transportSource.isPlaying())
-    {
-        if(!dataSource->backFFTout.empty())
-        {
-            
-            if(!isFreqAnalyser)
-            {
-                if(timeTrue_waveFalse)
-                    drawtimeGraph();
-                else {
-                    wavGraph.clear();
-                    drawLinGraph();
-                }
-            }
-            else
-            {
-                fftGraph.clear();
-                if(isFFTon)
-                    drawLogGraph();
-            }
-            
+//    if(oscilSource->getWaveType() != 0   ||   audioSource->transportSource.isPlaying())
+//    {
+//        if(!dataSource->backFFTout.empty())
+//        {
+//
+//            if(!isFreqAnalyser)
+//            {
+//                if(timeTrue_waveFalse) {
+//
+//                    if(dataSource->dataIsReadyToGraph)
+//                        drawtimeGraph();
+//
+//                    for(int i=0; i<timeGraph.size(); i++) {
+//                        if(!timeGraph[i].isEmpty())
+//                            timeGraph[i].applyTransform(AffineTransform::translation(-((float)getWidth()/50.0), 0));
+//                    }
+//                }
+//                else {
+//                    wavGraph.clear();
+//                    drawLinGraph();
+//                }
+//            }
+//            else
+//            {
+//                fftGraph.clear();
+//                if(isFFTon)
+//                    drawLogGraph();
+//            }
+//
             repaint();
-        }
-    }
-    else
-    {
-        stopTimer();
-//        if(!fftGraph.isEmpty())
-            clearDisplay();
-    }
+//        }
+//    }
+//    else
+//    {
+//        stopTimer();
+//            clearDisplay();
+//    }
     
 }
 
@@ -113,6 +144,7 @@ void GraphAnalyser::drawLinGraph()
 
 void GraphAnalyser::drawtimeGraph()
 {
+    dataSource->dataIsReadyToGraph = false;
     std::vector<float> env;
     if(dataSource->isForward)
     {
@@ -127,20 +159,34 @@ void GraphAnalyser::drawtimeGraph()
 
     
     double amplitude;
-    for(float i=timeStart+1.0; i<=10; i++)
+    for(float i=0; i<wBufferSize; i++)
     {
-        if(ttt==0) {
-            wavGraph.startNewSubPath(getWidth()-10, -(env[0] * zero_dB/2.0) + (zero_dB/2.0));
-            ttt++;
+        if(dataSource->isWindowed   &&   !dataSource->isForward)
+            amplitude = dataSource->windowedBackFFTout[i];
+        else
+            amplitude = env[i];
+        
+        
+        if(ttt>=500) {
+            ttt=0;
+            ccc++;
+            timeGraph[ccc].clear();
+            if(ccc>=40) clearBegin = true;;
+            if(clearBegin) {
+//                std::cout << ddd%timeGraph.size() << std::endl;
+                timeGraph[(++ddd)%timeGraph.size()].clear(); }
+            if((ccc>=timeGraph.size()-1)) ccc=0;
+        }
+    
+        if(timeGraph[ccc].isEmpty()) {
+            timeGraph[ccc].startNewSubPath(getWidth()+(i * ((float)getWidth()/88200.0)), -(amplitude * zero_dB/2.0) + (zero_dB/2.0));
+            timeGraph[ccc].lineTo(getWidth()+(i * ((float)getWidth()/88200.0)), -(amplitude * zero_dB/2.0) + (zero_dB/2.0));
         }
         else {
-            wavGraph.applyTransform(AffineTransform::translation(-0.8, 0));
-            amplitude = env[round((ttt%10)*(wBufferSize/9.0f))];
-            ttt++;
-            if(ttt==1000) { ttt=0; wavGraph.clear(); }
-            wavGraph.lineTo(getWidth(), -(amplitude * zero_dB/2.0) + (zero_dB/2.0));
-        
+//            std::cout << env.size() << std::endl;
+            timeGraph[ccc].lineTo(getWidth()+(i * ((float)getWidth()/88200.0)), -(amplitude * zero_dB/2.0) + (zero_dB/2.0));
         }
+        ttt++;
     }
 }
 
@@ -150,8 +196,8 @@ void GraphAnalyser::drawLogGraph()
 {
     float linearMagnitude=abs(dataSource->forwFFTout[low_End_index].real()) / (wBufferSize/2.0f);
 
-    Path dupa;
-    dupa.startNewSubPath(low_End_index, wDecibels(linearMagnitude, low_End_index) );
+    Path sharped;
+    sharped.startNewSubPath(low_End_index, wDecibels(linearMagnitude, low_End_index) );
     
     linearMagnitude=0.0;
 
@@ -165,12 +211,12 @@ void GraphAnalyser::drawLogGraph()
 
         if(round(wCurrent) != round(wBefore))
         {
-            dupa.lineTo(wCurrent, wDecibels(linearMagnitude, i));
+            sharped.lineTo(wCurrent, wDecibels(linearMagnitude, i));
             linearMagnitude=0.0;
         }
     }
 
-    fftGraph = dupa.createPathWithRoundedCorners(20.0f);
+    fftGraph = sharped.createPathWithRoundedCorners(20.0f);
 }
 
 
@@ -187,11 +233,22 @@ void GraphAnalyser::setSampleRate(double sample_rate)
     low_End = 10.0f;
     top_End = nyquist;
     low_End_index = round(1.0f * ( wBufferSize / wSampleRate));
-
+    timeGraph.resize(floor(wSampleRate / 500));
+    
+    for(int i=0; i<timeGraph.size(); i++)
+        timeGraph[i].clear();
+    
+    moveG = (float)(getWidth())/(wSampleRate*2.0);
+    clearBegin=false;
+    ddd=0;
+    ccc=0;
 }
 
 void GraphAnalyser::setNewBufSize(double new_buf_size)
 {
+    clearBegin=false;
+    ccc=0;
+    ddd=0;
     wavGraph.clear();
     fftGraph.clear();
     wBufferSize = new_buf_size;
@@ -238,11 +295,19 @@ void GraphAnalyser::setFFT_DataSource(CalculateDTFT &fftData,  WavesGen &oscData
     dataSource = &fftData;
     oscilSource = &oscData;
     audioSource = &audioData;
+    thumbnail = &audioSource->thumb;
+    sourceIsReady = true;
 }
 
 void GraphAnalyser::clearDisplay()
 {
+    clearBegin = false;
+    ccc=0;
+    ddd=0;
     fftGraph.clear();
+    wavGraph.clear();
+    for(int i=0; i<timeGraph.size(); i++)
+        timeGraph[i].clear();
     repaint();
 }
 
@@ -293,7 +358,7 @@ double GraphAnalyser::wDecibels(double linearMag, int freqIndex)
         if(linearMag <= 0.0001)
         {
             linearMag = 0.00001;
-            dweight = 0.00001f;
+            dweight =   1.0f;
         }
     }
     else
@@ -307,3 +372,35 @@ double GraphAnalyser::wDecibels(double linearMag, int freqIndex)
     
     return  -(0.75 * zero_dB * dweight * (20.0*log10(linearMag) + 72.0)/72.0) + zero_dB;
 }
+
+void GraphAnalyser::paintIfNoFileLoaded (Graphics& g, const Rectangle<int>& thumbnailBounds)
+{
+    g.setColour (Colours::darkgrey);
+    g.fillRect (thumbnailBounds);
+    g.setColour (Colours::white);
+    g.drawFittedText ("No File Loaded", thumbnailBounds, Justification::centred, 1.0f);
+}
+
+void GraphAnalyser::paintIfFileLoaded (Graphics& g, const Rectangle<int>& thumbnailBounds)
+{
+//    g.setColour (Colours::white);
+//    g.fillRect (thumbnailBounds);
+    g.setColour (Colours::red);
+    
+    auto audioLength (thumbnail->getTotalLength());
+    
+    thumbnail->drawChannels (g,
+                            thumbnailBounds,
+                            0.0,
+                            thumbnail->getTotalLength(),
+                            1.0f);
+    
+    g.setColour (Colours::green);
+    auto audioPosition (audioSource->transportSource.getCurrentPosition());
+    auto drawPosition ((audioPosition / audioLength) * thumbnailBounds.getWidth()
+                       + thumbnailBounds.getX());                                        // [13]
+    g.drawLine (drawPosition, thumbnailBounds.getY(), drawPosition,
+                thumbnailBounds.getBottom(), 2.0f);
+}
+
+

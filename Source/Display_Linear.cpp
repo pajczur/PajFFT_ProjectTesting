@@ -18,6 +18,7 @@ Display_Linear::Display_Linear()
     margXRight = 10.0f;
     margYBot = 20.0f+30.0f;
     margYTop = 22.0f;
+    wSampleRateToDisplay = 1.0;
 
     wZoom.setSliderStyle(Slider::SliderStyle::ThreeValueHorizontal);
     addAndMakeVisible(&wZoom);
@@ -67,9 +68,9 @@ int Display_Linear::getDisplayMargYTop()
     return margYTop;
 }
 
-void Display_Linear::setBuffSize(double sampRat)
+void Display_Linear::setBuffSize(double buffSize)
 {
-    wSampleRateToDisplay = sampRat;
+    wSampleRateToDisplay = buffSize;
     
     wZoom.setRange(0.0, wSampleRateToDisplay, 0.001);
     
@@ -87,6 +88,7 @@ void Display_Linear::sliderValueChanged (Slider *slider)
         topEnd = wZoom.getMaxValue();
         repaint();
         graphAnalyser->setZoomLinear(wZoom.getMinValue(), wZoom.getMaxValue());
+        graphAnalyser->waveFormZoom = wZoom.getMinValue()*1000;
     }
 }
 

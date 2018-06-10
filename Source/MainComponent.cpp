@@ -136,7 +136,7 @@ void MainComponent::updateToggleState(Button* button, int buttonID)
             break;
 
             
-        case 4:
+        case 4: // freq graph
             graphAnalyser.isFreqAnalyser = true;
             d_weightingDisp.setVisible(true);
             display_linear.setVisible(false);
@@ -145,24 +145,30 @@ void MainComponent::updateToggleState(Button* button, int buttonID)
             graphAnalyser.setVisible(true);
             break;
             
-        case 5:
+        case 5: // time graph
             graphAnalyser.isFreqAnalyser = false;
             graphAnalyser.timeTrue_waveFalse = true;
             graphAnalyser.wavGraph.clear();
             d_weightingDisp.setVisible(false);
             display_logarithmic.setVisible(false);
+            display_linear.wZoom.setMinValue(0.0f);
+            display_linear.wZoom.setMaxValue(display_linear.wZoom.getMaximum());
+            display_linear.sliderValueChanged(&display_linear.wZoom);
             display_linear.setVisible(true);
             graphAnalyser.setBounds(display_linear.getDisplayMargXLeft()+151, display_linear.getDisplayMargYTop()+10, 644+36-2, 338);
             graphAnalyser.setVisible(true);
             display_linear.updateZoom();
             break;
             
-        case 6:
+        case 6: // wave graph
             graphAnalyser.isFreqAnalyser = false;
             graphAnalyser.timeTrue_waveFalse = false;
             graphAnalyser.wavGraph.clear();
             d_weightingDisp.setVisible(false);
             display_logarithmic.setVisible(false);
+            display_linear.wZoom.setMinValue(0.0f);
+            display_linear.wZoom.setMaxValue(display_linear.wZoom.getMaximum());
+            display_linear.sliderValueChanged(&display_linear.wZoom);
             display_linear.setVisible(true);
             graphAnalyser.setBounds(display_linear.getDisplayMargXLeft()+151, display_linear.getDisplayMargYTop()+10, 644+36-2, 338);
             graphAnalyser.setVisible(true);
@@ -235,6 +241,9 @@ void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
         bufferToFill.clearActiveBufferRegion();
         return;
     }
+    
+    if(timeDisp.getToggleState())
+        calculator_FFT.dataIsReadyToGraph = true;
     
 }
 
