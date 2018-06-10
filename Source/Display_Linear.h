@@ -29,9 +29,11 @@ public:
     int getDisplayWidth();
     int getDisplayMargXLeft();
     int getDisplayMargYTop();
-    void setSampRate(double buffSize);
+    void setBuffSize(double buffSize);
     void whatToDisplay(GraphAnalyser &graph);
     void updateZoom();
+    void setZoomRangeOscil();
+    void setZoomRangeTime();
 
 
 private:

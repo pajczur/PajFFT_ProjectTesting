@@ -71,19 +71,28 @@ MainComponent::MainComponent() : adsc(deviceManager, 0, 0, 0, 0, false, false, f
     d_weightingDisp.setToggleState(false, dontSendNotification);
     d_weightingDisp.onClick = [this] { updateToggleState(&d_weightingDisp, d_weightingDisp_ID); };
     
-    // == Choose Time (wave) graph == //
+    // == Choose Time graph == //
     addAndMakeVisible(&timeDisp);
     timeDisp.setRadioGroupId(selectorFreqTimeButton);
     timeDisp.setAlwaysOnTop(true);
     timeDisp.setButtonText("Time");
     timeDisp.setToggleState(false, dontSendNotification);
     timeDisp.onClick = [this] { updateToggleState(&timeDisp, timeDisp_ID); };
+    timeDisp.setVisible(false);
+    
+    // == Choose Wave graph == //
+    addAndMakeVisible(&waveDisp);
+    waveDisp.setRadioGroupId(selectorFreqTimeButton);
+    waveDisp.setAlwaysOnTop(true);
+    waveDisp.setButtonText("Wave");
+    waveDisp.setToggleState(false, dontSendNotification);
+    waveDisp.onClick = [this] { updateToggleState(&waveDisp, waveDisp_ID); };
     updateToggleState(&freqDisp, freqDisp_ID);
   
     // == set up all references == //
     oscInterface.setReferences(oscillator, calculator_FFT, graphAnalyser);
     pitchShiftGui.setReferences(calculator_FFT, fftInterface);
-    fftInterface.setReferences(calculator_FFT, oscInterface, graphAnalyser, wAudioPlayer, oscillator);
+    fftInterface.setReferences(calculator_FFT, oscInterface, graphAnalyser, wAudioPlayer, oscillator, display_linear);
     display_logarithmic.whatToDisplay(graphAnalyser);
     display_linear.whatToDisplay(graphAnalyser);
     graphAnalyser.setFFT_DataSource(calculator_FFT, oscillator, wAudioPlayer);
@@ -118,6 +127,11 @@ void MainComponent::updateToggleState(Button* button, int buttonID)
             playerOrOscillat = false;
             wAudioPlayer.setControlsVisible(false);
             oscInterface.setControlsVisible(true);
+            timeDisp.setVisible(false);
+            if(timeDisp.getToggleState()) {
+                freqDisp.setToggleState(true, dontSendNotification);
+                updateToggleState(&freqDisp, 4);
+            }
             break;
             
         case 2: // USE AUDIO PLAYER
@@ -125,10 +139,11 @@ void MainComponent::updateToggleState(Button* button, int buttonID)
             playerOrOscillat = true;
             wAudioPlayer.setControlsVisible(true);
             oscInterface.setControlsVisible(false);
+            timeDisp.setVisible(true);
             break;
 
             
-        case 4:
+        case 4: // freq graph
             graphAnalyser.isFreqAnalyser = true;
             d_weightingDisp.setVisible(true);
             display_linear.setVisible(false);
@@ -137,17 +152,39 @@ void MainComponent::updateToggleState(Button* button, int buttonID)
             graphAnalyser.setVisible(true);
             break;
             
-        case 5: 
+        case 5: // time graph
             graphAnalyser.isFreqAnalyser = false;
+            graphAnalyser.timeTrue_waveFalse = true;
+            graphAnalyser.wavGraph.clear();
             d_weightingDisp.setVisible(false);
+            display_linear.setZoomRangeTime();
             display_logarithmic.setVisible(false);
+            display_linear.wZoom.setMinValue(0.0f);
+            display_linear.wZoom.setMaxValue(display_linear.wZoom.getMaximum());
+            display_linear.sliderValueChanged(&display_linear.wZoom);
             display_linear.setVisible(true);
             graphAnalyser.setBounds(display_linear.getDisplayMargXLeft()+151, display_linear.getDisplayMargYTop()+10, 644+36-2, 338);
             graphAnalyser.setVisible(true);
             display_linear.updateZoom();
             break;
             
-        case 6:
+        case 6: // wave graph
+            graphAnalyser.isFreqAnalyser = false;
+            graphAnalyser.timeTrue_waveFalse = false;
+            graphAnalyser.wavGraph.clear();
+            d_weightingDisp.setVisible(false);
+            display_linear.setZoomRangeOscil();
+            display_logarithmic.setVisible(false);
+            display_linear.wZoom.setMinValue(0.0f);
+            display_linear.wZoom.setMaxValue(display_linear.wZoom.getMaximum());
+            display_linear.sliderValueChanged(&display_linear.wZoom);
+            display_linear.setVisible(true);
+            graphAnalyser.setBounds(display_linear.getDisplayMargXLeft()+151, display_linear.getDisplayMargYTop()+10, 644+36-2, 338);
+            graphAnalyser.setVisible(true);
+            display_linear.updateZoom();
+            break;
+            
+        case 7:
             if(d_weightingDisp.getToggleState())
             {
                 graphAnalyser.isDWeighting = true;
@@ -213,6 +250,9 @@ void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
         bufferToFill.clearActiveBufferRegion();
         return;
     }
+    
+    if(timeDisp.getToggleState())
+        calculator_FFT.dataIsReadyToGraph = true;
     
 }
 
@@ -335,7 +375,7 @@ void MainComponent::paint (Graphics& g)
         g.drawText("Choose FFT type and sound source", 10, 50, getWidth()-20, 50, Justification::centredTop);
     if(freqDisp.getToggleState() && calculator_FFT.fftType==0 && (oscillator.getWaveType()!=0 || (wAudioPlayer.state == wAudioPlayer.Playing)))
         g.drawText("Choose FFT type", 10, 50, getWidth()-20, 50, Justification::centredTop);
-    if(((freqDisp.getToggleState() && calculator_FFT.fftType!=0) || timeDisp.getToggleState()) && oscillator.getWaveType()==0 && (wAudioPlayer.state != wAudioPlayer.Playing))
+    if((( (freqDisp.getToggleState() || waveDisp.getToggleState() ) && calculator_FFT.fftType!=0) || (timeDisp.getToggleState() || waveDisp.getToggleState())) && oscillator.getWaveType()==0 && (wAudioPlayer.state != wAudioPlayer.Playing))
         g.drawText("Choose sound source", 10, 50, getWidth()-20, 50, Justification::centredTop);
     
     if(wAudioPlayer.state == wAudioPlayer.Playing   &&   !graphAnalyser.isTimerRunning())
@@ -359,9 +399,10 @@ void MainComponent::resized()
     selectOscill.setBounds(12, 12, 25, 25);
     selectPlayer.setBounds(12, 432, 25, 25);
   
-    freqDisp.setBounds(355, 12, 80, 17);
-    timeDisp.setBounds(440, 12, 80, 17);
-    d_weightingDisp.setBounds(525, 12, 110, 17);
+    freqDisp.setBounds(390, 12, 80, 17);
+    timeDisp.setBounds(450, 12, 80, 17);
+    waveDisp.setBounds(510, 12, 80, 17);
+    d_weightingDisp.setBounds(750, 12, 110, 17);
 }
 
 void MainComponent::fft_defaultSettings()
@@ -384,7 +425,7 @@ void MainComponent::fft_defaultSettings()
     display_logarithmic.setNyquist(wSampleRate/2.0);
     display_logarithmic.repaint();
     
-    display_linear.setSampRate(wSampleRate);
+    display_linear.setBuffSize(deviceBufferSize);
     display_linear.repaint();
     
     calculator_FFT.defineDeviceBuffSize((long)deviceBufferSize);

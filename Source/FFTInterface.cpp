@@ -146,13 +146,14 @@ FFTInterface::~FFTInterface()
 }
 
 
-void FFTInterface::setReferences                (CalculateDTFT &fftCalc, OscInterface &osPan, GraphAnalyser &graph, AudioPlayer &player, WavesGen &oscill)
+void FFTInterface::setReferences                (CalculateDTFT &fftCalc, OscInterface &osPan, GraphAnalyser &graph, AudioPlayer &player, WavesGen &oscill, Display_Linear &displLinea)
 {
     calculator_FFT = &fftCalc;
     oscPan = &osPan;
     graphAnalyser = &graph;
     audioPlayer = &player;
     oscillator = &oscill;
+    dispLine = &displLinea;
 }
 
 
@@ -573,6 +574,9 @@ void FFTInterface::setON_matrixfft          ()
         calculator_FFT->setNewBufSize(tempBuf);
         graphAnalyser->setNewBufSize(tempBuf);
         fftBufSizeEdit.setText(to_string((int)tempBuf), dontSendNotification);
+        dispLine->setBuffSize(tempBuf);
+        
+        sliderValueChanged(&filterSetTopEnd);
 
         graphAnalyser->setLowEndIndex();
         repaint();
@@ -602,8 +606,13 @@ void FFTInterface::setON_radix2fft          ()
         fftBufSizeEdit.setText(to_string((int)tempBuf), dontSendNotification);
         zerosPaddingDescript.setText(setZerosInfo(rememberedBuffer>tempBuf?tempBuf:rememberedBuffer,
                                                   rememberedBuffer, tempBuf-rememberedBuffer));
-        
-//        std::cout << tempBuf << std::endl;
+
+        if(tempBuf >= rememberedBuffer)
+            dispLine->setBuffSize(rememberedBuffer);
+        else
+            dispLine->setBuffSize(tempBuf);
+
+        sliderValueChanged(&filterSetTopEnd);
         
         graphAnalyser->setLowEndIndex();
         repaint();
@@ -662,6 +671,7 @@ void FFTInterface::pauseFFT(bool pauseFALSE_ResumeTRUE)
 
 void FFTInterface::refresh                  ()
 {
+    
     if(selectMatrixFFT.getToggleState())
         setON_matrixfft();
     else if(selectRadix2FFT.getToggleState())

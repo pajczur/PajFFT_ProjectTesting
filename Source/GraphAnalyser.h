@@ -37,6 +37,7 @@ public:
     void resized() override;
     
     void drawLinGraph();
+    void drawtimeGraph();
     void drawLogGraph();
     void clearDisplay();
     
@@ -45,9 +46,15 @@ public:
     double d_weighting(int freqIndex);
 
     double deviceBufferSize;
+    
+    void paintIfNoFileLoaded (Graphics& g, const Rectangle<int>& thumbnailBounds);
+    void paintIfFileLoaded (Graphics& g, const Rectangle<int>& thumbnailBounds);
 private:
     Path fftGraph;
+public:
     Path wavGraph;
+    std::vector<Path> timeGraph;
+private:
     CalculateDTFT *dataSource;
     WavesGen      *oscilSource;
     AudioPlayer   *audioSource;
@@ -69,11 +76,32 @@ private:
     float timeStart;
     float timeEnd;
     float linearDivider;
+    float moveG;
     
 public:
     int ttt=0;
+    int ccc=0;
+    int ddd=0;
     bool isFFTon;
     bool isDWeighting;
     bool isFreqAnalyser;
+    bool timeTrue_waveFalse;
+    bool clearBegin;
+    
+    bool sourceIsReady;
+    
+    float waveFormZoom;
+    
+    
+    
+//    AudioFormatManager formatManager;
+//    std::unique_ptr<AudioFormatReaderSource> readerSource;
+//    AudioTransportSource transportSource;
+//    AudioPlayer::TransportState state;
+//    AudioThumbnailCache thumbnailCache;                  
+    AudioThumbnail *thumbnail;
+    
+    
+    
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GraphAnalyser)
 };

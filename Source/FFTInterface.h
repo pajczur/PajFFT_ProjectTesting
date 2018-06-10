@@ -16,6 +16,8 @@
 #include "OscInterface.h"
 #include "GraphAnalyser.h"
 #include "AudioPlayer.h"
+#include "Display_Linear.h"
+#include "Display_Logarithmic.h"
 #include <string>
 
 //==============================================================================
@@ -32,7 +34,7 @@ public:
     
     void timerCallback() override;
     
-    void setReferences(CalculateDTFT &fftCalc, OscInterface &osPan, GraphAnalyser &graph, AudioPlayer &player, WavesGen &oscill);
+    void setReferences(CalculateDTFT &fftCalc, OscInterface &osPan, GraphAnalyser &graph, AudioPlayer &player, WavesGen &oscill, Display_Linear &displLinea);
     
     void paint (Graphics&) override;
     void resized() override;
@@ -70,6 +72,7 @@ private:
     AudioAppComponent *wAudioApplication;
     AudioPlayer       *audioPlayer;
     WavesGen          *oscillator;
+    Display_Linear    *dispLine;
     int                rememberedWaveType;
     
     double            newBufferSize;

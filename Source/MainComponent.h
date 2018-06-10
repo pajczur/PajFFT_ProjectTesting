@@ -97,8 +97,10 @@ private:
     const int freqDisp_ID=4;
     ToggleButton timeDisp;
     const int timeDisp_ID=5;
+    ToggleButton waveDisp;
+    const int waveDisp_ID=6;
     ToggleButton d_weightingDisp;
-    const int d_weightingDisp_ID=6;
+    const int d_weightingDisp_ID=7;
     
     int selectorFreqTimeButton = 100;
     

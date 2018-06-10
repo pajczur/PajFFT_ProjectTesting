@@ -55,6 +55,10 @@ public:
     TransportState state;
     std::unique_ptr<AudioFormatReaderSource> readerSource;
     AudioTransportSource transportSource;
+
+    
+    AudioThumbnailCache thumbnailCache;     
+    AudioThumbnail thumb;
     
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPlayer)

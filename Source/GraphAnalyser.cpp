@@ -12,13 +12,20 @@
 #include "GraphAnalyser.h"
 
 //==============================================================================
-GraphAnalyser::GraphAnalyser()
+GraphAnalyser::GraphAnalyser() 
 {
     wSampleRate = 0.0;
-    maxResolution = 1000;
+    maxResolution = 1000.0f;
     isFreqAnalyser = true;
     isDWeighting = false;
     isFFTon=false;
+    timeTrue_waveFalse = false;
+    ttt=0;
+    ccc=0;
+    clearBegin = false;
+    sourceIsReady = false;
+    
+    waveFormZoom = 500;
 }
 
 GraphAnalyser::~GraphAnalyser()
@@ -28,9 +35,24 @@ GraphAnalyser::~GraphAnalyser()
 void GraphAnalyser::paint (Graphics& g)
 {
     g.setColour (Colours::red);
-
-    if(!isFreqAnalyser)
-        g.strokePath(wavGraph, PathStrokeType(2));
+    
+    if(!isFreqAnalyser) {
+        if(timeTrue_waveFalse) {
+            auto audioLength (thumbnail->getTotalLength());
+            auto audioPosition (audioSource->transportSource.getCurrentPosition());
+//            std::cout << audioLength << "      " << audioPosition << std::endl;
+            Rectangle<int> thumbnailBounds (getWidth()-((waveFormZoom+1.0)*audioPosition*getWidth()/5.0), 100, (waveFormZoom+1.0)*audioLength * getWidth()/5.0, getHeight() - 120);
+            
+            if(sourceIsReady) {
+                if (thumbnail->getNumChannels() == 0)
+                    paintIfNoFileLoaded (g, thumbnailBounds);
+                else
+                    paintIfFileLoaded (g, thumbnailBounds);
+            }
+        }
+        else
+            g.strokePath(wavGraph, PathStrokeType(2));
+    }
     else
         g.strokePath(fftGraph, PathStrokeType(2));
 }
@@ -42,16 +64,28 @@ void GraphAnalyser::resized()
 
 void GraphAnalyser::timerCallback()
 {
-    
     if(oscilSource->getWaveType() != 0   ||   audioSource->transportSource.isPlaying())
     {
         if(!dataSource->backFFTout.empty())
         {
-            
+
             if(!isFreqAnalyser)
             {
-                wavGraph.clear();
-                drawLinGraph();
+                if(timeTrue_waveFalse) {
+                    repaint();
+                    return;
+//                    if(dataSource->dataIsReadyToGraph)
+//                        drawtimeGraph();
+//
+//                    for(int i=0; i<timeGraph.size(); i++) {
+//                        if(!timeGraph[i].isEmpty())
+//                            timeGraph[i].applyTransform(AffineTransform::translation(-((float)getWidth()/50.0), 0));
+//                    }
+                }
+                else {
+                    wavGraph.clear();
+                    drawLinGraph();
+                }
             }
             else
             {
@@ -59,19 +93,17 @@ void GraphAnalyser::timerCallback()
                 if(isFFTon)
                     drawLogGraph();
             }
-            
+
             repaint();
         }
     }
     else
     {
         stopTimer();
-//        if(!fftGraph.isEmpty())
             clearDisplay();
     }
-    
-}
 
+}
 
 void GraphAnalyser::drawLinGraph()
 {
@@ -96,7 +128,7 @@ void GraphAnalyser::drawLinGraph()
             avarage += dataSource->windowedBackFFTout[(int)i%(int)(wBufferSize-1)];
         else
             avarage += env[(int)i%(int)(wBufferSize-1)];
-
+        
         if(fmod(round(i), linearDivider)==0)
         {
             avarage = avarage/linearDivider;
@@ -107,11 +139,62 @@ void GraphAnalyser::drawLinGraph()
     }
 }
 
+void GraphAnalyser::drawtimeGraph()
+{
+    dataSource->dataIsReadyToGraph = false;
+    std::vector<float> env;
+    if(dataSource->isForward)
+    {
+        env = dataSource->inputData;
+    }
+    else
+    {
+        env.clear();
+        env = dataSource->backFFTout;
+    }
+    
+
+    
+    double amplitude;
+    for(float i=0; i<wBufferSize; i++)
+    {
+        if(dataSource->isWindowed   &&   !dataSource->isForward)
+            amplitude = dataSource->windowedBackFFTout[i];
+        else
+            amplitude = env[i];
+        
+        
+        if(ttt>=500) {
+            ttt=0;
+            ccc++;
+            timeGraph[ccc].clear();
+            if(ccc>=40) clearBegin = true;;
+            if(clearBegin) {
+//                std::cout << ddd%timeGraph.size() << std::endl;
+                timeGraph[(++ddd)%timeGraph.size()].clear(); }
+            if((ccc>=timeGraph.size()-1)) ccc=0;
+        }
+    
+        if(timeGraph[ccc].isEmpty()) {
+            timeGraph[ccc].startNewSubPath(getWidth()+(i * ((float)getWidth()/88200.0)), -(amplitude * zero_dB/2.0) + (zero_dB/2.0));
+            timeGraph[ccc].lineTo(getWidth()+(i * ((float)getWidth()/88200.0)), -(amplitude * zero_dB/2.0) + (zero_dB/2.0));
+        }
+        else {
+//            std::cout << env.size() << std::endl;
+            timeGraph[ccc].lineTo(getWidth()+(i * ((float)getWidth()/88200.0)), -(amplitude * zero_dB/2.0) + (zero_dB/2.0));
+        }
+        ttt++;
+    }
+}
+
+
+
 void GraphAnalyser::drawLogGraph()
 {
     float linearMagnitude=abs(dataSource->forwFFTout[low_End_index].real()) / (wBufferSize/2.0f);
 
-    fftGraph.startNewSubPath(low_End_index, wDecibels(linearMagnitude, low_End_index) );
+    Path sharped;
+    sharped.startNewSubPath(low_End_index, wDecibels(linearMagnitude, low_End_index) );
     
     linearMagnitude=0.0;
 
@@ -125,10 +208,12 @@ void GraphAnalyser::drawLogGraph()
 
         if(round(wCurrent) != round(wBefore))
         {
-            fftGraph.lineTo(wCurrent, wDecibels(linearMagnitude, i));
+            sharped.lineTo(wCurrent, wDecibels(linearMagnitude, i));
             linearMagnitude=0.0;
         }
     }
+
+    fftGraph = sharped.createPathWithRoundedCorners(20.0f);
 }
 
 
@@ -145,15 +230,29 @@ void GraphAnalyser::setSampleRate(double sample_rate)
     low_End = 10.0f;
     top_End = nyquist;
     low_End_index = round(1.0f * ( wBufferSize / wSampleRate));
-    timeStart = 0.0f;
-    timeEnd = wSampleRate;
-    dispWidth = (double)getWidth() / (timeEnd - timeStart);
-    linearDivider = floor(wSampleRate/1000.0f);
+    timeGraph.resize(floor(wSampleRate / 500));
+    
+    for(int i=0; i<timeGraph.size(); i++)
+        timeGraph[i].clear();
+    
+    moveG = (float)(getWidth())/(wSampleRate*2.0);
+    clearBegin=false;
+    ddd=0;
+    ccc=0;
 }
 
 void GraphAnalyser::setNewBufSize(double new_buf_size)
 {
+    clearBegin=false;
+    ccc=0;
+    ddd=0;
+    wavGraph.clear();
+    fftGraph.clear();
     wBufferSize = new_buf_size;
+    timeStart = 0.0f;
+    timeEnd = wBufferSize;
+    dispWidth = (double)getWidth() / (timeEnd - timeStart);
+    linearDivider = ceil(wBufferSize/1000.0f);
     buffNyquist = wBufferSize/2.0;
     low_End_index = round(low_End * ( wBufferSize / wSampleRate));
     logScaleWidth = nyquist/(wBufferSize/2.0);
@@ -180,7 +279,7 @@ void GraphAnalyser::setZoomLinear(double startTime, double endTime)
     else
         dispWidth = (double)getWidth() / ((endTime - startTime)-1.0);
     
-    linearDivider = floor((endTime - startTime)/maxResolution);
+    linearDivider = ceil((endTime - startTime)/maxResolution);
 }
 
 void GraphAnalyser::setLowEndIndex()
@@ -193,11 +292,19 @@ void GraphAnalyser::setFFT_DataSource(CalculateDTFT &fftData,  WavesGen &oscData
     dataSource = &fftData;
     oscilSource = &oscData;
     audioSource = &audioData;
+    thumbnail = &audioSource->thumb;
+    sourceIsReady = true;
 }
 
 void GraphAnalyser::clearDisplay()
 {
+    clearBegin = false;
+    ccc=0;
+    ddd=0;
     fftGraph.clear();
+    wavGraph.clear();
+    for(int i=0; i<timeGraph.size(); i++)
+        timeGraph[i].clear();
     repaint();
 }
 
@@ -248,7 +355,7 @@ double GraphAnalyser::wDecibels(double linearMag, int freqIndex)
         if(linearMag <= 0.0001)
         {
             linearMag = 0.00001;
-            dweight = 0.00001f;
+            dweight =   1.0f;
         }
     }
     else
@@ -262,3 +369,36 @@ double GraphAnalyser::wDecibels(double linearMag, int freqIndex)
     
     return  -(0.75 * zero_dB * dweight * (20.0*log10(linearMag) + 72.0)/72.0) + zero_dB;
 }
+
+void GraphAnalyser::paintIfNoFileLoaded (Graphics& g, const Rectangle<int>& thumbnailBounds)
+{
+    g.setColour (Colours::darkgrey);
+    g.fillRect (thumbnailBounds);
+    g.setColour (Colours::white);
+    g.drawFittedText ("No File Loaded", thumbnailBounds, Justification::centred, 1.0f);
+}
+
+void GraphAnalyser::paintIfFileLoaded (Graphics& g, const Rectangle<int>& thumbnailBounds)
+{
+//    g.setColour (Colours::white);
+//    g.fillRect (thumbnailBounds);
+    g.setColour (Colours::red);
+    
+//    auto audioLength (thumbnail->getTotalLength());
+    
+    thumbnail->drawChannels (g,
+                            thumbnailBounds,
+                            0.0,
+                            thumbnail->getTotalLength(),
+                            1.0f);
+    
+//    g.setColour (Colours::green);
+//    auto audioPosition (audioSource->transportSource.getCurrentPosition());
+//    auto drawPosition ((audioPosition / audioLength) * thumbnailBounds.getWidth()
+//                       + thumbnailBounds.getX());
+//
+//    g.drawLine (drawPosition, thumbnailBounds.getY(), drawPosition,
+//                thumbnailBounds.getBottom(), 2.0f);
+}
+
+

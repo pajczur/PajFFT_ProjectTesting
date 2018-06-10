@@ -17,6 +17,7 @@ CalculateDTFT::CalculateDTFT()
 {
     fPi = 4.0 * atan(1.0);
     dataIsReadyToFFT = false;
+    dataIsReadyToGraph = false;
     isForward = true;
     fftType = 0;
     isPitchON = false;
@@ -24,10 +25,25 @@ CalculateDTFT::CalculateDTFT()
     indexFFToutSize = 0;
     indexDEVbufSize = 0;
     dupex=false;
+    
+    gLastPhase   =   new float[1];
+    gSumPhase    =   new float[1];
+    gOutputAccum =   new float[1];
+    gAnaFreq     =   new float[1];
+    gAnaMagn     =   new float[1];
+    gSynFreq     =   new float[1];
+    gSynMagn     =   new float[1];
 }
 
 CalculateDTFT::~CalculateDTFT()
 {
+    if (gLastPhase)   delete [] gLastPhase;
+    if (gSumPhase)    delete [] gSumPhase;
+    if (gOutputAccum) delete [] gOutputAccum;
+    if (gAnaFreq)     delete [] gAnaFreq;
+    if (gAnaMagn)     delete [] gAnaMagn;
+    if (gSynFreq)     delete [] gSynFreq;
+    if (gSynMagn)     delete [] gSynMagn;
 }
 
 void CalculateDTFT::fftCalculator(AudioBuffer<float> &inp)
@@ -194,8 +210,10 @@ void CalculateDTFT::fftCalc()
                 
             default:
                 break;
+                
         }
-    
+        
+        dataIsReadyToGraph = true;
 //        std::cout << _time.secondsElapsed() << std::endl;
         timeElapsed = _time.secondsElapsed();
     }
@@ -262,7 +280,7 @@ void CalculateDTFT::resetOutputData()
     gFFTworksp.resize(2*newBufferSize);
     outPP.resize(2*newBufferSize);
     outPP2.resize(2*newBufferSize);
-
+    
     for(int i=0; i<2*newBufferSize; i++)
     {
         gFFTworksp[i] = 0.0f;
@@ -271,13 +289,30 @@ void CalculateDTFT::resetOutputData()
         gInFIFO[i] = 0.0f;
         gOutFIFO[i] = 0.0f;
     }
-    memset(gLastPhase, 0, ((2*newBufferSize)/2+1)*sizeof(float));
-    memset(gSumPhase, 0, ((2*newBufferSize)/2+1)*sizeof(float));
+    
+    if (gLastPhase)   delete [] gLastPhase;
+    if (gSumPhase)    delete [] gSumPhase;
+    if (gOutputAccum) delete [] gOutputAccum;
+    if (gAnaFreq)     delete [] gAnaFreq;
+    if (gAnaMagn)     delete [] gAnaMagn;
+    if (gSynFreq)     delete [] gSynFreq;
+    if (gSynMagn)     delete [] gSynMagn;
+    
+    gLastPhase   =   new float[(2*newBufferSize)/2+1];
+    gSumPhase    =   new float[(2*newBufferSize)/2+1];
+    gOutputAccum =   new float[2*newBufferSize];
+    gAnaFreq     =   new float[2*newBufferSize];
+    gAnaMagn     =   new float[2*newBufferSize];
+    gSynFreq     =   new float[2*newBufferSize];
+    gSynMagn     =   new float[2*newBufferSize];
+    
+    memset(gLastPhase,   0, ((2*newBufferSize)/2+1)*sizeof(float));
+    memset(gSumPhase,    0, ((2*newBufferSize)/2+1)*sizeof(float));
     memset(gOutputAccum, 0, (2*newBufferSize)*sizeof(float));
-    memset(gAnaFreq, 0, (2*newBufferSize)*sizeof(float));
-    memset(gAnaMagn, 0, (2*newBufferSize)*sizeof(float));
-    memset(gSynMagn, 0, (2*newBufferSize)*sizeof(float));
-    memset(gSynFreq, 0, (2*newBufferSize)*sizeof(float));
+    memset(gAnaFreq,     0, (2*newBufferSize)*sizeof(float));
+    memset(gAnaMagn,     0, (2*newBufferSize)*sizeof(float));
+    memset(gSynFreq,     0, (2*newBufferSize)*sizeof(float));
+    memset(gSynMagn,     0, (2*newBufferSize)*sizeof(float));
 }
 
 

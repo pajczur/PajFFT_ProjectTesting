@@ -19,7 +19,7 @@
 #include "Clock.h"
 //#include "PajFFT/PajFFT_HandyFunc.h"
 
-#define MAX_FRAME_LENGTH 44100
+//#define MAX_FRAME_LENGTH 200000
 
 //==============================================================================
 /*
@@ -59,6 +59,7 @@ public:
     bool dataIsReadyToFFT;
     bool isForward;
     bool isPitchON;
+    bool dataIsReadyToGraph;
     
     void selectFFT(int identifier);
     void resetOutputData();
@@ -110,13 +111,20 @@ private:
     std::vector<std::complex<float>> gFFTworksp;
     std::vector<std::complex<float>> outPP;
     std::vector<std::complex<float>> outPP2; 
-    float gLastPhase[MAX_FRAME_LENGTH/2+1];
-    float gSumPhase[MAX_FRAME_LENGTH/2+1];
-    float gOutputAccum[MAX_FRAME_LENGTH];
-    float gAnaFreq[MAX_FRAME_LENGTH];
-    float gAnaMagn[MAX_FRAME_LENGTH];
-    float gSynFreq[MAX_FRAME_LENGTH];
-    float gSynMagn[MAX_FRAME_LENGTH];
+//    float gLastPhase[MAX_FRAME_LENGTH/2+1];
+    float *gLastPhase;
+//    float gSumPhase[MAX_FRAME_LENGTH/2+1];
+    float *gSumPhase;
+//    float gOutputAccum[MAX_FRAME_LENGTH];
+    float *gOutputAccum;
+//    float gAnaFreq[MAX_FRAME_LENGTH];
+    float *gAnaFreq;
+//    float gAnaMagn[MAX_FRAME_LENGTH];
+    float *gAnaMagn;
+//    float gSynFreq[MAX_FRAME_LENGTH];
+    float *gSynFreq;
+//    float gSynMagn[MAX_FRAME_LENGTH];
+    float *gSynMagn;
     long gInit = false;
     float magn, phase, window, tmp, real, imag;
     double freqPerBin, expct;

@@ -12,7 +12,7 @@
 #include "AudioPlayer.h"
 
 //==============================================================================
-AudioPlayer::AudioPlayer() :   state (Stopped)
+AudioPlayer::AudioPlayer() :   state (Stopped), thumbnailCache (5), thumb (1, formatManager, thumbnailCache)
 {
     addAndMakeVisible (&openButton);
     openButton.setButtonText ("Open...");
@@ -118,6 +118,7 @@ void AudioPlayer::openButtonClicked()
             transportSource.setSource (newSource.get(), 0, nullptr, reader->sampleRate);
             playButton.setEnabled (true);
             readerSource.reset (newSource.release());
+            thumb.setSource(new FileInputSource(file));
         }
     }
 }
