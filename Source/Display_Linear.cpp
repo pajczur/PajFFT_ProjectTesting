@@ -77,7 +77,14 @@ void Display_Linear::sliderValueChanged (Slider *slider)
 {
     if(slider == &wZoom)
     {
-        wZoom.setValue(((wZoom.getMaxValue()-wZoom.getMinValue())/2.0)+wZoom.getMinValue());
+      	float diff = (wZoom.getMaxValue() - wZoom.getMinValue()) / 2.0f;
+      
+		    if (wZoom.getThumbBeingDragged() == 1 || wZoom.getThumbBeingDragged() == 2)
+			      wZoom.setValue(((wZoom.getMaxValue() - wZoom.getMinValue()) / 2.0) + wZoom.getMinValue(), dontSendNotification);
+		    else
+		      	wZoom.setMinAndMaxValues(wZoom.getValue() - diff, wZoom.getValue() + diff, dontSendNotification);
+      
+        //wZoom.setValue(((wZoom.getMaxValue()-wZoom.getMinValue())/2.0)+wZoom.getMinValue());
 
         lowEnd = wZoom.getMinValue();
         topEnd = wZoom.getMaxValue();
