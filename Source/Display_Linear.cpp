@@ -20,10 +20,13 @@ Display_Linear::Display_Linear()
     margYTop = 22.0f;
     wSampleRateToDisplay = 1.0;
 
-    wZoom.setSliderStyle(Slider::SliderStyle::ThreeValueHorizontal);
+    wZoom.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
     addAndMakeVisible(&wZoom);
     wZoom.setTextBoxStyle(Slider::NoTextBox, true, 0, 0);
     wZoom.addListener(this);
+    wZoom.setValue(1.0);
+
+    timeOrWave = 0;
 }
 
 Display_Linear::~Display_Linear()
@@ -77,27 +80,41 @@ void Display_Linear::sliderValueChanged (Slider *slider)
 {
     if(slider == &wZoom)
     {
-      	float diff = (wZoom.getMaxValue() - wZoom.getMinValue()) / 2.0f;
-      
-		    if (wZoom.getThumbBeingDragged() == 1 || wZoom.getThumbBeingDragged() == 2)
-			      wZoom.setValue(((wZoom.getMaxValue() - wZoom.getMinValue()) / 2.0) + wZoom.getMinValue(), dontSendNotification);
-		    else
-		      	wZoom.setMinAndMaxValues(wZoom.getValue() - diff, wZoom.getValue() + diff, dontSendNotification);
-      
-        //wZoom.setValue(((wZoom.getMaxValue()-wZoom.getMinValue())/2.0)+wZoom.getMinValue());
-
-        lowEnd = wZoom.getMinValue();
-        topEnd = wZoom.getMaxValue();
+//          aPlusMinus = (wZoom.getMaxValue() - wZoom.getMinValue()) / 2.0f;
+//        
+//        if (wZoom.getThumbBeingDragged() == 1 || wZoom.getThumbBeingDragged() == 2)
+//              wZoom.setValue(((wZoom.getMaxValue() - wZoom.getMinValue()) / 2.0) + wZoom.getMinValue(), dontSendNotification);
+//        else
+//        {
+//            if(wZoom.getMinValue() <= wZoom.getMinimum() && wZoom.getValue()<midd) {
+//                wZoom.setValue(midd, dontSendNotification);
+//                return;
+//            }
+//            else if (wZoom.getMaxValue() >= wZoom.getMaximum() && wZoom.getValue()>midd) {
+//                wZoom.setValue(midd, dontSendNotification);
+//                return;
+//            }
+//            else
+//                wZoom.setMinAndMaxValues(wZoom.getValue() - aPlusMinus, wZoom.getValue() + aPlusMinus, dontSendNotification);
+//        }
+//      
+//        midd = wZoom.getValue();
+//        lowEnd = wZoom.getMinValue();
+//        topEnd = wZoom.getMaxValue();
         repaint();
-        graphAnalyser->setZoomLinear(wZoom.getMinValue(), wZoom.getMaxValue());
-        graphAnalyser->waveFormZoom = wZoom.getMinValue();
-        
+//        graphAnalyser->setZoomLinear(wZoom.getMinValue(), wZoom.getMaxValue());
+//        graphAnalyser->waveFormZoom = 1 + (19.0/100.0) * (wZoom.getMaximum()-(wZoom.getMaxValue() - wZoom.getMinValue()));
+//        graphAnalyser->waveFormZoomMid = (wZoom.getMaximum()/2.0) - wZoom.getValue();
+
+        graphAnalyser->setZoomLinear(wZoom.getValue());
+        graphAnalyser->waveFormZoom = 1 + (19.0/100.0) * wZoom.getValue();
     }
 }
 
-void Display_Linear::whatToDisplay(GraphAnalyser &graph)
+void Display_Linear::setReferences(GraphAnalyser &graphToDisplay, AudioPlayer &audioLength)
 {
-    graphAnalyser = &graph;
+    graphAnalyser = &graphToDisplay;
+    aPlayerLength = &audioLength;
 }
 
 void Display_Linear::updateZoom()
@@ -108,17 +125,20 @@ void Display_Linear::updateZoom()
 
 void Display_Linear::setZoomRangeOscil()
 {
-    wZoom.setRange(0.0, wSampleRateToDisplay, 0.001);
+    wZoom.setRange(1.0, wSampleRateToDisplay, 0.001);
+    wZoom.setSkewFactorFromMidPoint(wSampleRateToDisplay/20.0);
     
-    wZoom.setMinAndMaxValues(0.0, wSampleRateToDisplay);
-    wZoom.setValue( ((wZoom.getMaxValue()-wZoom.getMinValue())/2.0) + wZoom.getMinValue() );
+//    wZoom.setMinAndMaxValues(0.0, wSampleRateToDisplay);
+//    wZoom.setValue( ((wZoom.getMaxValue()-wZoom.getMinValue())/2.0) + wZoom.getMinValue() );
+    wZoom.setValue(1.0, sendNotification);
 }
 
 
 void Display_Linear::setZoomRangeTime()
 {
-    wZoom.setRange(0.0, 100.0, 0.001);
-    
-    wZoom.setMinAndMaxValues(0.0, 100.0);
-    wZoom.setValue( ((wZoom.getMaxValue()-wZoom.getMinValue())/2.0) + wZoom.getMinValue() );
+    wZoom.setRange(1.0, 2000.0, 0.001);
+//    wZoom.setMinAndMaxValues(0.0, 100.0);
+//    wZoom.setValue( ((wZoom.getMaxValue()-wZoom.getMinValue())/2.0) + wZoom.getMinValue() );
+//    midd = wZoom.getValue();
+    wZoom.setValue(1.0, sendNotification);
 }

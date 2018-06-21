@@ -88,6 +88,8 @@ private:
     
     Slider wZoom;
     GraphAnalyser *graphAnalyser;
+    float aPlusMinus;
+    float middlThumb;
     
     float _winX;
     float _winY;

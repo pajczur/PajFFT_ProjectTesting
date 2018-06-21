@@ -94,7 +94,7 @@ MainComponent::MainComponent() : adsc(deviceManager, 0, 0, 0, 0, false, false, f
     pitchShiftGui.setReferences(calculator_FFT, fftInterface);
     fftInterface.setReferences(calculator_FFT, oscInterface, graphAnalyser, wAudioPlayer, oscillator, display_linear);
     display_logarithmic.whatToDisplay(graphAnalyser);
-    display_linear.whatToDisplay(graphAnalyser);
+    display_linear.setReferences(graphAnalyser, wAudioPlayer);
     graphAnalyser.setFFT_DataSource(calculator_FFT, oscillator, wAudioPlayer);
     
     startTimer(1000);
@@ -120,81 +120,91 @@ void MainComponent::timerCallback()
 
 void MainComponent::updateToggleState(Button* button, int buttonID)
 {
-    switch (buttonID)
+    if(button->getToggleState())
     {
-        case 1: // USE OSCILLATOR
-            wAudioPlayer.stopButtonClicked();
-            playerOrOscillat = false;
-            wAudioPlayer.setControlsVisible(false);
-            oscInterface.setControlsVisible(true);
-            timeDisp.setVisible(false);
-            if(timeDisp.getToggleState()) {
-                freqDisp.setToggleState(true, dontSendNotification);
-                updateToggleState(&freqDisp, 4);
-            }
-            break;
-            
-        case 2: // USE AUDIO PLAYER
-            oscInterface.wMuteButton.triggerClick();
-            playerOrOscillat = true;
-            wAudioPlayer.setControlsVisible(true);
-            oscInterface.setControlsVisible(false);
-            timeDisp.setVisible(true);
-            break;
+        switch (buttonID)
+        {
+            case 1: // USE OSCILLATOR
+                wAudioPlayer.stopButtonClicked();
+                playerOrOscillat = false;
+                wAudioPlayer.setControlsVisible(false);
+                oscInterface.setControlsVisible(true);
+                timeDisp.setVisible(false);
+                if(timeDisp.getToggleState()) {
+                    freqDisp.setToggleState(true, dontSendNotification);
+                    updateToggleState(&freqDisp, 4);
+                }
+                break;
+                
+            case 2: // USE AUDIO PLAYER
+                oscInterface.wMuteButton.triggerClick();
+                playerOrOscillat = true;
+                wAudioPlayer.setControlsVisible(true);
+                oscInterface.setControlsVisible(false);
+                timeDisp.setVisible(true);
+                break;
 
-            
-        case 4: // freq graph
-            graphAnalyser.isFreqAnalyser = true;
-            d_weightingDisp.setVisible(true);
-            display_linear.setVisible(false);
-            display_logarithmic.setVisible(true);
-            graphAnalyser.setBounds(display_logarithmic.getDisplayMargXLeft()+151, display_logarithmic.getDisplayMargYTop()+10, 644-2, 338);
-            graphAnalyser.setVisible(true);
-            break;
-            
-        case 5: // time graph
-            graphAnalyser.isFreqAnalyser = false;
-            graphAnalyser.timeTrue_waveFalse = true;
-            graphAnalyser.wavGraph.clear();
-            d_weightingDisp.setVisible(false);
-            display_linear.setZoomRangeTime();
-            display_logarithmic.setVisible(false);
-            display_linear.wZoom.setMinValue(0.0f);
-            display_linear.wZoom.setMaxValue(display_linear.wZoom.getMaximum());
-            display_linear.sliderValueChanged(&display_linear.wZoom);
-            display_linear.setVisible(true);
-            graphAnalyser.setBounds(display_linear.getDisplayMargXLeft()+151, display_linear.getDisplayMargYTop()+10, 644+36-2, 338);
-            graphAnalyser.setVisible(true);
-            display_linear.updateZoom();
-            break;
-            
-        case 6: // wave graph
-            graphAnalyser.isFreqAnalyser = false;
-            graphAnalyser.timeTrue_waveFalse = false;
-            graphAnalyser.wavGraph.clear();
-            d_weightingDisp.setVisible(false);
-            display_linear.setZoomRangeOscil();
-            display_logarithmic.setVisible(false);
-            display_linear.wZoom.setMinValue(0.0f);
-            display_linear.wZoom.setMaxValue(display_linear.wZoom.getMaximum());
-            display_linear.sliderValueChanged(&display_linear.wZoom);
-            display_linear.setVisible(true);
-            graphAnalyser.setBounds(display_linear.getDisplayMargXLeft()+151, display_linear.getDisplayMargYTop()+10, 644+36-2, 338);
-            graphAnalyser.setVisible(true);
-            display_linear.updateZoom();
-            break;
-            
-        case 7:
-            if(d_weightingDisp.getToggleState())
-            {
-                graphAnalyser.isDWeighting = true;
-            }
-            else
-                graphAnalyser.isDWeighting = false;
-            break;
-            
-        default:
-            return;
+                
+            case 4: // freq graph
+                graphAnalyser.isFreqAnalyser = true;
+                d_weightingDisp.setVisible(true);
+                display_linear.setVisible(false);
+                display_logarithmic.setVisible(true);
+                graphAnalyser.setBounds(display_logarithmic.getDisplayMargXLeft()+151, display_logarithmic.getDisplayMargYTop()+10, 644-2, 338);
+                graphAnalyser.setVisible(true);
+                display_linear.timeOrWave = 0;
+                break;
+                
+            case 5: // time graph
+                graphAnalyser.isFreqAnalyser = false;
+                graphAnalyser.timeTrue_waveFalse = true;
+                graphAnalyser.wavGraph.clear();
+                d_weightingDisp.setVisible(false);
+                display_linear.setZoomRangeTime();
+                display_logarithmic.setVisible(false);
+    //            display_linear.wZoom.setMinValue(0.0f);
+    //            display_linear.wZoom.setMaxValue(display_linear.wZoom.getMaximum());
+                display_linear.wZoom.setValue(0.0f);
+                display_linear.timeOrWave = 1;
+                
+                display_linear.sliderValueChanged(&display_linear.wZoom);
+                display_linear.setVisible(true);
+                graphAnalyser.setBounds(display_linear.getDisplayMargXLeft()+151, display_linear.getDisplayMargYTop()+10, 644+36-2, 338);
+                graphAnalyser.setVisible(true);
+                display_linear.updateZoom();
+                break;
+                
+            case 6: // wave graph
+                graphAnalyser.isFreqAnalyser = false;
+                graphAnalyser.timeTrue_waveFalse = false;
+                graphAnalyser.wavGraph.clear();
+                d_weightingDisp.setVisible(false);
+                display_linear.setZoomRangeOscil();
+                display_logarithmic.setVisible(false);
+    //            display_linear.wZoom.setMinValue(0.0f);
+    //            display_linear.wZoom.setMaxValue(display_linear.wZoom.getMaximum());
+                display_linear.wZoom.setValue(0.0f);
+                display_linear.timeOrWave = 2;
+                
+                display_linear.sliderValueChanged(&display_linear.wZoom);
+                display_linear.setVisible(true);
+                graphAnalyser.setBounds(display_linear.getDisplayMargXLeft()+151, display_linear.getDisplayMargYTop()+10, 644+36-2, 338);
+                graphAnalyser.setVisible(true);
+                display_linear.updateZoom();
+                break;
+                
+            case 7:
+                if(d_weightingDisp.getToggleState())
+                {
+                    graphAnalyser.isDWeighting = true;
+                }
+                else
+                    graphAnalyser.isDWeighting = false;
+                break;
+                
+            default:
+                return;
+        }
     }
 }
 
@@ -438,5 +448,7 @@ void MainComponent::fft_defaultSettings()
     graphAnalyser.setSampleRate(wSampleRate);
     graphAnalyser.setNewBufSize(deviceBufferSize);
     graphAnalyser.deviceBufferSize = deviceBufferSize;
+    if(timeDisp.getToggleState()) display_linear.setZoomRangeTime();
+    if(waveDisp.getToggleState()) display_linear.setZoomRangeOscil();
 }
 

@@ -12,7 +12,7 @@
 #include "AudioPlayer.h"
 
 //==============================================================================
-AudioPlayer::AudioPlayer() :   state (Stopped), thumbnailCache (5), thumb (1, formatManager, thumbnailCache)
+AudioPlayer::AudioPlayer() :   state (Stopped), thumbnailCache (5), thumb (30, formatManager, thumbnailCache)
 {
     addAndMakeVisible (&openButton);
     openButton.setButtonText ("Open...");
@@ -25,7 +25,7 @@ AudioPlayer::AudioPlayer() :   state (Stopped), thumbnailCache (5), thumb (1, fo
     playButton.setEnabled (false);
     
     addAndMakeVisible (&stopButton);
-    stopButton.setButtonText ("Stop");
+    stopButton.setButtonText ("Pause");
     stopButton.onClick = [this] { stopButtonClicked(); };
     stopButton.setColour (TextButton::buttonColourId, Colours::red);
     stopButton.setEnabled (false);
@@ -82,7 +82,7 @@ void AudioPlayer::changeState (TransportState newState)
             case Stopped:
                 stopButton.setEnabled (false);
                 playButton.setEnabled (true);
-                transportSource.setPosition (0.0);
+//                transportSource.setPosition (0.0);
                 break;
                 
             case Starting:

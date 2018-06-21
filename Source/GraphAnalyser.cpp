@@ -25,7 +25,8 @@ GraphAnalyser::GraphAnalyser()
     clearBegin = false;
     sourceIsReady = false;
     
-    waveFormZoom = 500;
+//    waveFormZoom = 500;
+//    waveFormZoomMid = 500;
 }
 
 GraphAnalyser::~GraphAnalyser()
@@ -38,16 +39,13 @@ void GraphAnalyser::paint (Graphics& g)
     
     if(!isFreqAnalyser) {
         if(timeTrue_waveFalse) {
-            auto audioLength (thumbnail->getTotalLength());
-            auto audioPosition (audioSource->transportSource.getCurrentPosition());
-//            std::cout << audioLength << "      " << audioPosition << std::endl;
-            Rectangle<int> thumbnailBounds (getWidth()-((waveFormZoom+1.0)*audioPosition*getWidth()/5.0), 100, (waveFormZoom+1.0)*audioLength * getWidth()/5.0, getHeight() - 120);
-            
+
+
             if(sourceIsReady) {
                 if (thumbnail->getNumChannels() == 0)
-                    paintIfNoFileLoaded (g, thumbnailBounds);
+                    paintIfNoFileLoaded (g/*, thumbnailBounds*/);
                 else
-                    paintIfFileLoaded (g, thumbnailBounds);
+                    paintIfFileLoaded (g/*, thumbnailBounds*/);
             }
         }
         else
@@ -269,17 +267,18 @@ void GraphAnalyser::setZoomLogar(double lowE, double topE)
         dispLogScale = ( (double)getWidth() ) / ( log10(topE) - log10(lowE));
 }
 
-void GraphAnalyser::setZoomLinear(double startTime, double endTime)
+void GraphAnalyser::setZoomLinear(/*double startTime,*/ double endTime)
 {
-    timeStart = startTime;
-    timeEnd = endTime;
+//    timeStart = startTime;
+    timeStart = 0.0;
+    timeEnd = (wBufferSize+1.0) / endTime;
     
-    if((endTime - startTime)-1.0 == 0.0)
+    if((timeEnd - timeStart)-1.0 == 0.0)
         dispWidth = 0.0f;
     else
-        dispWidth = (double)getWidth() / ((endTime - startTime)-1.0);
+        dispWidth = (double)getWidth() / ((timeEnd - timeStart)-1.0);
     
-    linearDivider = ceil((endTime - startTime)/maxResolution);
+    linearDivider = ceil((timeEnd - timeStart)/maxResolution);
 }
 
 void GraphAnalyser::setLowEndIndex()
@@ -370,7 +369,7 @@ double GraphAnalyser::wDecibels(double linearMag, int freqIndex)
     return  -(0.75 * zero_dB * dweight * (20.0*log10(linearMag) + 72.0)/72.0) + zero_dB;
 }
 
-void GraphAnalyser::paintIfNoFileLoaded (Graphics& g, const Rectangle<int>& thumbnailBounds)
+void GraphAnalyser::paintIfNoFileLoaded (Graphics& g/*, const Rectangle<int>& thumbnailBounds*/)
 {
     g.setColour (Colours::darkgrey);
     g.fillRect (thumbnailBounds);
@@ -378,27 +377,32 @@ void GraphAnalyser::paintIfNoFileLoaded (Graphics& g, const Rectangle<int>& thum
     g.drawFittedText ("No File Loaded", thumbnailBounds, Justification::centred, 1.0f);
 }
 
-void GraphAnalyser::paintIfFileLoaded (Graphics& g, const Rectangle<int>& thumbnailBounds)
+void GraphAnalyser::paintIfFileLoaded (Graphics& g/*, const Rectangle<int>& thumbnailBounds*/)
 {
 //    g.setColour (Colours::white);
 //    g.fillRect (thumbnailBounds);
     g.setColour (Colours::red);
-    
-//    auto audioLength (thumbnail->getTotalLength());
-    
+
+    auto audioLength (thumbnail->getTotalLength());
+
+    auto audioPosition (audioSource->transportSource.getCurrentPosition());
+    auto minSlid = waveFormZoom;
+    thumbnailBounds.setBounds((getWidth()/2.0) - (minSlid*audioPosition*getWidth()/audioLength), 20, (minSlid*getWidth()), getHeight()-20);
+
     thumbnail->drawChannels (g,
                             thumbnailBounds,
                             0.0,
                             thumbnail->getTotalLength(),
-                            1.0f);
+                            1);
     
-//    g.setColour (Colours::green);
-//    auto audioPosition (audioSource->transportSource.getCurrentPosition());
-//    auto drawPosition ((audioPosition / audioLength) * thumbnailBounds.getWidth()
-//                       + thumbnailBounds.getX());
-//
+    g.setColour (Colours::green);
+
+    auto drawPosition ((audioPosition / audioLength) * thumbnailBounds.getWidth()
+                       + thumbnailBounds.getX());
+
 //    g.drawLine (drawPosition, thumbnailBounds.getY(), drawPosition,
 //                thumbnailBounds.getBottom(), 2.0f);
+    g.drawLine(getWidth()/2.0, 0, getWidth()/2.0, getHeight());
 }
 
 

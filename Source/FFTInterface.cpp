@@ -577,6 +577,17 @@ void FFTInterface::setON_matrixfft          ()
         dispLine->setBuffSize(tempBuf);
         
         sliderValueChanged(&filterSetTopEnd);
+        
+        if(dispLine->timeOrWave == 1)
+        {
+            dispLine->wSampleRateToDisplay = tempBuf;
+            dispLine->setZoomRangeTime();
+        }
+        if(dispLine->timeOrWave == 2)
+        {
+            dispLine->wSampleRateToDisplay = tempBuf;
+            dispLine->setZoomRangeOscil();
+        }
 
         graphAnalyser->setLowEndIndex();
         repaint();
@@ -613,6 +624,17 @@ void FFTInterface::setON_radix2fft          ()
             dispLine->setBuffSize(tempBuf);
 
         sliderValueChanged(&filterSetTopEnd);
+        
+        if(dispLine->timeOrWave == 1)
+        {
+            dispLine->wSampleRateToDisplay = tempBuf;
+            dispLine->setZoomRangeTime();
+        }
+        if(dispLine->timeOrWave == 2)
+        {
+            dispLine->wSampleRateToDisplay = tempBuf;
+            dispLine->setZoomRangeOscil();
+        }
         
         graphAnalyser->setLowEndIndex();
         repaint();

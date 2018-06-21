@@ -12,6 +12,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "GraphAnalyser.h"
+#include "AudioPlayer.h"
 
 //==============================================================================
 /*
@@ -30,7 +31,7 @@ public:
     int getDisplayMargXLeft();
     int getDisplayMargYTop();
     void setBuffSize(double buffSize);
-    void whatToDisplay(GraphAnalyser &graph);
+    void setReferences(GraphAnalyser &graphToDisplay, AudioPlayer &audioLength);
     void updateZoom();
     void setZoomRangeOscil();
     void setZoomRangeTime();
@@ -40,7 +41,9 @@ private:
     float topEnd;
     float lowEnd = 1.0f;
     float nyqFr;
+public:
     float wSampleRateToDisplay;
+private:
     float sampRatMark;
     
     float scale1Hz;
@@ -71,10 +74,15 @@ private:
     float margYBot;
     float margYTop;
     
+    float aPlusMinus;
+    float midd;
+    
 public:
     Slider wZoom;
+    int timeOrWave;
 private:
     GraphAnalyser *graphAnalyser;
+    AudioPlayer   *aPlayerLength;
     
     float _winX;
     float _winY;

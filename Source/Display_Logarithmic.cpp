@@ -348,17 +348,41 @@ void Display_Logarithmic::setNyquist(double nyquistFreq)
     topEnd = wNyquist;
     wZoom.setRange(0.999999, wNyquist, 0.01);
     
-    wZoom.setMinAndMaxValues(9.99, wNyquist);
-    wZoom.setValue( ((wZoom.getMaxValue()-wZoom.getMinValue())/2.0) + wZoom.getMinValue() );
-    wZoom.setSkewFactorFromMidPoint(440.0);
+    wZoom.setMinAndMaxValues(20.0, wNyquist, dontSendNotification);
+    aPlusMinus = (wZoom.getMaxValue() - wZoom.getMinValue()) / 2.0f;
+    wZoom.setValue( ((wZoom.getMaxValue()-wZoom.getMinValue())/2.0) + wZoom.getMinValue(), dontSendNotification );
+    middlThumb = wZoom.getValue();
+
+    sliderValueChanged(&wZoom);
+//    wZoom.setSkewFactorFromMidPoint(440.0);
 }
 
 void Display_Logarithmic::sliderValueChanged (Slider *slider)
 {
     if(slider == &wZoom)
     {
-        wZoom.setValue(((wZoom.getMaxValue()-wZoom.getMinValue())/2.0)+wZoom.getMinValue());
+        aPlusMinus = (wZoom.getMaxValue() - wZoom.getMinValue()) / 2.0f;
+
+        if (wZoom.getThumbBeingDragged() == 1 || wZoom.getThumbBeingDragged() == 2) {
+            wZoom.setValue(((wZoom.getMaxValue() - wZoom.getMinValue()) / 2.0) + wZoom.getMinValue(), dontSendNotification);
+        }
+        else
+        {
+            if      (wZoom.getMinValue() <= wZoom.getMinimum() && wZoom.getValue()<middlThumb) {
+                wZoom.setValue(middlThumb, dontSendNotification);
+                return;
+            }
+            else if (wZoom.getMaxValue() >= wZoom.getMaximum()-0.01 && wZoom.getValue()>middlThumb) {
+                wZoom.setValue(middlThumb, dontSendNotification);
+                return;
+            }
+            else {
+                wZoom.setMinAndMaxValues(wZoom.getValue() - aPlusMinus, wZoom.getValue() + aPlusMinus, dontSendNotification);
+            }
+        }
         
+        middlThumb = wZoom.getValue();
+
         lowEnd = wZoom.getMinValue();
         topEnd = wZoom.getMaxValue();
         repaint();
