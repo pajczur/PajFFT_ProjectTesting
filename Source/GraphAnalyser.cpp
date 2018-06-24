@@ -43,9 +43,9 @@ void GraphAnalyser::paint (Graphics& g)
 
             if(sourceIsReady) {
                 if (thumbnail->getNumChannels() == 0)
-                    paintIfNoFileLoaded (g/*, thumbnailBounds*/);
+                    paintIfNoFileLoaded (g);
                 else
-                    paintIfFileLoaded (g/*, thumbnailBounds*/);
+                    paintIfFileLoaded (g);
             }
         }
         else
@@ -72,13 +72,6 @@ void GraphAnalyser::timerCallback()
                 if(timeTrue_waveFalse) {
                     repaint();
                     return;
-//                    if(dataSource->dataIsReadyToGraph)
-//                        drawtimeGraph();
-//
-//                    for(int i=0; i<timeGraph.size(); i++) {
-//                        if(!timeGraph[i].isEmpty())
-//                            timeGraph[i].applyTransform(AffineTransform::translation(-((float)getWidth()/50.0), 0));
-//                    }
                 }
                 else {
                     wavGraph.clear();
@@ -369,7 +362,7 @@ double GraphAnalyser::wDecibels(double linearMag, int freqIndex)
     return  -(0.75 * zero_dB * dweight * (20.0*log10(linearMag) + 72.0)/72.0) + zero_dB;
 }
 
-void GraphAnalyser::paintIfNoFileLoaded (Graphics& g/*, const Rectangle<int>& thumbnailBounds*/)
+void GraphAnalyser::paintIfNoFileLoaded (Graphics& g)
 {
     g.setColour (Colours::darkgrey);
     g.fillRect (thumbnailBounds);
@@ -377,10 +370,8 @@ void GraphAnalyser::paintIfNoFileLoaded (Graphics& g/*, const Rectangle<int>& th
     g.drawFittedText ("No File Loaded", thumbnailBounds, Justification::centred, 1.0f);
 }
 
-void GraphAnalyser::paintIfFileLoaded (Graphics& g/*, const Rectangle<int>& thumbnailBounds*/)
+void GraphAnalyser::paintIfFileLoaded (Graphics& g)
 {
-//    g.setColour (Colours::white);
-//    g.fillRect (thumbnailBounds);
     g.setColour (Colours::red);
 
     auto audioLength (thumbnail->getTotalLength());
@@ -397,11 +388,6 @@ void GraphAnalyser::paintIfFileLoaded (Graphics& g/*, const Rectangle<int>& thum
     
     g.setColour (Colours::green);
 
-    auto drawPosition ((audioPosition / audioLength) * thumbnailBounds.getWidth()
-                       + thumbnailBounds.getX());
-
-//    g.drawLine (drawPosition, thumbnailBounds.getY(), drawPosition,
-//                thumbnailBounds.getBottom(), 2.0f);
     g.drawLine(getWidth()/2.0, 0, getWidth()/2.0, getHeight());
 }
 

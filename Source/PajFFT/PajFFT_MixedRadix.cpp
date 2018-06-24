@@ -83,6 +83,7 @@ PajFFT_MixedRadix::PajFFT_MixedRadix()
     cZero.real(0.0f);
     cZero.imag(0.0f);
     fZero = 0.0f;
+    iZero = 0;
     
     phaseRotation = 1.0f;
     low_End = 0.0f;
@@ -423,7 +424,7 @@ void PajFFT_MixedRadix::prepareWindowingArray               ()
 // PUBLIC:
 // == fft initiation =========================================================================
 // ===========================================================================================
-void PajFFT_MixedRadix::makeFFT         (std::vector<std::complex<float>> inputSignal, std::vector<std::complex<float>> &wOutputC, bool isForwardOrNot)
+void PajFFT_MixedRadix::makeFFT         (std::vector<std::complex<float>> &inputSignal, std::vector<std::complex<float>> &wOutputC, bool isForwardOrNot)
 {
     std::vector<std::complex<float>>& wnkN = isForwardOrNot?wnkN_forw:wnkN_back;
     isForward=isForwardOrNot;
@@ -435,7 +436,7 @@ void PajFFT_MixedRadix::makeFFT         (std::vector<std::complex<float>> inputS
         
         for(int fft=0; fft<wRadixSize; fft++)
         {
-            dftRecursion(fft, 0, wnkN);
+            dftRecursion(fft, iZero, wnkN);
         }
     }
     else
@@ -444,8 +445,8 @@ void PajFFT_MixedRadix::makeFFT         (std::vector<std::complex<float>> inputS
     }
 }
 
-void PajFFT_MixedRadix::makeFFT         (std::vector<float> inputSignal, std::vector<std::complex<float>> &wOutputC, bool isForwardOrNot)
-{
+void PajFFT_MixedRadix::makeFFT         (std::vector<float> &inputSignal, std::vector<std::complex<float>> &wOutputC, bool isForwardOrNot)
+{ 
     std::vector<std::complex<float>>& wnkN = isForwardOrNot?wnkN_forw:wnkN_back;
     isForward=isForwardOrNot;
     
@@ -459,7 +460,7 @@ void PajFFT_MixedRadix::makeFFT         (std::vector<float> inputSignal, std::ve
         }
         for(int fft=0; fft<wRadixSize; fft++)
         {
-            dftRecursion(fft, 0, wnkN);
+            dftRecursion(fft, iZero, wnkN);
         }
     }
     else
@@ -473,7 +474,7 @@ void PajFFT_MixedRadix::makeFFT         (std::vector<float> inputSignal, std::ve
 // PRIVATE:
 // == Recursion of DFT for each radix ========================================================
 // ===========================================================================================
-void PajFFT_MixedRadix::dftRecursion    (int fftss, int radStep, std::vector<std::complex<float>> &twiddle)
+void PajFFT_MixedRadix::dftRecursion    (int &fftss, int &radStep, std::vector<std::complex<float>> &twiddle)
 {
     int su2 = radStep+1;
     
@@ -495,7 +496,7 @@ void PajFFT_MixedRadix::dftRecursion    (int fftss, int radStep, std::vector<std
 
 // === Regular DFT or iDFT on the last radix step ============================================
 // ===========================================================================================
-void PajFFT_MixedRadix::makeDFT         (int wFFT, std::vector<std::complex<float>> &twiddle)
+void PajFFT_MixedRadix::makeDFT         (int &wFFT, std::vector<std::complex<float>> &twiddle)
 {
     for    (int q=0; q<iteratorsEnd[wRadixSize-1][wFFT]; q++)
     {
@@ -591,7 +592,7 @@ std::complex<float> PajFFT_MixedRadix::twiddleCalculator        (float nXk)
 
 // == Magnitude calculator ===================================================================
 // ===========================================================================================
-float PajFFT_MixedRadix::freqMagnitudeCalc (std::complex<float> fftOutput, long freqBin)
+float PajFFT_MixedRadix::freqMagnitudeCalc (std::complex<float> &fftOutput, long &freqBin)
 {
     if(freqBin<lEndScale  ||  freqBin>tEndScale)
         return fZero;
@@ -605,19 +606,20 @@ float PajFFT_MixedRadix::freqMagnitudeCalc (std::complex<float> fftOutput, long 
     }
 }
 
-float PajFFT_MixedRadix::waveEnvelopeCalc (std::complex<float> fftOutput, long index)
+float PajFFT_MixedRadix::waveEnvelopeCalc (std::complex<float> &fftOutput, long &index)
 {
+
     fftOutput *= phaseRotation;
     return windowing(fftOutput.real(), index)/((long)wBufferSize);
 }
 
-float PajFFT_MixedRadix::phaseCalculator          (std::complex<float> fftOutput, long index)
+float PajFFT_MixedRadix::phaseCalculator          (std::complex<float> &fftOutput, long &index)
 {
     return atan2(fftOutput.imag(),fftOutput.real());
 }
 
 
-std::complex<float> PajFFT_MixedRadix::windowing(std::complex<float> dataToWindowing, long index)
+std::complex<float> PajFFT_MixedRadix::windowing(std::complex<float> &dataToWindowing, long &index)
 {
     if(isWindowing)
         return dataToWindowing*windowHann[index];
@@ -625,7 +627,7 @@ std::complex<float> PajFFT_MixedRadix::windowing(std::complex<float> dataToWindo
         return dataToWindowing;
 }
 
-float PajFFT_MixedRadix::windowing(float dataToWindowing, long index)
+float PajFFT_MixedRadix::windowing(float dataToWindowing, long &index)
 {
     if(isWindowing)
         return dataToWindowing*windowHann[index];

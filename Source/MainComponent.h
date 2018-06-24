@@ -34,7 +34,18 @@ public:
     ~MainComponent();
     
     void timerCallback() override;
-    void updateToggleState(Button* button, int buttonID);
+    
+    enum ButtonID {
+        graphOff_ID,
+        selectOscill_ID,
+        selectPlayer_ID,
+        freqDisp_ID,
+        timeDisp_ID,
+        waveDisp_ID,
+        d_weightingDisp_ID
+    };
+    
+    void updateToggleState(Button* button, ButtonID buttonID);
 
     //==============================================================================
     void prepareToPlay (int samplesPerBlockExpected, double sampleRate) override;
@@ -77,8 +88,6 @@ private:
     
     ToggleButton selectOscill;
     ToggleButton selectPlayer;
-    const int selectOscill_ID=1;
-    const int selectPlayer_ID=2;
     int playerOrOscillatorButtons=1;
     bool playerOrOscillat;
     
@@ -93,14 +102,13 @@ private:
     int fftOutputIndex;
     double fPi;
     
+    ToggleButton graphOff;
     ToggleButton freqDisp;
-    const int freqDisp_ID=4;
     ToggleButton timeDisp;
-    const int timeDisp_ID=5;
     ToggleButton waveDisp;
-    const int waveDisp_ID=6;
     ToggleButton d_weightingDisp;
-    const int d_weightingDisp_ID=7;
+    
+    
     
     int selectorFreqTimeButton = 100;
     

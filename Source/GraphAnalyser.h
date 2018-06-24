@@ -29,7 +29,7 @@ public:
     void setSampleRate(double sample_rate);
     void setNewBufSize(double new_buf_size);
     void setZoomLogar(double lowE, double topE);
-    void setZoomLinear(/*double startTime,*/ double endTime);
+    void setZoomLinear(double endTime);
     void setLowEndIndex();
     void setFFT_DataSource(CalculateDTFT &fftData,  WavesGen &oscData, AudioPlayer &audioData);
 
@@ -47,8 +47,8 @@ public:
 
     double deviceBufferSize;
     
-    void paintIfNoFileLoaded (Graphics& g  /*, const Rectangle<int>& thumbnailBounds*/);
-    void paintIfFileLoaded   (Graphics& g  /*, const Rectangle<int>& thumbnailBounds*/);
+    void paintIfNoFileLoaded (Graphics& g);
+    void paintIfFileLoaded   (Graphics& g);
 private:
     Path fftGraph;
 public:
@@ -91,17 +91,11 @@ public:
     bool sourceIsReady;
     
     float waveFormZoom;
-//    float waveFormZoomMid;
     Rectangle<int> thumbnailBounds;
     
-    
-//    AudioFormatManager formatManager;
-//    std::unique_ptr<AudioFormatReaderSource> readerSource;
-//    AudioTransportSource transportSource;
-//    AudioPlayer::TransportState state;
-//    AudioThumbnailCache thumbnailCache;                  
     AudioThumbnail *thumbnail;
     
+    int temppp=0;
     
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GraphAnalyser)

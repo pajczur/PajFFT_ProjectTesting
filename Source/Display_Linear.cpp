@@ -18,7 +18,7 @@ Display_Linear::Display_Linear()
     margXRight = 10.0f;
     margYBot = 20.0f+30.0f;
     margYTop = 22.0f;
-    wSampleRateToDisplay = 1.0;
+    wSampleRateToDisplay = 2.0;
 
     wZoom.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
     addAndMakeVisible(&wZoom);

@@ -31,13 +31,13 @@ FFTInterface::FFTInterface(AudioAppComponent *wAudioApp)
     fftBufSizeEditDescript.setJustificationType(Justification::centredRight);
     
     addAndMakeVisible(&selectMatrixFFT);
-    selectMatrixFFT.setRadioGroupId(fftSelectorButtons);
+    selectMatrixFFT.setRadioGroupId(fftRadioButtonsID);
     selectMatrixFFT.onClick = [this] { updateToggleState(&selectMatrixFFT, selectMatrixFFT_ID); };
     selectMatrixFFT.setButtonText("Matrix FFT");
     
 
     addAndMakeVisible(&selectRadix2FFT);
-    selectRadix2FFT.setRadioGroupId(fftSelectorButtons);
+    selectRadix2FFT.setRadioGroupId(fftRadioButtonsID);
     selectRadix2FFT.onClick = [this] { updateToggleState(&selectRadix2FFT, selectRadix2FFT_ID); };
     selectRadix2FFT.setButtonText("Radix-2 FFT");
     
@@ -53,7 +53,7 @@ FFTInterface::FFTInterface(AudioAppComponent *wAudioApp)
 
     addAndMakeVisible(&turnOFF);
     turnOFF.setButtonText("OFF");
-    turnOFF.setRadioGroupId(fftSelectorButtons);
+    turnOFF.setRadioGroupId(fftRadioButtonsID);
     turnOFF.onClick = [this] { updateToggleState(&turnOFF, turnOFF_ID); };
 
 
@@ -364,21 +364,18 @@ void FFTInterface::sliderValueChanged       (Slider *slider)
     
     if(slider == &filterSetTopEnd)
     {
-//        calculator_FFT->setTopEnd(filterSetTopEnd.getValue());
         calculator_FFT->mixedRadix_FFT.setTopEnd(filterSetTopEnd.getValue());
         calculator_FFT->radix2_FFT.setTopEnd(filterSetTopEnd.getValue());
         
         if(areFiltersLinked)
         {
             filterSetLowEnd.setValue(filterSetTopEnd.getValue()-filterDiff);
-//            calculator_FFT->setLowEnd(filterSetLowEnd.getValue());
             calculator_FFT->mixedRadix_FFT.setLowEnd(filterSetLowEnd.getValue());
             calculator_FFT->radix2_FFT.setLowEnd(filterSetLowEnd.getValue());
         }
         else if(filterSetTopEnd.getValue()-3.0 < filterSetLowEnd.getValue()   &&   !areFiltersLinked)
         {
             filterSetLowEnd.setValue(filterSetTopEnd.getValue()-2.0);
-//            calculator_FFT->setLowEnd(filterSetLowEnd.getValue());
             calculator_FFT->mixedRadix_FFT.setLowEnd(filterSetLowEnd.getValue());
             calculator_FFT->radix2_FFT.setLowEnd(filterSetLowEnd.getValue());
         }
@@ -434,19 +431,19 @@ void FFTInterface::labelTextChanged         (Label *labelThatHasChanged)
 
 
 
-void FFTInterface::updateToggleState        (Button* button, int fftIdentifier)
+void FFTInterface::updateToggleState        (Button* button, ButtonID buttonID)
 {
-    if(button->getRadioGroupId() == fftSelectorButtons   &&   button->getToggleState())
+    if(button->getRadioGroupId() == fftRadioButtonsID   &&   button->getToggleState())
     {
-        switch (fftIdentifier)
+        switch (buttonID)
         {
-            case 1: // MIXED RADIX
+            case selectMatrixFFT_ID: // MIXED RADIX
                 whatIsChanged_ID = selectMatrixFFT_ID;
                 pauseFFT(false);
                 startTimer(ceil((calculator_FFT->timeElapsed/1000.0f)*10.0f));
                 break;
                 
-            case 2: // RADIX-2
+            case selectRadix2FFT_ID: // RADIX-2
                 whatIsChanged_ID = selectRadix2FFT_ID;
                 pauseFFT(false);
                 startTimer(ceil((calculator_FFT->timeElapsed/1000.0f)*10.0f));
@@ -458,34 +455,34 @@ void FFTInterface::updateToggleState        (Button* button, int fftIdentifier)
     }
     else
     {
-        switch (fftIdentifier)
+        switch (buttonID)
         {
-            case 0: // FFT OFF
+            case turnOFF_ID: // FFT OFF
                 whatIsChanged_ID = turnOFF_ID;
                 pauseFFT(false);
                 startTimer(ceil((calculator_FFT->timeElapsed/1000.0f)*10.0f));
                 break;
                 
-            case 3: // RADIX-2 - SET ZERO PADDING
+            case zeroPadding_ID: // RADIX-2 - SET ZERO PADDING
                 whatIsChanged_ID = zeroPadding_ID;
                 pauseFFT(false);
                 startTimer(ceil((calculator_FFT->timeElapsed/1000.0f)*10.0f));
                 break;
                 
-            case 4: // INVERSE
+            case wInverse_ID: // INVERSE
                 whatIsChanged_ID = wInverse_ID;
                 pauseFFT(false);
                 startTimer(ceil((calculator_FFT->timeElapsed/1000.0f)*10.0f));
                 break;
                 
-            case 5: // WINDOWING & OVERLAPING
+            case winHann_ID: // WINDOWING & OVERLAPING
                 whatIsChanged_ID = winHann_ID;
                 pauseFFT(false);
                 startTimer(ceil((calculator_FFT->timeElapsed/1000.0f)*10.0f));
     //            setWindowing();
                 break;
                 
-            case 20:
+            case linkFilters_ID:
                 if(linkFilters.getToggleState())
                 {
                     filterDiff = filterSetTopEnd.getValue() - filterSetLowEnd.getValue();
@@ -558,8 +555,8 @@ void FFTInterface::setOFF_fft               ()
     pauseGetNextAudioBlock = false;
     oscillator->selectWave(rememberedWaveType);
     graphAnalyser->isFFTon=false;
-    if(!graphAnalyser->isTimerRunning())
-        graphAnalyser->startTimer(40);
+//    if(!graphAnalyser->isTimerRunning())
+//        graphAnalyser->startTimer(40);
     repaint();
 }
 
@@ -592,7 +589,7 @@ void FFTInterface::setON_matrixfft          ()
         graphAnalyser->setLowEndIndex();
         repaint();
         graphAnalyser->isFFTon=true;
-        if(!graphAnalyser->isTimerRunning())
+        if(!graphAnalyser->isTimerRunning()   &&   isGraphON)
             graphAnalyser->startTimer(40);
 
         pauseGetNextAudioBlock = false;
@@ -639,7 +636,7 @@ void FFTInterface::setON_radix2fft          ()
         graphAnalyser->setLowEndIndex();
         repaint();
         graphAnalyser->isFFTon=true;
-        if(!graphAnalyser->isTimerRunning())
+        if(!graphAnalyser->isTimerRunning()   &&   isGraphON)
             graphAnalyser->startTimer(40);
         
         pauseGetNextAudioBlock = false;
@@ -680,7 +677,7 @@ void FFTInterface::pauseFFT(bool pauseFALSE_ResumeTRUE)
 {
     rememberedWaveType=oscillator->getWaveType();
 
-    if(graphAnalyser->isTimerRunning())
+    if(graphAnalyser->isTimerRunning()  &&  !isGraphON)
         graphAnalyser->stopTimer();
     
     pauseGetNextAudioBlock = true;

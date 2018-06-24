@@ -14,6 +14,8 @@
 //==============================================================================
 OscInterface::OscInterface()
 {
+    isGraphOn = false;
+    
     wPitchBand.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
     wPitchBand.addListener(this);
     wPitchBand.setTextValueSuffix(" Hz");
@@ -31,28 +33,28 @@ OscInterface::OscInterface()
     addAndMakeVisible(&wAmplitude);
     
     addAndMakeVisible(&selectSinWave);
-    selectSinWave.setRadioGroupId(waveSelectorButtons);
+    selectSinWave.setRadioGroupId(waveRadioButtons);
     selectSinWave.onClick = [this] { updateToggleState(&selectSinWave, sinIdentifier); };
     sinWaveLabel.setJustificationType(Justification::centredLeft);
     sinWaveLabel.setText("Sine", dontSendNotification);
     sinWaveLabel.attachToComponent(&selectSinWave, true);
     
     addAndMakeVisible(&selectSawWave);
-    selectSawWave.setRadioGroupId(waveSelectorButtons);
+    selectSawWave.setRadioGroupId(waveRadioButtons);
     selectSawWave.onClick = [this] { updateToggleState(&selectSawWave, sawIdentifier); };
     sawWaveLabel.setJustificationType(Justification::centredLeft);
     sawWaveLabel.setText("Saw", dontSendNotification);
     sawWaveLabel.attachToComponent(&selectSawWave, true);
     
     addAndMakeVisible(&selectSqrWave);
-    selectSqrWave.setRadioGroupId(waveSelectorButtons);
+    selectSqrWave.setRadioGroupId(waveRadioButtons);
     selectSqrWave.onClick = [this] { updateToggleState(&selectSqrWave, sqrIdentifier); };
     sqrWaveLabel.setJustificationType(Justification::centredLeft);
     sqrWaveLabel.setText("Square", dontSendNotification);
     sqrWaveLabel.attachToComponent(&selectSqrWave, true);
     
     addAndMakeVisible(&selectWhiteNoise);
-    selectWhiteNoise.setRadioGroupId(waveSelectorButtons);
+    selectWhiteNoise.setRadioGroupId(waveRadioButtons);
     selectWhiteNoise.onClick = [this] { updateToggleState(&selectWhiteNoise, noiIdentifier); };
     whiteNoiseLabel.setJustificationType(Justification::centredLeft);
     whiteNoiseLabel.setText("Noise", dontSendNotification);
@@ -60,7 +62,7 @@ OscInterface::OscInterface()
     
     addAndMakeVisible(&wMuteButton);
     wMuteButton.setButtonText("Mute");
-    wMuteButton.setRadioGroupId(waveSelectorButtons);
+    wMuteButton.setRadioGroupId(waveRadioButtons);
     wMuteButton.onClick = [this] { updateToggleState(&wMuteButton, mutIdentifier); };
 }
 
@@ -114,23 +116,23 @@ void OscInterface::sliderValueChanged(Slider *slider)
     }
 }
 
-void OscInterface::updateToggleState(Button* button, int waveIdentifier)
+void OscInterface::updateToggleState(Button* button, WaveID waveID)
 {
-    switch (waveIdentifier)
+    switch (waveID)
     {
-        case 0:
+        case mutIdentifier:
             oscillator->selectWave(0);
             break;
-        case 1:
+        case sinIdentifier:
             oscillator->selectWave(1);
             break;
-        case 2:
+        case sawIdentifier:
             oscillator->selectWave(2);
             break;
-        case 3:
+        case sqrIdentifier:
             oscillator->selectWave(3);
             break;
-        case 4:
+        case noiIdentifier:
             oscillator->selectWave(4);
             break;
             
@@ -138,7 +140,7 @@ void OscInterface::updateToggleState(Button* button, int waveIdentifier)
             break;
     }
     
-    if(waveIdentifier == 0)
+    if(waveID == mutIdentifier)
     {
         selectSinWave.setToggleState(false, NotificationType::dontSendNotification);
         selectSawWave.setToggleState(false, NotificationType::dontSendNotification);
@@ -147,7 +149,8 @@ void OscInterface::updateToggleState(Button* button, int waveIdentifier)
     }
     else
     {
-        graphAnalyser->startTimer(40);
+        if(isGraphOn)
+            graphAnalyser->startTimer(40);
     }
 }
 

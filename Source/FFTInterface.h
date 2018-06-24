@@ -42,7 +42,19 @@ public:
     void sliderValueChanged (Slider *slider) override;
     void labelTextChanged (Label *labelThatHasChanged) override;
     
-    void updateToggleState(Button* button, int fftIdentifier);
+    enum ButtonID {
+        turnOFF_ID,
+        selectMatrixFFT_ID,
+        selectRadix2FFT_ID,
+        zeroPadding_ID,
+        wInverse_ID,
+        winHann_ID,
+        fftBufSizeEdit_ID,
+        matrixDividerEdit_ID,
+        linkFilters_ID
+    };
+    
+    void updateToggleState(Button* button, ButtonID buttonID);
     
     void setSampleRate(double sample_rate);
     void setBufferSize(double buffer_size);
@@ -82,33 +94,26 @@ private:
     Label             fftBufSizeEdit;
     Label             fftBufSizeEditDescript;
     Rectangle<int>    fftBufSizeEditBox;
-    const int         fftBufSizeEdit_ID=10;
     
     ToggleButton      selectMatrixFFT;
-    const int         selectMatrixFFT_ID=1;
     
     ToggleButton      selectRadix2FFT;
-    const int         selectRadix2FFT_ID=2;
 
     
     
 public:
     ToggleButton      wInverseFFT;
-    const int         wInverse_ID = 4;
     bool              rememberInvWasClicked;
     Label             alreadyInversed;
     
     TextButton        turnOFF;
 private:
-    const int         turnOFF_ID=0;
-    int               fftSelectorButtons=1;
+    int               fftRadioButtonsID=1;
 
     ToggleButton      zeroPadding;
-    const int         zeroPadding_ID=3;
     TextEditor        zerosPaddingDescript;
     string            setZerosInfo          (int use, int bufSize, int zero);
-    
-    const int         winHann_ID=5;
+
 public:
     ToggleButton      wWindowBut;
     Label             alreadyWindow;
@@ -119,7 +124,6 @@ private:
     Slider            filterSetTopEnd;
     Label             filtersDescript;
     ToggleButton      linkFilters;
-    const int         linkFilters_ID=20;
     Label             linkFiltersLabel;
     bool              areFiltersLinked;
     double            filterDiff;
@@ -131,7 +135,6 @@ private:
     Label             matrixDividerEdit;
     Label             matrixDividerEditDescript;
     Rectangle<int>    matrixDividerEditBox;
-    const int         matrixDividerEdit_ID=11;
     
     Label             matrixSizeInfo;
     Rectangle<int>    matrixSizeInfoBox;
@@ -141,6 +144,7 @@ private:
 public:
     bool              isPitchShiftON;
     bool              pauseGetNextAudioBlock;
+    bool              isGraphON;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FFTInterface)
 };

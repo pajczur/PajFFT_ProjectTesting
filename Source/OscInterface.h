@@ -31,7 +31,16 @@ public:
     void setControlsVisible(bool areVisible);
     
     void sliderValueChanged (Slider *slider) override;
-    void updateToggleState(Button* button, int waveIdentifier);
+    
+    enum WaveID {
+        mutIdentifier,
+        sinIdentifier,
+        sawIdentifier,
+        sqrIdentifier,
+        noiIdentifier
+    };
+    
+    void updateToggleState(Button* button, WaveID waveID);
     
     void setSampleRate(double sampRate);
     void setReferences(WavesGen &waveGenerator, CalculateDTFT &fftCalc, GraphAnalyser &gAnalyser);
@@ -42,24 +51,21 @@ private:
 public:
     ToggleButton selectSinWave;
     Label sinWaveLabel;
-    int sinIdentifier=1;
     
     ToggleButton selectSawWave;
     Label sawWaveLabel;
-    int sawIdentifier=2;
     
     ToggleButton selectSqrWave;
     Label sqrWaveLabel;
-    int sqrIdentifier=3;
     
     ToggleButton selectWhiteNoise;
     Label whiteNoiseLabel;
-    int noiIdentifier=4;
     
     TextButton wMuteButton;
-    int mutIdentifier=0;
+    
+    bool isGraphOn;
 private:
-    int waveSelectorButtons=1;
+    int waveRadioButtons=1;
     
     CalculateDTFT *calculator_FFT;
     WavesGen *oscillator;

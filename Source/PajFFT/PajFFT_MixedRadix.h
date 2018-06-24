@@ -99,11 +99,11 @@ private:
     
     // == FFT ALGORITHM ===============================================
 private:
-    void dftRecursion                        (int fftss, int radStep, std::vector<std::complex<float>> &twiddle);
-    void makeDFT                             (int wFFT, std::vector<std::complex<float>> &twiddle);
+    void dftRecursion                        (int &fftss, int &radStep, std::vector<std::complex<float>> &twiddle);
+    void makeDFT                             (int &wFFT, std::vector<std::complex<float>> &twiddle);
 public:
-    void makeFFT                             (std::vector<std::complex<float>> inputSignal, std::vector<std::complex<float>> &wOutputC, bool isForwardOrNot);
-    void makeFFT                             (std::vector<             float>  inputSignal, std::vector<std::complex<float>> &wOutputC, bool isForwardOrNot);
+    void makeFFT                             (std::vector<std::complex<float>> &inputSignal, std::vector<std::complex<float>> &wOutputC, bool isForwardOrNot);
+    void makeFFT                             (std::vector<             float>  &inputSignal, std::vector<std::complex<float>> &wOutputC, bool isForwardOrNot);
     
     
     
@@ -111,11 +111,11 @@ public:
 private:
     std::complex<float>         twiddleCalculator        (float nXk);
 public:
-    float                       freqMagnitudeCalc        (std::complex<float> fftOutput, long freqBin);
-    float                       waveEnvelopeCalc         (std::complex<float> fftOutput, long index);
-    float                       phaseCalculator          (std::complex<float> fftOutput, long index);
-    std::complex<float>         windowing                (std::complex<float> dataToWindowing, long index);
-    float                       windowing                (float dataToWindowing, long index);
+    float                       freqMagnitudeCalc        (std::complex<float> &fftOutput, long &freqBin);
+    float                       waveEnvelopeCalc         (std::complex<float> &fftOutput, long &index);
+    float                       phaseCalculator          (std::complex<float> &fftOutput, long &index);
+    std::complex<float>         windowing                (std::complex<float> &dataToWindowing, long &index);
+    float                       windowing                (float dataToWindowing, long &index);
     
     
     // == GET INFORMATIONS ==========================================================
@@ -137,6 +137,7 @@ private:
     std::complex<float> imaginary_j;
     std::complex<float> cZero;
     float fZero;
+    int   iZero;
     std::complex<float> phaseRotation;
     
     float wSampleRate;
