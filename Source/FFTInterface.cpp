@@ -77,11 +77,25 @@ FFTInterface::FFTInterface(AudioAppComponent *wAudioApp)
     addAndMakeVisible(&filtersDescript);
     filterSetLowEnd.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
     filterSetLowEnd.setTextBoxStyle(Slider::TextBoxBelow, false, 70, 20);
-    filterSetLowEnd.setTextValueSuffix(" Hz");
+    filterSetLowEnd.textFromValueFunction = [](double value) {
+        double freq = pow(10.0, value*log10(22050.0)/22050.0);
+        return juce::String(floor(freq)) + "Hz";
+    };
+    filterSetLowEnd.valueFromTextFunction = [](String value) {
+        double freq = log10(value.getDoubleValue()) * 22050.0/log10(22050.0);
+        return freq;
+    };
     filterSetLowEnd.addListener(this);
     filterSetTopEnd.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
     filterSetTopEnd.setTextBoxStyle(Slider::TextBoxBelow, false, 70, 20);
-    filterSetTopEnd.setTextValueSuffix(" Hz");
+    filterSetTopEnd.textFromValueFunction = [](double value) {
+        double freq = pow(10.0, value*log10(22050.0)/22050.0);
+        return juce::String(ceil(freq)) + "Hz";
+    };
+    filterSetTopEnd.valueFromTextFunction = [](String value) {
+        double freq = log10(value.getDoubleValue()) * 22050.0/log10(22050.0);
+        return freq;
+    };
     filterSetTopEnd.addListener(this);
     filterSetLowEnd.setVisible(false);
     filterSetTopEnd.setVisible(false);
@@ -322,87 +336,74 @@ void FFTInterface::resized                  ()
 
 void FFTInterface::sliderValueChanged       (Slider *slider)
 {
-    if(slider == &filterSetLowEnd)
-    {
-//        calculator_FFT->setLowEnd(filterSetLowEnd.getValue());
-        calculator_FFT->mixedRadix_FFT.setLowEnd(filterSetLowEnd.getValue());
-        calculator_FFT->radix2_FFT.setLowEnd(filterSetLowEnd.getValue());
+    if((slider == &filterSetLowEnd) || slider == &filterSetTopEnd) {
         
-        if(areFiltersLinked)
+        if(slider == &filterSetLowEnd)
         {
-            filterSetTopEnd.setValue(filterSetLowEnd.getValue()+filterDiff);
-//            calculator_FFT->setTopEnd(filterSetTopEnd.getValue());
-            calculator_FFT->mixedRadix_FFT.setTopEnd(filterSetTopEnd.getValue());
-            calculator_FFT->radix2_FFT.setTopEnd(filterSetTopEnd.getValue());
-        }
-        else if(filterSetLowEnd.getValue()+3.0 > filterSetTopEnd.getValue()   &&   !areFiltersLinked)
-        {
-            filterSetTopEnd.setValue(filterSetLowEnd.getValue()+2.0);
-//            calculator_FFT->setTopEnd(filterSetTopEnd.getValue());
-            calculator_FFT->mixedRadix_FFT.setTopEnd(filterSetTopEnd.getValue());
-            calculator_FFT->radix2_FFT.setTopEnd(filterSetTopEnd.getValue());
+            if(areFiltersLinked)
+            {
+                filterSetTopEnd.setValue(filterSetLowEnd.getValue()+filterDiff);
+            }
+            else if(filterSetLowEnd.getValue()+3.0 > filterSetTopEnd.getValue()   &&   !areFiltersLinked)
+            {
+                filterSetTopEnd.setValue(filterSetLowEnd.getValue()+2.0);
+            }
         }
         
-        int tempIndex;
+        if(slider == &filterSetTopEnd)
+        {
+            if(areFiltersLinked)
+            {
+                filterSetLowEnd.setValue(filterSetTopEnd.getValue()-filterDiff);
+            }
+            else if(filterSetTopEnd.getValue()-3.0 < filterSetLowEnd.getValue()   &&   !areFiltersLinked)
+            {
+                filterSetLowEnd.setValue(filterSetTopEnd.getValue()-2.0);
+            }
+        }
+        
+        float loEnd = pow(10.0, filterSetLowEnd.getValue()*log10(22050.0)/22050.0);
+        float toEnd = pow(10.0, filterSetTopEnd.getValue()*log10(22050.0)/22050.0);
+        calculator_FFT->mixedRadix_FFT.setLowEnd(loEnd);
+        calculator_FFT->radix2_FFT.setLowEnd(loEnd);
+        calculator_FFT->mixedRadix_FFT.setTopEnd(toEnd);
+        calculator_FFT->radix2_FFT.setTopEnd(toEnd);
+//        filterSetLowEnd.textFromValue(1.0);
+//        std::cout << "dupa" << std::endl;
+        
+        int filterLowEndIndex;
+        int filterTopEndIndex;
+        int topEndInd;
+        
         if(selectMatrixFFT.getToggleState()) {
-            tempIndex = round(filterSetLowEnd.getValue()*(calculator_FFT->mixedRadix_FFT.getBufferSize()/wSampleRate));
+            filterLowEndIndex = round(loEnd*(calculator_FFT->mixedRadix_FFT.getBufferSize()/wSampleRate));
+            filterTopEndIndex = round(toEnd*(calculator_FFT->mixedRadix_FFT.getBufferSize()/wSampleRate));
+            topEndInd = calculator_FFT->mixedRadix_FFT.getBufferSize()/2;
         }
         else if(selectRadix2FFT.getToggleState()) {
-            tempIndex = round(filterSetLowEnd.getValue()*(    calculator_FFT->radix2_FFT.getBufferSize()/wSampleRate));
+            filterLowEndIndex = round(loEnd*(calculator_FFT->radix2_FFT.getBufferSize()/wSampleRate));
+            filterTopEndIndex = round(toEnd*(calculator_FFT->radix2_FFT.getBufferSize()/wSampleRate));
+            topEndInd = calculator_FFT->radix2_FFT.getBufferSize()/2;
         }
         else
             return;
         
-        if(tempIndex>=0)
+        if(filterLowEndIndex>=0)
         {
-            for(int k=tempIndex; k>0; k--)
+            for(int k=filterLowEndIndex; k>0; k--)
             {
                 calculator_FFT->backFFTout[k-1] = 0.0f;
             }
         }
-    }
-    
-    if(slider == &filterSetTopEnd)
-    {
-        calculator_FFT->mixedRadix_FFT.setTopEnd(filterSetTopEnd.getValue());
-        calculator_FFT->radix2_FFT.setTopEnd(filterSetTopEnd.getValue());
         
-        if(areFiltersLinked)
+        if(filterTopEndIndex <= wSampleRate/2 )
         {
-            filterSetLowEnd.setValue(filterSetTopEnd.getValue()-filterDiff);
-            calculator_FFT->mixedRadix_FFT.setLowEnd(filterSetLowEnd.getValue());
-            calculator_FFT->radix2_FFT.setLowEnd(filterSetLowEnd.getValue());
-        }
-        else if(filterSetTopEnd.getValue()-3.0 < filterSetLowEnd.getValue()   &&   !areFiltersLinked)
-        {
-            filterSetLowEnd.setValue(filterSetTopEnd.getValue()-2.0);
-            calculator_FFT->mixedRadix_FFT.setLowEnd(filterSetLowEnd.getValue());
-            calculator_FFT->radix2_FFT.setLowEnd(filterSetLowEnd.getValue());
-        }
-        
-        int tempIndex;
-        int highEndInd;
-        
-        if(selectMatrixFFT.getToggleState()) {
-            tempIndex = round(filterSetTopEnd.getValue()*(calculator_FFT->mixedRadix_FFT.getBufferSize()/wSampleRate));
-            highEndInd = calculator_FFT->mixedRadix_FFT.getBufferSize()/2;
-        }
-        else if(selectRadix2FFT.getToggleState()) {
-            tempIndex = round(filterSetTopEnd.getValue()*(calculator_FFT->radix2_FFT.getBufferSize()/wSampleRate));
-            highEndInd = calculator_FFT->radix2_FFT.getBufferSize()/2;
-        }
-        else
-            return;
-        
-        if(tempIndex <= wSampleRate/2 )
-        {
-            for(int k=tempIndex; k<highEndInd; k++)
+            for(int k=filterTopEndIndex; k<topEndInd; k++)
             {
                 calculator_FFT->backFFTout[k] = 0.0f;
             }
         }
     }
-    
     
     if(slider == &setPhase)
     {
@@ -510,7 +511,7 @@ void FFTInterface::setSampleRate            (double sample_rate)
     filterSetTopEnd.setRange(0.0, wSampleRate/2.0, 1.0);
     filterSetTopEnd.setValue(wSampleRate/2.0);
 //    filterSetTopEnd.setSkewFactorFromMidPoint(1000);
-    
+
     filterDiff = filterSetTopEnd.getValue() - filterSetLowEnd.getValue();
 }
 

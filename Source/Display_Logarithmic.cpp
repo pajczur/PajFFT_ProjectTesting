@@ -346,15 +346,15 @@ void Display_Logarithmic::setNyquist(double nyquistFreq)
 {
     wNyquist = nyquistFreq;
     topEnd = wNyquist;
-    wZoom.setRange(0.999999, wNyquist, 0.01);
+    wZoom.setRange(-0.0001, wNyquist, 0.01);
+//        wZoom.setSkewFactorFromMidPoint(440.0);
     
-    wZoom.setMinAndMaxValues(20.0, wNyquist, dontSendNotification);
+    wZoom.setMinAndMaxValues(200.0, wNyquist, dontSendNotification);
     aPlusMinus = (wZoom.getMaxValue() - wZoom.getMinValue()) / 2.0f;
     wZoom.setValue( ((wZoom.getMaxValue()-wZoom.getMinValue())/2.0) + wZoom.getMinValue(), dontSendNotification );
     middlThumb = wZoom.getValue();
 
     sliderValueChanged(&wZoom);
-//    wZoom.setSkewFactorFromMidPoint(440.0);
 }
 
 void Display_Logarithmic::sliderValueChanged (Slider *slider)
@@ -383,10 +383,12 @@ void Display_Logarithmic::sliderValueChanged (Slider *slider)
         
         middlThumb = wZoom.getValue();
 
-        lowEnd = wZoom.getMinValue();
-        topEnd = wZoom.getMaxValue();
+        lowEnd = pow(10.0, wZoom.getMinValue()*log10(22050.0)/22050.0);
+        topEnd = pow(10.0, wZoom.getMaxValue()*log10(22050.0)/22050.0);
+        
         repaint();
-        graphAnalyser->setZoomLogar(wZoom.getMinValue(), wZoom.getMaxValue());
+        graphAnalyser->setZoomLogar(lowEnd, topEnd);
+
     }
 }
 

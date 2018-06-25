@@ -193,7 +193,7 @@ void GraphAnalyser::drawLogGraph()
     {
         double wBefore    = dispLogScale * (log10((i-1.0)*logScaleWidth) - log10(low_End));
         double wCurrent   = dispLogScale * (log10((i-0.0)*logScaleWidth) - log10(low_End));
-
+        
         if(linearMagnitude<=abs(dataSource->forwFFTout[i].real())/ (wBufferSize/2.0f))
             linearMagnitude =  abs(dataSource->forwFFTout[i].real())  / (wBufferSize/2.0f);
 
@@ -218,8 +218,8 @@ void GraphAnalyser::setSampleRate(double sample_rate)
     wSampleRate = sample_rate;
     nyquist = wSampleRate/2.0;
     zero_dB = (float)getHeight()-1.0f;
-    low_End = 10.0f;
-    top_End = nyquist;
+//    low_End = 10.0f;
+//    top_End = nyquist;
     low_End_index = round(1.0f * ( wBufferSize / wSampleRate));
     timeGraph.resize(floor(wSampleRate / 500));
     
@@ -247,7 +247,7 @@ void GraphAnalyser::setNewBufSize(double new_buf_size)
     buffNyquist = wBufferSize/2.0;
     low_End_index = round(low_End * ( wBufferSize / wSampleRate));
     logScaleWidth = nyquist/(wBufferSize/2.0);
-    dispLogScale = (double)getWidth()/( log10(top_End) - log10(low_End));
+//    dispLogScale = (double)getWidth()/( log10(top_End) - log10(low_End));
 }
 
 void GraphAnalyser::setZoomLogar(double lowE, double topE)
