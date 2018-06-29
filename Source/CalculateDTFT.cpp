@@ -65,9 +65,9 @@ void CalculateDTFT::fftCalculator(AudioBuffer<float> &inp)
             for(int z=0; z<newBufferSize; z++)
             {
                 if(isWindowed)
-                    tempOutput.push_back(windowedBackFFTout[z]);
+                    tempOutput.emplace_back(windowedBackFFTout[z]);
                 else
-                    tempOutput.push_back(backFFTout[z]);
+                    tempOutput.emplace_back(backFFTout[z]);
             }
             
             indexFFToutSize = 0;
@@ -100,9 +100,9 @@ void CalculateDTFT::fftCalculator(std::vector<float> &inp)
             for(int z=0; z<newBufferSize; z++)
             {
                 if(isWindowed)
-                    tempOutput.push_back(windowedBackFFTout[z]);
+                    tempOutput.emplace_back(windowedBackFFTout[z]);
                 else
-                    tempOutput.push_back(backFFTout[z]);
+                    tempOutput.emplace_back(backFFTout[z]);
             }
             
             indexFFToutSize = 0;
@@ -264,6 +264,7 @@ void CalculateDTFT::resetOutputData()
     }
     
     dupa = (ceil(newBufferSize/deviceBuffSize))*deviceBuffSize;
+    tempOutput.reserve(dupa+10);
     dupex = false;
     wOutput.resize(deviceBuffSize);
 
@@ -441,7 +442,7 @@ void CalculateDTFT::windowOverlap_ForwBackFFT(long fftFrameSize, long osamp, flo
 }
 
 
-void CalculateDTFT::windowOverlap_ForwFFT(long fftFrameSize, long osamp, float sampleRate, std::vector<std::complex<float>> indata/*, std::vector<float> &outdata*/)
+void CalculateDTFT::windowOverlap_ForwFFT(long fftFrameSize, long osamp, float sampleRate, std::vector<std::complex<float>> indata)
 {
     fftFrameSize2 = fftFrameSize/2;
     stepSize = fftFrameSize/osamp;

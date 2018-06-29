@@ -51,7 +51,8 @@ public:
         winHann_ID,
         fftBufSizeEdit_ID,
         matrixDividerEdit_ID,
-        linkFilters_ID
+        linkFilters_ID,
+        rad2FIFO_ID
     };
     
     void updateToggleState(Button* button, ButtonID buttonID);
@@ -70,7 +71,7 @@ public:
     void rememberedInvPitchWin();
     void setVisibleFiltersAndBuffSize();
     void refresh();
-
+    double twoPowerToInt(double &value);
     
     
     
@@ -113,6 +114,7 @@ private:
     ToggleButton      zeroPadding;
     TextEditor        zerosPaddingDescript;
     string            setZerosInfo          (int use, int bufSize, int zero);
+    ToggleButton      rad2FIFO;
 
 public:
     ToggleButton      wWindowBut;

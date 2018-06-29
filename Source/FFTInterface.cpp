@@ -70,6 +70,12 @@ FFTInterface::FFTInterface(AudioAppComponent *wAudioApp)
     zerosPaddingDescript.setCaretVisible(false);
 
     zerosPaddingDescript.setText("Uses all 512\nof samples");
+    
+    addAndMakeVisible(&rad2FIFO);
+    rad2FIFO.setVisible(false);
+    rad2FIFO.setToggleState(false, dontSendNotification);
+    rad2FIFO.onClick = [this] { updateToggleState(&rad2FIFO, rad2FIFO_ID); };
+    rad2FIFO.setButtonText("fifo");
 
     
     addAndMakeVisible(&filterSetLowEnd);
@@ -202,6 +208,22 @@ void FFTInterface::timerCallback()
         refresh();
     }
     
+    else if (whatIsChanged_ID==rad2FIFO_ID)
+    {
+        if(!rad2FIFO.getToggleState())
+        {
+            oscillator->selectWave(rememberedWaveType);
+            zeroPadding.setVisible(true);
+            updateToggleState(&zeroPadding, zeroPadding_ID);
+        }
+        else
+        {
+            zeroPadding.setVisible(false);
+//            calculator_FFT->radix2_FFT.setZeroPadding(true);
+            calculator_FFT->radix2_FFT.wSettings(wSampleRate, twoPowerToInt(rememberedBuffer));
+            refresh();
+        }
+    }
     
     
     else if (whatIsChanged_ID==wInverse_ID)
@@ -223,7 +245,11 @@ void FFTInterface::timerCallback()
         
         rememberedBuffer = newBufferSize;
         calculator_FFT->mixedRadix_FFT.wSettings(wSampleRate, newBufferSize);
-        calculator_FFT->radix2_FFT.wSettings(wSampleRate, newBufferSize);
+        
+        if(rad2FIFO.getToggleState())
+            calculator_FFT->radix2_FFT.wSettings(wSampleRate, twoPowerToInt(rememberedBuffer));
+        else
+            calculator_FFT->radix2_FFT.wSettings(wSampleRate, newBufferSize);
         
         refresh();
     }
@@ -280,7 +306,8 @@ void FFTInterface::paint                    (Graphics& g)
 
     g.setColour (Colours::white);
     
-    g.drawRect(fftBufSizeEditBox);
+    if(calculator_FFT->fftType != 0)
+        g.drawRect(fftBufSizeEditBox);
     
     if(selectMatrixFFT.getToggleState())
     {
@@ -296,6 +323,7 @@ void FFTInterface::resized                  ()
 
     zeroPadding.setBounds                (200, 5, 100, 20);
     zerosPaddingDescript.setBounds       (200, 28, 160, 35);
+    rad2FIFO.setBounds                   (310, 5, 100, 20);
 
     filterSetLowEnd.setBounds            (195, 87, 70, 50);
     filterSetTopEnd.setBounds            (295, 87, 70, 50);
@@ -470,6 +498,12 @@ void FFTInterface::updateToggleState        (Button* button, ButtonID buttonID)
                 startTimer(ceil((calculator_FFT->timeElapsed/1000.0f)*10.0f));
                 break;
                 
+            case rad2FIFO_ID: // RADIX-2 - SET ZERO PADDING
+                whatIsChanged_ID = rad2FIFO_ID;
+                pauseFFT(false);
+                startTimer(ceil((calculator_FFT->timeElapsed/1000.0f)*10.0f));
+                break;
+                
             case wInverse_ID: // INVERSE
                 whatIsChanged_ID = wInverse_ID;
                 pauseFFT(false);
@@ -542,6 +576,7 @@ void FFTInterface::setOFF_fft               ()
     selectRadix2FFT.setToggleState(false, NotificationType::dontSendNotification);
     zeroPadding.setVisible(false);
     zerosPaddingDescript.setVisible(false);
+    rad2FIFO.setVisible(false);
     
     filterSetTopEnd.setVisible(false);
     filterSetLowEnd.setVisible(false);
@@ -597,6 +632,7 @@ void FFTInterface::setON_matrixfft          ()
         calculator_FFT->dataIsReadyToFFT = true;
         oscillator->selectWave(rememberedWaveType);
         calculator_FFT->selectFFT(1);
+        oscPan->isGraphOn = true;
     }
 }
 
@@ -613,8 +649,10 @@ void FFTInterface::setON_radix2fft          ()
         calculator_FFT->setNewBufSize(tempBuf);
         graphAnalyser->setNewBufSize(tempBuf);
         fftBufSizeEdit.setText(to_string((int)tempBuf), dontSendNotification);
-        zerosPaddingDescript.setText(setZerosInfo(rememberedBuffer>tempBuf?tempBuf:rememberedBuffer,
-                                                  rememberedBuffer, tempBuf-rememberedBuffer));
+        zerosPaddingDescript.setText(setZerosInfo(!rad2FIFO.getToggleState()?
+                                                  (rememberedBuffer>tempBuf?tempBuf:rememberedBuffer):tempBuf,
+                                                  !rad2FIFO.getToggleState()?rememberedBuffer:tempBuf,
+                                                  !rad2FIFO.getToggleState()?(tempBuf-rememberedBuffer):0  ));
 
         if(tempBuf >= rememberedBuffer)
             dispLine->setBuffSize(rememberedBuffer);
@@ -644,6 +682,7 @@ void FFTInterface::setON_radix2fft          ()
         calculator_FFT->dataIsReadyToFFT = true;
         oscillator->selectWave(rememberedWaveType);
         calculator_FFT->selectFFT(2);
+        oscPan->isGraphOn = true;
     }
 }
 
@@ -681,6 +720,7 @@ void FFTInterface::pauseFFT(bool pauseFALSE_ResumeTRUE)
     if(graphAnalyser->isTimerRunning()  &&  !isGraphON)
         graphAnalyser->stopTimer();
     
+    oscPan->isGraphOn = false;
     pauseGetNextAudioBlock = true;
     calculator_FFT->dataIsReadyToFFT = false;
     calculator_FFT->selectFFT(0);
@@ -756,6 +796,7 @@ void FFTInterface::setVisibleFiltersAndBuffSize()
     {
         zerosPaddingDescript.setVisible(false);
         zeroPadding.setVisible(false);
+        rad2FIFO.setVisible(false);
         matrixSizeInfo.setVisible(true);
         matrixDividerEdit.setVisible(true);
         matrixDividerEditDescript.setVisible(true);
@@ -765,7 +806,9 @@ void FFTInterface::setVisibleFiltersAndBuffSize()
     else if(selectRadix2FFT.getToggleState())
     {
         zerosPaddingDescript.setVisible(true);
-        zeroPadding.setVisible(true);
+        if(!rad2FIFO.getToggleState())
+            zeroPadding.setVisible(true);
+        rad2FIFO.setVisible(true);
         matrixSizeInfo.setVisible(false);
         matrixDividerEdit.setVisible(false);
         matrixDividerEditDescript.setVisible(false);
@@ -808,3 +851,13 @@ string FFTInterface::setZerosInfo           (int use, int bufSize, int zero)
     return uses + to_string(used) + offf + to_string(buf) + samplll;
 }
 
+
+
+double FFTInterface::twoPowerToInt(double &value)
+{
+    double temp = pow(2, floor(log2(value)));
+    if(value > temp)
+        return temp*2;
+    else
+        return value;
+}
