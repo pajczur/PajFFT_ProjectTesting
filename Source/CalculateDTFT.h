@@ -39,7 +39,7 @@ public:
     
     void defineDeviceBuffSize(long dev_buf_size);
     void setNewBufSize(double new_buf_size);
-    void setSampleRate(float sampR);
+    void setSampleRate(double &sampR, long overLapping);
 
     PajFFT_MixedRadix mixedRadix_FFT;
     PajFFT_Radix2     radix2_FFT;
@@ -48,13 +48,13 @@ public:
 //    PajDFT            regular_DFT;
 //    PajDFT            regular_IDFT;
     
-    void windowingOverlap_FFT(long frameSize);
-    void inverseFFT_windowingOverlap(long frameSize, long overSamp);
-    void analyzeData(long overSamp);
+    void windowingOverlap_FFT(long &frameSize);
+    void inverseFFT_windowingOverlap(long &frameSize, long &overSamp);
+    void analyzeData(long &overSamp);
 
-    void smbPitchShift(float pitchShift, long fftFrameSize, long osamp, float sampleRate, std::vector<std::complex<float>> indata, std::vector<float> &outdata);
-    void windowOverlap_ForwBackFFT(long fftFrameSize, long osamp, float sampleRate, std::vector<std::complex<float>> indata, std::vector<float> &outdata);
-    void windowOverlap_ForwFFT(long fftFrameSize, long osamp, float sampleRate, std::vector<std::complex<float>> indata/*, std::vector<float> &outdata*/);
+    void smbPitchShift(float &pitchShift, long &fftFrameSize, long &osamp, float &sampleRate, std::vector<std::complex<float>> &indata, std::vector<float> &outdata);
+    void windowOverlap_ForwBackFFT(long &fftFrameSize, long &osamp, float &sampleRate, std::vector<std::complex<float>> &indata, std::vector<float> &outdata);
+    void windowOverlap_ForwFFT(long &fftFrameSize, long &osamp, float &sampleRate, std::vector<std::complex<float>> &indata/*, std::vector<float> &outdata*/);
     
     bool dataIsReadyToFFT;
     bool isForward;
@@ -129,6 +129,9 @@ private:
     float magn, phase, window, tmp, real, imag;
     double freqPerBin, expct;
     long qpd, index, inFifoLatency, stepSize, fftFrameSize2;
+    
+    long overLap;
+    long winFrameSize;
     
     
     

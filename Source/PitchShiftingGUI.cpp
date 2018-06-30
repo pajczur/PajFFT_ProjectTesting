@@ -53,7 +53,8 @@ void PitchShiftingGUI::timerCallback()
         
         fftInterface->alreadyInversed.setVisible(true);
         fftInterface->alreadyWindow.setVisible(true);
-        
+        fftInterface->setWindowOverLap.setVisible(true);
+        fftInterface->setWindowOverLapLabel.setVisible(true);
         fftInterface->isPitchShiftON = true;
         
         
@@ -70,6 +71,16 @@ void PitchShiftingGUI::timerCallback()
         fftInterface->setInverse_fft();
         fftInterface->wInverseFFT.setVisible(true);
         fftInterface->wWindowBut.setVisible(true);
+        if(fftInterface->wWindowBut.getToggleState())
+        {
+            fftInterface->setWindowOverLap.setVisible(true);
+            fftInterface->setWindowOverLapLabel.setVisible(true);
+        }
+        else
+        {
+            fftInterface->setWindowOverLap.setVisible(false);
+            fftInterface->setWindowOverLapLabel.setVisible(false);
+        }
         
         fftInterface->alreadyInversed.setVisible(false);
         fftInterface->alreadyWindow.setVisible(false);
@@ -98,8 +109,11 @@ void PitchShiftingGUI::paint (Graphics& g)
     g.setColour (Colours::white);
     g.drawText("PITCH SHIFT", 10, 5, 120, 20, Justification::centredLeft);
     g.setColour (Colours::red);
-    g.drawFittedText("(first choose FFT type", 10, 20, 110, 20, Justification::centredLeft, 1);
-    g.drawFittedText("and turn on INVERSE)", 10, 32, 110, 20, Justification::centredLeft, 1);
+    if(!wPitchShift.isVisible())
+    {
+        g.drawFittedText("(first choose FFT type", 10, 20, 110, 20, Justification::centredLeft, 1);
+        g.drawFittedText("and turn on INVERSE)", 10, 32, 110, 20, Justification::centredLeft, 1);
+    }
 }
 
 void PitchShiftingGUI::resized()
@@ -144,8 +158,6 @@ void PitchShiftingGUI::updateToggleState(Button* button/*, int buttonID*/)
         fftInterface->pauseFFT(false);
         
         startTimer((calculator_FFT->timeElapsed/1000.0f)*10.0f);
-        
-
     }
 }
 
@@ -154,4 +166,13 @@ void PitchShiftingGUI::setReferences(CalculateDTFT &calculator, FFTInterface &ff
 {
     calculator_FFT = &calculator;
     fftInterface = &fft;
+}
+
+
+void PitchShiftingGUI::setControlsVisible(bool isVisible)
+{
+    pitchShiftOnOff.setVisible(isVisible);
+    wPitchShift.setVisible(isVisible);
+    pitchShiftOnOffLabel.setVisible(isVisible);
+    repaint();
 }

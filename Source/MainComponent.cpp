@@ -416,6 +416,10 @@ void MainComponent::paint (Graphics& g)
     {
         hearFFTinversedSignal = true; // Set to true if ready playInverseFFT...
     }
+    if(fftInterface.wInverseFFT.getToggleState())
+        pitchShiftGui.setControlsVisible(true);
+    else
+        pitchShiftGui.setControlsVisible(false);
     g.setColour (Colours::red);
     
     if(freqDisp.getToggleState() && calculator_FFT.fftType==0 && oscillator.getWaveType()==0 && (wAudioPlayer.state != wAudioPlayer.Playing))
@@ -477,7 +481,7 @@ void MainComponent::fft_defaultSettings()
     display_linear.repaint();
     
     calculator_FFT.defineDeviceBuffSize((long)deviceBufferSize);
-    calculator_FFT.setSampleRate(wSampleRate);
+    calculator_FFT.setSampleRate(wSampleRate, (long)fftInterface.setWindowOverLap.getValue());
     calculator_FFT.setNewBufSize(deviceBufferSize);
     calculator_FFT.mixedRadix_FFT.wSettings(wSampleRate, deviceBufferSize);
     

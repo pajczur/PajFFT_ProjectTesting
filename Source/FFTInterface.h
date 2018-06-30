@@ -120,6 +120,8 @@ public:
     ToggleButton      wWindowBut;
     Label             alreadyWindow;
     bool              remembereWinWasClicked;
+    Slider            setWindowOverLap;
+    Label             setWindowOverLapLabel;
     
 private:
     Slider            filterSetLowEnd;

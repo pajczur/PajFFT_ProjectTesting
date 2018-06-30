@@ -49,7 +49,8 @@ FFTInterface::FFTInterface(AudioAppComponent *wAudioApp)
     alreadyInversed.setVisible(false);
     alreadyInversed.setJustificationType(Justification::centredTop);
     alreadyInversed.setEditable(false);
-    alreadyInversed.setText("Forw FFT->\nPitct shift->\nBack FFT", dontSendNotification);
+//    alreadyInversed.setText("Forw FFT->\nPitct shift->\nBack FFT", dontSendNotification);
+    alreadyInversed.setText("signal\nINVERSED", dontSendNotification);
 
     addAndMakeVisible(&turnOFF);
     turnOFF.setButtonText("OFF");
@@ -81,6 +82,7 @@ FFTInterface::FFTInterface(AudioAppComponent *wAudioApp)
     addAndMakeVisible(&filterSetLowEnd);
     addAndMakeVisible(&filterSetTopEnd);
     addAndMakeVisible(&filtersDescript);
+    filtersDescript.setText("Change sound when INVERSED", dontSendNotification);
     filterSetLowEnd.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
     filterSetLowEnd.setTextBoxStyle(Slider::TextBoxBelow, false, 70, 20);
     filterSetLowEnd.textFromValueFunction = [](double value) {
@@ -121,24 +123,37 @@ FFTInterface::FFTInterface(AudioAppComponent *wAudioApp)
     setPhaseLabel.setJustificationType(Justification::centredBottom);
     setPhaseLabel.attachToComponent(&setPhase, false);
     setPhase.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
-    setPhase.setTextBoxStyle(Slider::TextBoxBelow, false, 70, 20);
-    setPhase.setTextValueSuffix(" *i^x");
+    setPhase.setTextBoxStyle(Slider::TextBoxBelow, false, 75, 20);
+    setPhase.textFromValueFunction = [](float value) {
+            return "j^" + juce::String(value, 2);
+    };
     setPhase.addListener(this);
-    setPhase.setRange(0.0, 8.0, 0.01);
+    setPhase.setRange(0.0, 4.0, 0.01);
     setPhase.setValue(0.0);
     
 
     addAndMakeVisible(&wWindowBut);
     wWindowBut.setVisible(false);
-    wWindowBut.setButtonText("Windowing & overlap");
+    wWindowBut.setButtonText("Windowing");
     wWindowBut.onClick = [this] { updateToggleState(&wWindowBut, winHann_ID); };
+    
+    addAndMakeVisible(&setWindowOverLap);
+    setWindowOverLap.setVisible(false);
+    setWindowOverLap.setRange(1, 16, 1);
+    setWindowOverLap.setValue(4);
+    setWindowOverLap.setTextBoxStyle(Slider::TextBoxLeft, false, 25, 15);
+    setWindowOverLap.addListener(this);
     
     addAndMakeVisible(&alreadyWindow);
     alreadyWindow.setVisible(false);
     alreadyWindow.setJustificationType(Justification::centredTop);
     alreadyWindow.setEditable(false);
-    alreadyWindow.setText("Signal windowed & overlaped (Hann)", dontSendNotification);
-
+    alreadyWindow.setText("Signal\nWINDOWED", dontSendNotification);
+    
+    addAndMakeVisible(&setWindowOverLapLabel);
+    setWindowOverLapLabel.setVisible(false);
+    setWindowOverLapLabel.setText("overlapping:", dontSendNotification);
+    setWindowOverLapLabel.setJustificationType(Justification::centred);
     
     filtersDescript.setEditable(false);
     filtersDescript.setJustificationType(Justification::centred);
@@ -279,12 +294,16 @@ void FFTInterface::timerCallback()
             calculator_FFT->isWindowed = true;
             calculator_FFT->mixedRadix_FFT.setWindowing(true);
             calculator_FFT->radix2_FFT.setWindowing(true);
+            setWindowOverLap.setVisible(true);
+            setWindowOverLapLabel.setVisible(true);
         }
         else
         {
             calculator_FFT->isWindowed = false;
             calculator_FFT->mixedRadix_FFT.setWindowing(false);
             calculator_FFT->radix2_FFT.setWindowing(false);
+            setWindowOverLap.setVisible(false);
+            setWindowOverLapLabel.setVisible(false);
         }
         refresh();
     }
@@ -303,6 +322,10 @@ void FFTInterface::paint                    (Graphics& g)
 
     g.setColour (Colours::grey);
     g.drawRect (getLocalBounds(), 1);   // draw an outline around the component
+//    g.drawLine(150, 10, 150, getHeight()-10);
+    Line<float> separator(385, 10, 385,getHeight()-10);
+    float dashLength[2] = { 4, 10 };
+    g.drawDashedLine(separator, dashLength, 2);
 
     g.setColour (Colours::white);
     
@@ -331,11 +354,13 @@ void FFTInterface::resized                  ()
     linkFilters.setBounds                (268, 110, 20, 16);
     linkFiltersLabel.setBounds           (263, 95, 30, 10);
     
-    setPhase.setBounds                   (390, (getHeight()/2)-55, 80, 80);
-    wWindowBut.setBounds                    (385, getHeight()-50, 90, 50);
+    setPhase.setBounds                   (407, (getHeight()/2)-55, 67, 67);
+    wWindowBut.setBounds                 (390, getHeight()-72, 90, 50);
+    setWindowOverLap.setBounds           (390, getHeight()-22, 90, 20);
     
     alreadyWindow.setColour              (Label::textColourId, Colours::red);
-    alreadyWindow.setBounds              (380, getHeight()-50, 100, 60);
+    alreadyWindow.setBounds              (385, getHeight()-67, 100, 40);
+    setWindowOverLapLabel.setBounds      (385, getHeight()-37, 90, 15);
 
 
     matrixDividerEditBox.setBounds       (200, 3, 30, 25);
@@ -346,16 +371,14 @@ void FFTInterface::resized                  ()
     
     selectMatrixFFT.setBounds            (65, 35, 80, 30);
     selectRadix2FFT.setBounds            (65, 65, 80, 30);
-//    selectRegDFT.setBounds               (65, 95, 80, 30);
     turnOFF.setBounds                    (10, 40, 50, 110);
     selectMatrixFFT.changeWidthToFitText();
     selectRadix2FFT.changeWidthToFitText();
-//    selectRegDFT.changeWidthToFitText();
     
     wInverseFFT.setBounds                (85, 125, 80, 30);
     
     alreadyInversed.setColour            (Label::textColourId, Colours::red);
-    alreadyInversed.setBounds            (65, 110, 125, 60);
+    alreadyInversed.setBounds            (65, 120, 125, 60);
 }
 
 
@@ -396,8 +419,6 @@ void FFTInterface::sliderValueChanged       (Slider *slider)
         calculator_FFT->radix2_FFT.setLowEnd(loEnd);
         calculator_FFT->mixedRadix_FFT.setTopEnd(toEnd);
         calculator_FFT->radix2_FFT.setTopEnd(toEnd);
-//        filterSetLowEnd.textFromValue(1.0);
-//        std::cout << "dupa" << std::endl;
         
         int filterLowEndIndex;
         int filterTopEndIndex;
@@ -437,6 +458,11 @@ void FFTInterface::sliderValueChanged       (Slider *slider)
     {
         calculator_FFT->mixedRadix_FFT.setPhase(setPhase.getValue());
         calculator_FFT->radix2_FFT.setPhase(setPhase.getValue());
+    }
+    
+    if(slider == &setWindowOverLap)
+    {
+        calculator_FFT->overLap = setWindowOverLap.getValue();
     }
 }
 
@@ -498,7 +524,7 @@ void FFTInterface::updateToggleState        (Button* button, ButtonID buttonID)
                 startTimer(ceil((calculator_FFT->timeElapsed/1000.0f)*10.0f));
                 break;
                 
-            case rad2FIFO_ID: // RADIX-2 - SET ZERO PADDING
+            case rad2FIFO_ID: // RADIX-2 - SET FIFO
                 whatIsChanged_ID = rad2FIFO_ID;
                 pauseFFT(false);
                 startTimer(ceil((calculator_FFT->timeElapsed/1000.0f)*10.0f));
@@ -514,7 +540,6 @@ void FFTInterface::updateToggleState        (Button* button, ButtonID buttonID)
                 whatIsChanged_ID = winHann_ID;
                 pauseFFT(false);
                 startTimer(ceil((calculator_FFT->timeElapsed/1000.0f)*10.0f));
-    //            setWindowing();
                 break;
                 
             case linkFilters_ID:
@@ -695,7 +720,6 @@ void FFTInterface::setInverse_fft           ()
         wWindowBut.setVisible(true);
         setPhase.setVisible(true);
         calculator_FFT->isForward = false;
-//        graphAnalyser->isForward = false;
         alreadyWindow.setVisible(false);
         alreadyWindow.setVisible(false);
     }
@@ -704,7 +728,6 @@ void FFTInterface::setInverse_fft           ()
         wWindowBut.setVisible(false);
         setPhase.setVisible(false);
         calculator_FFT->isForward = true;
-//        graphAnalyser->isForward = true;
         alreadyWindow.setVisible(false);
         alreadyWindow.setVisible(false);
     }
@@ -771,10 +794,12 @@ void FFTInterface::rememberedInvPitchWin()
         
         filterSetLowEnd.setVisible(true);
         filterSetTopEnd.setVisible(true);
-        filtersDescript.setVisible(true);
+        if(isPitchShiftON || rememberInvWasClicked)
+            filtersDescript.setVisible(false);
+        else
+            filtersDescript.setVisible(true);
         linkFilters.setVisible(true);
         linkFiltersLabel.setVisible(true);
-        filtersDescript.setText("Change sound only when INVERSED", dontSendNotification);
     }
     else {
         calculator_FFT->isWindowed = false;

@@ -32,6 +32,7 @@ public:
     void sliderValueChanged (Slider *slider) override;
     
     void setReferences(CalculateDTFT &calculator, FFTInterface &fft);
+    void setControlsVisible(bool isVisible);
 
 private:
     CalculateDTFT *calculator_FFT;
