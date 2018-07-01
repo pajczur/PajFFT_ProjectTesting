@@ -48,7 +48,7 @@ public:
     double deviceBufferSize;
     
     void paintIfNoFileLoaded (Graphics& g);
-    void paintIfFileLoaded   (Graphics& g);
+    void paintIfFileLoaded   (Graphics& g, double &audioPosition);
 private:
     Path fftGraph;
 public:
@@ -87,6 +87,7 @@ public:
     bool isFreqAnalyser;
     bool timeTrue_waveFalse;
     bool clearBegin;
+    double audioPosition;
     
     bool sourceIsReady;
     
@@ -96,7 +97,7 @@ public:
     AudioThumbnail *thumbnail;
     
     int temppp=0;
-    
+    int temppp2=0;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GraphAnalyser)
 };

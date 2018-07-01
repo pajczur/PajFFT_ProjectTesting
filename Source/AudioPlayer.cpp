@@ -12,8 +12,10 @@
 #include "AudioPlayer.h"
 
 //==============================================================================
-AudioPlayer::AudioPlayer() :   state (Stopped), thumbnailCache (5), thumb (30, formatManager, thumbnailCache)
+AudioPlayer::AudioPlayer() :   state (Paused), thumbnailCache (5), thumb (30, formatManager, thumbnailCache), isPosChanged(false), isVolChanged(false)
 {
+    sliderLabelFont.setSizeAndStyle(8.0, 1, 1, 0.5);
+    
     addAndMakeVisible (&openButton);
     openButton.setButtonText ("Open...");
     openButton.onClick = [this] { openButtonClicked(); };
@@ -24,11 +26,38 @@ AudioPlayer::AudioPlayer() :   state (Stopped), thumbnailCache (5), thumb (30, f
     playButton.setColour (TextButton::buttonColourId, Colours::green);
     playButton.setEnabled (false);
     
-    addAndMakeVisible (&stopButton);
-    stopButton.setButtonText ("Pause");
-    stopButton.onClick = [this] { stopButtonClicked(); };
-    stopButton.setColour (TextButton::buttonColourId, Colours::red);
-    stopButton.setEnabled (false);
+    addAndMakeVisible (&pauseButton);
+    pauseButton.setButtonText ("Pause");
+    pauseButton.onClick = [this] { pauseButtonClicked(); };
+    pauseButton.setColour (TextButton::buttonColourId, Colours::red);
+    pauseButton.setEnabled (false);
+    
+    addAndMakeVisible(&audioPositionSlider);
+    audioPositionSlider.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
+    audioPositionSlider.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
+    audioPositionSlider.addListener(this);
+    audioPositionSlider.onDragStart = [this] { audioVol.set(0.1); isVolChanged = true; };
+    audioPositionSlider.onDragEnd = [this] { audioVol.set(rememberedGain); isVolChanged = true; };
+    addAndMakeVisible(&audioPositionLabel);
+    audioPositionLabel.setSize(10, 50);
+    audioPositionLabel.setFont(sliderLabelFont);
+    audioPositionLabel.setText("Transport", dontSendNotification);
+    audioPositionLabel.attachToComponent(&audioPositionSlider, false);
+    
+    addAndMakeVisible(&audioVolumeSlider);
+    audioVolumeSlider.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
+    audioVolumeSlider.setRange(0.0, 2.0, 0.00001);
+    audioVolumeSlider.setSkewFactorFromMidPoint(0.3);
+    audioVolumeSlider.setValue(1.0);
+    rememberedGain = audioVolumeSlider.getValue();
+    audioVol = rememberedGain;
+    audioVolumeSlider.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
+    audioVolumeSlider.addListener(this);
+    addAndMakeVisible(&audioVolumeLabel);
+    audioVolumeLabel.setSize(10, 50);
+    audioVolumeLabel.setFont(sliderLabelFont);
+    audioVolumeLabel.setText("Volume", dontSendNotification);
+    audioVolumeLabel.attachToComponent(&audioVolumeSlider, false);
     
     setSize (300, 200);
     
@@ -54,9 +83,16 @@ void AudioPlayer::paint (Graphics& g)
 
 void AudioPlayer::resized()
 {
-    openButton.setBounds (10, 10+30, getWidth() - 20, 20);
-    playButton.setBounds (10, 40+30, getWidth() - 20, 20);
-    stopButton.setBounds (10, 70+30, getWidth() - 20, 20);
+    const int buttonsHeight = 15;
+    const int buttonsWidth = getWidth() - 20;
+    const int buttonsMargin = 3;
+    
+    openButton.setBounds (10, 30, getWidth() - 20, buttonsHeight);
+    playButton.setBounds (10, openButton.getY()+buttonsHeight+buttonsMargin, buttonsWidth, buttonsHeight);
+    pauseButton.setBounds (10, playButton.getY()+buttonsHeight+buttonsMargin, buttonsWidth, buttonsHeight);
+    
+    audioPositionSlider.setBounds(10, pauseButton.getY()+32, buttonsWidth, 20);
+    audioVolumeSlider.setBounds(10, audioPositionSlider.getY()+40, buttonsWidth, 20);
 }
 
 void AudioPlayer::changeListenerCallback (ChangeBroadcaster* source)
@@ -66,10 +102,25 @@ void AudioPlayer::changeListenerCallback (ChangeBroadcaster* source)
         if (transportSource.isPlaying())
             changeState (Playing);
         else
-            changeState (Stopped);
+            changeState (Paused);
     }
 }
 
+void AudioPlayer::sliderValueChanged       (Slider *slider)
+{
+    if (slider == &audioPositionSlider)
+    {
+        audioPos = audioPositionSlider.getValue();
+        isPosChanged = true;
+    }
+    else if (slider == &audioVolumeSlider)
+    {
+        rememberedGain = audioVolumeSlider.getValue();
+        audioVol = rememberedGain;
+        isVolChanged = true;
+//        transportSource.setGain(rememberedGain);
+    }
+}
 
 void AudioPlayer::changeState (TransportState newState)
 {
@@ -79,8 +130,8 @@ void AudioPlayer::changeState (TransportState newState)
         
         switch (state)
         {
-            case Stopped:
-                stopButton.setEnabled (false);
+            case Paused:
+                pauseButton.setEnabled (false);
                 playButton.setEnabled (true);
 //                transportSource.setPosition (0.0);
                 break;
@@ -91,10 +142,10 @@ void AudioPlayer::changeState (TransportState newState)
                 break;
                 
             case Playing:
-                stopButton.setEnabled (true);
+                pauseButton.setEnabled (true);
                 break;
                 
-            case Stopping:
+            case Pausing:
                 transportSource.stop();
                 break;
         }
@@ -111,11 +162,14 @@ void AudioPlayer::openButtonClicked()
     {
         auto file = chooser.getResult();
         auto* reader = formatManager.createReaderFor (file);
-        
+
         if (reader != nullptr)
         {
             std::unique_ptr<AudioFormatReaderSource> newSource (new AudioFormatReaderSource (reader, true));
             transportSource.setSource (newSource.get(), 0, nullptr, reader->sampleRate);
+            transportSource.setGain(audioVolumeSlider.getValue());
+            audioPos = transportSource.getCurrentPosition();
+            audioPositionSlider.setRange(0.0, transportSource.getLengthInSeconds()/*, 0.00001*/);
             playButton.setEnabled (true);
             readerSource.reset (newSource.release());
             thumb.setSource(new FileInputSource(file));
@@ -128,24 +182,28 @@ void AudioPlayer::playButtonClicked()
     changeState (Starting);
 }
 
-void AudioPlayer::stopButtonClicked()
+void AudioPlayer::pauseButtonClicked()
 {
-    changeState (Stopping);
+    changeState (Pausing);
 }
 
 
 void AudioPlayer::setControlsVisible(bool areVisible)
 {
     if(areVisible)
-    {
-        addAndMakeVisible (&openButton);
-        addAndMakeVisible (&playButton);
-        addAndMakeVisible (&stopButton);
+    {  
+        openButton.setVisible(true);
+        playButton.setVisible(true);
+        pauseButton.setVisible(true);
+        audioPositionSlider.setVisible(true);
+        audioVolumeSlider.setVisible(true);
     }
     else
     {
         openButton.setVisible(false);
         playButton.setVisible(false);
-        stopButton.setVisible(false);
+        pauseButton.setVisible(false);
+        audioPositionSlider.setVisible(false);
+        audioVolumeSlider.setVisible(false);
     }
 }

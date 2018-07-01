@@ -15,7 +15,8 @@
 //==============================================================================
 /*
 */
-class AudioPlayer    : public Component, public ChangeListener
+
+class AudioPlayer    : public Component, public ChangeListener, public Slider::Listener
 {
 public:
     AudioPlayer();
@@ -27,15 +28,16 @@ public:
     void setControlsVisible(bool areVisible);
     
     void changeListenerCallback (ChangeBroadcaster* source) override;
+    void sliderValueChanged (Slider *slider) override;
 
 public:
     
     enum TransportState
     {
-        Stopped,
+        Paused,
         Starting,
         Playing,
-        Stopping
+        Pausing
     };
     
 public:
@@ -43,12 +45,22 @@ public:
     
     void openButtonClicked();
     void playButtonClicked();
-    void stopButtonClicked();
+    void pauseButtonClicked();
     
 private:
     TextButton openButton;
     TextButton playButton;
-    TextButton stopButton;
+    TextButton pauseButton;
+    Slider audioVolumeSlider;
+    Label  audioVolumeLabel;
+public:
+    Slider audioPositionSlider;
+    Atomic<double> audioPos, audioVol;
+private:
+    Label  audioPositionLabel;
+    Font sliderLabelFont;
+    double rememberedGain;
+    
     
     AudioFormatManager formatManager;
 public:
@@ -59,6 +71,7 @@ public:
     
     AudioThumbnailCache thumbnailCache;     
     AudioThumbnail thumb;
+    Atomic<bool> isPosChanged, isVolChanged;
     
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPlayer)

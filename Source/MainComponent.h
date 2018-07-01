@@ -108,10 +108,11 @@ private:
     ToggleButton waveDisp;
     ToggleButton d_weightingDisp;
     
-    
+    Atomic<double> &audioPosition;
+    Atomic<double> &audioVolume;
     
     int selectorFreqTimeButton = 100;
-    
+    Atomic<bool> &isPositionChanged, &isVolumeChanged;
     
     long tempp=0;
     int ttt=0;

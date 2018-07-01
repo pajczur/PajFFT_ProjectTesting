@@ -37,15 +37,19 @@ void GraphAnalyser::paint (Graphics& g)
 {
     g.setColour (Colours::red);
     
+    if (thumbnail->getNumChannels() != 0) {
+        audioPosition = (audioSource->transportSource.getCurrentPosition());
+        audioSource->audioPositionSlider.setValue(audioPosition, dontSendNotification);
+    }
+    
     if(!isFreqAnalyser) {
         if(timeTrue_waveFalse) {
-
-
+            
             if(sourceIsReady) {
                 if (thumbnail->getNumChannels() == 0)
                     paintIfNoFileLoaded (g);
                 else
-                    paintIfFileLoaded (g);
+                    paintIfFileLoaded (g, audioPosition);
             }
         }
         else
@@ -370,16 +374,15 @@ void GraphAnalyser::paintIfNoFileLoaded (Graphics& g)
     g.drawFittedText ("No File Loaded", thumbnailBounds, Justification::centred, 1.0f);
 }
 
-void GraphAnalyser::paintIfFileLoaded (Graphics& g)
+void GraphAnalyser::paintIfFileLoaded (Graphics& g, double &audioPosition)
 {
     g.setColour (Colours::red);
 
     auto audioLength (thumbnail->getTotalLength());
 
-    auto audioPosition (audioSource->transportSource.getCurrentPosition());
     auto minSlid = waveFormZoom;
     thumbnailBounds.setBounds((getWidth()/2.0) - (minSlid*audioPosition*getWidth()/audioLength), 20, (minSlid*getWidth()), getHeight()-20);
-
+    
     thumbnail->drawChannels (g,
                             thumbnailBounds,
                             0.0,

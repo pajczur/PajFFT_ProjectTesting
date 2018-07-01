@@ -11,7 +11,11 @@
 
 
 //==============================================================================
-MainComponent::MainComponent() : adsc(deviceManager, 0, 0, 0, 0, false, false, false, false), fftInterface(this)
+MainComponent::MainComponent()
+        : adsc(deviceManager, 0, 0, 0, 0, false, false, false, false),
+          fftInterface(this),
+          audioPosition(wAudioPlayer.audioPos), audioVolume(wAudioPlayer.audioVol),
+          isPositionChanged(wAudioPlayer.isPosChanged), isVolumeChanged(wAudioPlayer.isVolChanged)
 {
     addAndMakeVisible(adsc);
     adsc.setAlwaysOnTop(true);
@@ -110,7 +114,7 @@ MainComponent::MainComponent() : adsc(deviceManager, 0, 0, 0, 0, false, false, f
 
     startTimer(1000);
     
-    setAudioChannels (1, 1);
+    setAudioChannels (2, 2);
 }
 
 MainComponent::~MainComponent()
@@ -148,7 +152,7 @@ void MainComponent::updateToggleState(Button* button, ButtonID buttonID)
                 break;
                 
             case selectOscill_ID: // USE OSCILLATOR
-                wAudioPlayer.stopButtonClicked();
+                wAudioPlayer.pauseButtonClicked();
                 playerOrOscillat = false;
                 wAudioPlayer.setControlsVisible(false);
                 oscInterface.setControlsVisible(true);
@@ -269,6 +273,17 @@ void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
     {
         if(playerOrOscillat)
         {
+            if(isPositionChanged.get())
+            {
+                 wAudioPlayer.transportSource.setPosition(audioPosition.get());
+                isPositionChanged = false;
+            }
+            if(isVolumeChanged.get())
+            {
+                wAudioPlayer.transportSource.setGain(audioVolume.get());
+                isVolumeChanged = false;
+            }
+            
             if(!hearFFTinversedSignal)
             {
                 playIAudioFile(bufferToFill);
@@ -297,7 +312,7 @@ void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
         bufferToFill.clearActiveBufferRegion();
         return;
     }
-    
+
     if(timeDisp.getToggleState())
         calculator_FFT.dataIsReadyToGraph = true;
     
@@ -382,6 +397,7 @@ void MainComponent::playInversedFFTAudioFile(const AudioSourceChannelInfo& buffe
             
             windowing = calculator_FFT.wOutput[sample];
             bufferToFill.buffer->addSample(0, sample, windowing);
+            bufferToFill.buffer->addSample(1, sample, windowing);
         }
     }
     else
@@ -416,6 +432,12 @@ void MainComponent::paint (Graphics& g)
     {
         hearFFTinversedSignal = true; // Set to true if ready playInverseFFT...
     }
+    
+    if(wAudioPlayer.audioPositionSlider.isMouseOverOrDragging() && !graphAnalyser.isTimerRunning())
+    {
+        graphAnalyser.startTimer(40);
+    }
+    
     if(fftInterface.wInverseFFT.getToggleState())
         pitchShiftGui.setControlsVisible(true);
     else
@@ -465,7 +487,7 @@ void MainComponent::fft_defaultSettings()
     oscillator.setAmplitude(0.5);
     oscInterface.setSampleRate(wSampleRate);
     oscInterface.updateToggleState(&oscInterface.wMuteButton, oscInterface.mutIdentifier);
-    wAudioPlayer.stopButtonClicked();
+    wAudioPlayer.pauseButtonClicked();
 
     
     fftInterface.setSampleRate(wSampleRate);

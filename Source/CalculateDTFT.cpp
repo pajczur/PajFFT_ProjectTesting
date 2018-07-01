@@ -53,8 +53,9 @@ void CalculateDTFT::fftCalculator(AudioBuffer<float> &inp)
     
     for(int i=0; i<deviceBuffSize; i++)
     {
-        inputDataC[indexFFToutSize] = inp.getSample(0, i);
-        tempInput[indexFFToutSize] = inp.getSample(0, i);
+        float stereoToMono = (inp.getSample(0, i) + inp.getSample(1, i))/2.0f;
+        inputDataC[indexFFToutSize] = stereoToMono;
+        tempInput[indexFFToutSize] = stereoToMono;
         indexFFToutSize++;
 
         if(indexFFToutSize >= newBufferSize)
@@ -122,14 +123,14 @@ void CalculateDTFT::getInputData(AudioBuffer<float> &inp)
     {
         tempInput[indexFFToutSize] = inp.getSample(0, i);
         indexFFToutSize++;
-        
+
         if(indexFFToutSize >= newBufferSize)
         {
             inputData = tempInput;
             indexFFToutSize = 0;
         }
     }
-    
+
 }
 
 void CalculateDTFT::fftCalc()
@@ -263,12 +264,13 @@ void CalculateDTFT::resetOutputData()
         freqOutput[i] = 0.0f;
         tempInput[i] = 0.0f;
     }
-    
+
+    tempOutput.clear();
+    tempOutput.shrink_to_fit();
     dupa = (ceil(newBufferSize/deviceBuffSize))*deviceBuffSize;
     tempOutput.reserve(dupa+10);
     dupex = false;
     wOutput.resize(deviceBuffSize);
-
 
     for(int i=0; i<wOutput.size(); i++)
     {
