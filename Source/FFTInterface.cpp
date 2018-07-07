@@ -60,7 +60,7 @@ FFTInterface::FFTInterface(AudioAppComponent *wAudioApp)
 
     addAndMakeVisible(&zeroPadding);
     zeroPadding.setVisible(false);
-    zeroPadding.setToggleState(true, dontSendNotification);
+    zeroPadding.setToggleState(false, dontSendNotification);
     zeroPadding.onClick = [this] { updateToggleState(&zeroPadding, zeroPadding_ID); };
     zeroPadding.setButtonText("Zeros padding");
 
@@ -74,7 +74,7 @@ FFTInterface::FFTInterface(AudioAppComponent *wAudioApp)
     
     addAndMakeVisible(&rad2FIFO);
     rad2FIFO.setVisible(false);
-    rad2FIFO.setToggleState(false, dontSendNotification);
+    rad2FIFO.setToggleState(true, dontSendNotification);
     rad2FIFO.onClick = [this] { updateToggleState(&rad2FIFO, rad2FIFO_ID); };
     rad2FIFO.setButtonText("fifo");
 
@@ -833,7 +833,7 @@ void FFTInterface::setVisibleFiltersAndBuffSize()
         zerosPaddingDescript.setVisible(true);
         if(!rad2FIFO.getToggleState())
             zeroPadding.setVisible(true);
-        rad2FIFO.setVisible(true);
+        rad2FIFO.setVisible(false);
         matrixSizeInfo.setVisible(false);
         matrixDividerEdit.setVisible(false);
         matrixDividerEditDescript.setVisible(false);
