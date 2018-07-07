@@ -38,7 +38,7 @@ public:
     void fftCalc();
     
     void defineDeviceBuffSize(long dev_buf_size);
-    void setNewBufSize(double new_buf_size);
+    void setNewBufSize(double new_buf_size, int fft_Type);
     void setSampleRate(double &sampR, long overLapping);
 
     PajFFT_MixedRadix mixedRadix_FFT;
@@ -48,13 +48,13 @@ public:
 //    PajDFT            regular_DFT;
 //    PajDFT            regular_IDFT;
     
-    void windowingOverlap_FFT(long &frameSize);
-    void inverseFFT_windowingOverlap(long &frameSize, long &overSamp);
+    void windowingOverlap_FFT();
+    void inverseFFT_windowingOverlap(long &overSamp);
     void analyzeData(long &overSamp);
 
-    void smbPitchShift(float &pitchShift, long &fftFrameSize, long &osamp, float &sampleRate, std::vector<std::complex<float>> &indata, std::vector<float> &outdata);
-    void windowOverlap_ForwBackFFT(long &fftFrameSize, long &osamp, float &sampleRate, std::vector<std::complex<float>> &indata, std::vector<float> &outdata);
-    void windowOverlap_ForwFFT(long &fftFrameSize, long &osamp, float &sampleRate, std::vector<std::complex<float>> &indata/*, std::vector<float> &outdata*/);
+    void smbPitchShift(float &pitchShift, long &osamp, float &sampleRate, std::vector<std::complex<float>> &indata, std::vector<float> &outdata);
+    void windowOverlap_ForwBackFFT(long &osamp, float &sampleRate, std::vector<std::complex<float>> &indata, std::vector<float> &outdata);
+    void windowOverlap_ForwFFT(long &osamp, float &sampleRate, std::vector<std::complex<float>> &indata/*, std::vector<float> &outdata*/);
     
     bool dataIsReadyToFFT;
     bool isForward;
@@ -62,11 +62,13 @@ public:
     bool dataIsReadyToGraph;
     
     void selectFFT(int identifier);
-    void resetOutputData();
+    void resetOutputData(int fft_Type);
     
     double newBufferSize;
+    double rad2TrueBuffSize;
 private:
     long deviceBuffSize;
+    std::complex<float> (PajFFT_Radix2::*rad2WindowChooser)         (std::complex<float>, long);
  public:
     std::vector<float>               inputData;
     std::vector<float>               tempInput;
@@ -84,7 +86,7 @@ private:
     
 //    std::vector<std::complex<float>> outCompMixed;
     
-    
+    Atomic<bool> fftIsReady;
     
     float wSampleRate;
     
@@ -132,6 +134,7 @@ private:
     
     long overLap;
     long winFrameSize;
+    long rad2winFrameSize;
     
     
     

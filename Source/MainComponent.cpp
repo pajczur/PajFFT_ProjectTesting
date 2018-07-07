@@ -181,7 +181,7 @@ void MainComponent::updateToggleState(Button* button, ButtonID buttonID)
                 graphAnalyser.setVisible(true);
                 display_linear.timeOrWave = 0;
                 fftInterface.isGraphON = true;
-                if(!(calculator_FFT.fftType == 0)) {
+                if(calculator_FFT.fftIsReady.get()) {
                     oscInterface.isGraphOn = true;
                     if(!graphAnalyser.isTimerRunning())
                         graphAnalyser.startTimer(40);
@@ -330,7 +330,7 @@ void MainComponent::playWaveGen(const AudioSourceChannelInfo& bufferToFill)
 {
     oscillator.playWave(*bufferToFill.buffer, bufferToFill.numSamples, bufferToFill.startSample);
     
-    if(calculator_FFT.fftType !=0)
+    if(calculator_FFT.fftIsReady.get())
     {
         calculator_FFT.fftCalculator(*bufferToFill.buffer);
     }
@@ -342,7 +342,7 @@ void MainComponent::playWaveGen(const AudioSourceChannelInfo& bufferToFill)
 
 void MainComponent::playInversedFFTWaveGen(const AudioSourceChannelInfo& bufferToFill)
 {
-    if(calculator_FFT.fftType !=0)
+    if(calculator_FFT.fftIsReady.get())
     {
         oscillator.prepareWave(signalToFFT, bufferToFill.numSamples, bufferToFill.startSample);
         calculator_FFT.fftCalculator(signalToFFT);
@@ -366,7 +366,7 @@ void MainComponent::playInversedFFTWaveGen(const AudioSourceChannelInfo& bufferT
 void MainComponent::playIAudioFile(const AudioSourceChannelInfo& bufferToFill)
 {
     wAudioPlayer.transportSource.getNextAudioBlock (bufferToFill);
-    if(calculator_FFT.fftType !=0)
+    if(calculator_FFT.fftIsReady.get())
     {
         calculator_FFT.fftCalculator(*bufferToFill.buffer);
     }
@@ -384,7 +384,7 @@ void MainComponent::playInversedFFTAudioFile(const AudioSourceChannelInfo& buffe
 {
 
     
-    if(calculator_FFT.fftType !=0)
+    if(calculator_FFT.fftIsReady.get())
     {
         const AudioSourceChannelInfo tempAudioSource(&tempBuff, bufferToFill.startSample, bufferToFill.numSamples);
         wAudioPlayer.transportSource.getNextAudioBlock (tempAudioSource);
@@ -433,7 +433,7 @@ void MainComponent::paint (Graphics& g)
         hearFFTinversedSignal = true; // Set to true if ready playInverseFFT...
     }
     
-    if(wAudioPlayer.audioPositionSlider.isMouseOverOrDragging() && !graphAnalyser.isTimerRunning())
+    if((wAudioPlayer.audioPositionSlider.isMouseOverOrDragging() ||  wAudioPlayer.audioVolumeSlider.isMouseOverOrDragging()) && !graphAnalyser.isTimerRunning())
     {
         graphAnalyser.startTimer(40);
     }
@@ -504,7 +504,7 @@ void MainComponent::fft_defaultSettings()
     
     calculator_FFT.defineDeviceBuffSize((long)deviceBufferSize);
     calculator_FFT.setSampleRate(wSampleRate, (long)fftInterface.setWindowOverLap.getValue());
-    calculator_FFT.setNewBufSize(deviceBufferSize);
+    calculator_FFT.setNewBufSize(deviceBufferSize, 2);
     calculator_FFT.mixedRadix_FFT.wSettings(wSampleRate, deviceBufferSize);
     
     calculator_FFT.radix2_FFT.wSettings(wSampleRate, deviceBufferSize);

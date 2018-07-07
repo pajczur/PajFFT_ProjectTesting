@@ -249,14 +249,13 @@ void FFTInterface::timerCallback()
     else if (whatIsChanged_ID==fftBufSizeEdit_ID)
     {
         double temporaryBuf = fftBufSizeEdit.getText().getDoubleValue();
-        if(temporaryBuf >= 20.0 && temporaryBuf <= wSampleRate)
+        if(temporaryBuf >= 16.0 && temporaryBuf <= wSampleRate)
             newBufferSize = temporaryBuf;
-        else if (temporaryBuf < 20.0)
-            newBufferSize = 20.0;
+        else if (temporaryBuf < 16.0)
+            newBufferSize = 16.0;
         else if (temporaryBuf > wSampleRate)
             newBufferSize = wSampleRate;
-        else
-            newBufferSize = 512.0;
+
         
         rememberedBuffer = newBufferSize;
         calculator_FFT->mixedRadix_FFT.wSettings(wSampleRate, newBufferSize);
@@ -597,6 +596,8 @@ void FFTInterface::setOFF_fft               ()
     alreadyInversed.setVisible(false);
     alreadyWindow.setVisible(false);
     wWindowBut.setVisible(false);
+    setWindowOverLap.setVisible(false);
+    setWindowOverLapLabel.setVisible(false);
     
     selectRadix2FFT.setToggleState(false, NotificationType::dontSendNotification);
     zeroPadding.setVisible(false);
@@ -627,9 +628,10 @@ void FFTInterface::setON_matrixfft          ()
     {
         setVisibleFiltersAndBuffSize();
         rememberedInvPitchWin();
-
+        calculator_FFT->selectFFT(1);
+        
         double tempBuf = calculator_FFT->mixedRadix_FFT.getBufferSize();
-        calculator_FFT->setNewBufSize(tempBuf);
+        calculator_FFT->setNewBufSize(tempBuf, 1);
         graphAnalyser->setNewBufSize(tempBuf);
         fftBufSizeEdit.setText(to_string((int)tempBuf), dontSendNotification);
         dispLine->setBuffSize(tempBuf);
@@ -656,7 +658,8 @@ void FFTInterface::setON_matrixfft          ()
         pauseGetNextAudioBlock = false;
         calculator_FFT->dataIsReadyToFFT = true;
         oscillator->selectWave(rememberedWaveType);
-        calculator_FFT->selectFFT(1);
+//        calculator_FFT->selectFFT(1);
+        calculator_FFT->fftIsReady.set(true);
         oscPan->isGraphOn = true;
     }
 }
@@ -669,31 +672,34 @@ void FFTInterface::setON_radix2fft          ()
     {
         setVisibleFiltersAndBuffSize();
         rememberedInvPitchWin();
-
-        double tempBuf = calculator_FFT->radix2_FFT.getBufferSize();
-        calculator_FFT->setNewBufSize(tempBuf);
-        graphAnalyser->setNewBufSize(tempBuf);
+        calculator_FFT->selectFFT(2);
+        
+        double tempBufDisc = calculator_FFT->radix2_FFT.getBufferSize();;
+        double tempBuf = zeroPadding.getToggleState() ? calculator_FFT->radix2_FFT.getTrueBufferSize() : calculator_FFT->radix2_FFT.getBufferSize();;
+        calculator_FFT->setNewBufSize(tempBufDisc, 2);
+        graphAnalyser->setNewBufSize(tempBufDisc);
         fftBufSizeEdit.setText(to_string((int)tempBuf), dontSendNotification);
         zerosPaddingDescript.setText(setZerosInfo(!rad2FIFO.getToggleState()?
-                                                  (rememberedBuffer>tempBuf?tempBuf:rememberedBuffer):tempBuf,
-                                                  !rad2FIFO.getToggleState()?rememberedBuffer:tempBuf,
-                                                  !rad2FIFO.getToggleState()?(tempBuf-rememberedBuffer):0  ));
+                                                  (rememberedBuffer>tempBufDisc?tempBufDisc:rememberedBuffer):tempBufDisc,
+                                                  !rad2FIFO.getToggleState()?rememberedBuffer:tempBufDisc,
+                                                  !rad2FIFO.getToggleState()?(tempBufDisc-rememberedBuffer):0  ));
+        
 
-        if(tempBuf >= rememberedBuffer)
+        if(tempBufDisc >= rememberedBuffer)
             dispLine->setBuffSize(rememberedBuffer);
         else
-            dispLine->setBuffSize(tempBuf);
+            dispLine->setBuffSize(tempBufDisc);
 
         sliderValueChanged(&filterSetTopEnd);
         
         if(dispLine->timeOrWave == 1)
         {
-            dispLine->wSampleRateToDisplay = tempBuf;
+            dispLine->wSampleRateToDisplay = tempBufDisc;
             dispLine->setZoomRangeTime();
         }
         if(dispLine->timeOrWave == 2)
         {
-            dispLine->wSampleRateToDisplay = tempBuf;
+            dispLine->wSampleRateToDisplay = tempBufDisc;
             dispLine->setZoomRangeOscil();
         }
         
@@ -706,7 +712,8 @@ void FFTInterface::setON_radix2fft          ()
         pauseGetNextAudioBlock = false;
         calculator_FFT->dataIsReadyToFFT = true;
         oscillator->selectWave(rememberedWaveType);
-        calculator_FFT->selectFFT(2);
+//        calculator_FFT->selectFFT(2);
+        calculator_FFT->fftIsReady.set(true);
         oscPan->isGraphOn = true;
     }
 }
@@ -746,7 +753,8 @@ void FFTInterface::pauseFFT(bool pauseFALSE_ResumeTRUE)
     oscPan->isGraphOn = false;
     pauseGetNextAudioBlock = true;
     calculator_FFT->dataIsReadyToFFT = false;
-    calculator_FFT->selectFFT(0);
+//    calculator_FFT->selectFFT(0);
+    calculator_FFT->fftIsReady.set(false);
     oscillator->selectWave(0);
     rememberInvWasClicked = wInverseFFT.getToggleState();
     remembereWinWasClicked=wWindowBut.getToggleState();
@@ -772,6 +780,11 @@ void FFTInterface::rememberedInvPitchWin()
     {
         wInverseFFT.setVisible(true);
         wWindowBut.setVisible(true);
+        if(wWindowBut.getToggleState())
+        {
+            setWindowOverLap.setVisible(true);
+            setWindowOverLapLabel.setVisible(true);
+        }
     }
     else
     {

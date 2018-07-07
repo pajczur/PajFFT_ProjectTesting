@@ -127,38 +127,17 @@ void PitchShiftingGUI::sliderValueChanged (Slider *slider)
 {
     if(slider == &wPitchShift)
     {
-        if(fftInterface->calculator_FFT->fftType == 0   ||   !pitchShiftOnOff.getToggleState())
-        {
-            if(calculator_FFT->wPitchShift >= 1.0)
-                wPitchShift.setValue((calculator_FFT->wPitchShift-1.0)*12.0);
-            else
-                wPitchShift.setValue((calculator_FFT->wPitchShift-1.0)*24.0);
-        }
-        else
-        {
             if(wPitchShift.getValue()>=0.0)
                 calculator_FFT->wPitchShift = 1.0 +   (wPitchShift.getValue() / 12.0 );
             else
                 calculator_FFT->wPitchShift = 1.0 +   (wPitchShift.getValue() / 24.0 );
-        }
     }
 }
 
 void PitchShiftingGUI::updateToggleState(Button* button/*, int buttonID*/)
 {
-    if(fftInterface->calculator_FFT->fftType == 0   ||   !fftInterface->wInverseFFT.getToggleState())
-    {
-        if(pitchShiftOnOff.getToggleState())
-            pitchShiftOnOff.setToggleState(false, dontSendNotification);
-        else
-            pitchShiftOnOff.setToggleState(true, dontSendNotification);
-    }
-    else
-    {
         fftInterface->pauseFFT(false);
-        
         startTimer((calculator_FFT->timeElapsed/1000.0f)*10.0f);
-    }
 }
 
 

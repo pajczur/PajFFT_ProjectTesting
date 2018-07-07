@@ -114,13 +114,13 @@ private:
     
     // == F F T - RADIX 2 - ALGORITHM ===============================================
 public:
-    void makeFFT                  (std::vector<             float>  inputSignal,  std::vector<std::complex<float>> &wOutputC, bool isForwardOrNot);
-    void makeFFT                  (std::vector<std::complex<float>> inputSignalC, std::vector<std::complex<float>> &wOutputC, bool isForwardOrNot);
+    void makeFFT                  (std::vector<             float>  &inputSignal,  std::vector<std::complex<float>> &wOutputC, bool isForwardOrNot);
+    void makeFFT                  (std::vector<std::complex<float>> &inputSignalC, std::vector<std::complex<float>> &wOutputC, bool isForwardOrNot);
 private:
-    void firstStepFFT             (std::vector<             float>  inputSignal,  int fft);
-    void firstStepFFTc            (std::vector<std::complex<float>> inputSignalC, int fft);
-    void divideAndConquereFFT     (int fft, std::vector<std::complex<float>> &twiddle);
-    void lastStepFFT              (int fft, std::vector<std::complex<float>> &twiddle);
+    void firstStepFFT             (std::vector<             float>  &inputSignal,  int &rdx2, std::vector<int> &bitRev);
+    void firstStepFFTc            (std::vector<std::complex<float>> &inputSignalC, int &rdx2, std::vector<int> &bitRev);
+    void divideAndConquereFFT     (int &rdx2, std::vector<std::complex<float>> &twiddle);
+    void lastStepFFT              (int &rdx2, std::vector<std::complex<float>> &twiddle);
     
     
     
@@ -128,11 +128,13 @@ private:
 private:
     std::complex<float>    twiddleCalculator        (float nXk);
 public:
-    float                  freqMagnitudeCalc        (std::complex<float> fftOutput, long freqBin);
-    float                  waveEnvelopeCalc         (std::complex<float> fftOutput, long index);
-    float                  phaseCalculator          (std::complex<float> fftOutput, long index);
+    float                  freqMagnitudeCalc        (std::complex<float> &fftOutput, long freqBin);
+    float                  waveEnvelopeCalc         (std::complex<float> &fftOutput, long index);
+    float                  phaseCalculator          (std::complex<float> &fftOutput, long index);
     std::complex<float>    windowing                (std::complex<float> dataToWindowing, long index);
     float                  windowing                (float dataToWindowing, long index);
+    std::complex<float>    windowingTrueBuf         (std::complex<float> dataToWindowing, long index);
+    float                  windowingTrueBuf         (float dataToWindowing, long index);
 //    void  (PajFFT_Radix2::*forwBackChooser)         (std::complex<float> fftOutput, int freqBinOrIndex);
     
     
@@ -140,6 +142,7 @@ public:
     // == GET INFORMATIONS ==========================================================
 public:
     float getBufferSize();
+    float getTrueBufferSize();
     float getLowEnd();
     float getTopEnd();
     float getPhase();
@@ -170,13 +173,15 @@ private:
     bool  rememberedForwardOrBackward;
     double wPhase;
     
-    std::vector<std::complex<float>> wnkN;         // Array of precalculated forward twiddle - W^nk
-    std::vector<std::complex<float>> wnkN_forw;    // Array of precalculated forward twiddle
-    std::vector<std::complex<float>> wnkN_back;    // Array of precalculated backward twiddle
-    std::vector<int>                 bitReversed;  // Array of bit reversed indexes
+    std::vector<std::complex<float>> wnkN;           // Array of precalculated forward twiddle - W^nk
+    std::vector<std::complex<float>> wnkN_forw;      // Array of precalculated forward twiddle
+    std::vector<std::complex<float>> wnkN_back;      // Array of precalculated backward twiddle
+    std::vector<int>                 bitReversed;
+    std::vector<int>                 bitReversed_0;  // Array of bit reversed indexes for Zero padding
     
     std::vector<std::vector<std::vector<std::complex<float>>>> sN0;  // Temporarily input complex FFT - S(n)
     std::vector<float>               windowHann;
+    std::vector<float>               windowHannTrueBuf;
     
     bool dataPreparedConfirm;
     bool sampleRateConfirm;
@@ -186,4 +191,6 @@ private:
 public:
 //    std::vector<float> *wOutputData;
     std::vector<std::complex<float>> *wOutputData;
+    
+    int temppp=0;
 };

@@ -13,7 +13,7 @@
 
 //using namespace pajFFT_HandyFunc;
 //==============================================================================
-CalculateDTFT::CalculateDTFT()
+CalculateDTFT::CalculateDTFT() : fftIsReady(false)
 {
     fPi = 4.0 * atan(1.0);
     dataIsReadyToFFT = false;
@@ -50,7 +50,7 @@ void CalculateDTFT::fftCalculator(AudioBuffer<float> &inp)
 {
     if(tempOutput.size()>dupa)
         dupex=true;
-    
+
     for(int i=0; i<deviceBuffSize; i++)
     {
         float stereoToMono = (inp.getSample(0, i) + inp.getSample(1, i))/2.0f;
@@ -86,7 +86,7 @@ void CalculateDTFT::fftCalculator(std::vector<float> &inp)
 {
     if(tempOutput.size()>dupa)
         dupex=true;
-    
+
     for(int i=0; i<deviceBuffSize; i++)
     {
         inputDataC[indexFFToutSize] = inp[i];
@@ -150,13 +150,14 @@ void CalculateDTFT::fftCalc()
                     if(isForward)
                     {
                         if(isWindowed)
-                            windowOverlap_ForwFFT(winFrameSize, overLap, wSampleRate, inputDataC);
+                            windowOverlap_ForwFFT(overLap, wSampleRate, inputDataC);
                         else
                             mixedRadix_FFT.makeFFT(inputDataC, forwFFTout, true);
                     }
                     else
+                    {
                         if(isWindowed)
-                            windowOverlap_ForwBackFFT(winFrameSize, overLap, wSampleRate, inputDataC, windowedBackFFTout);
+                            windowOverlap_ForwBackFFT(overLap, wSampleRate, inputDataC, windowedBackFFTout);
                         else
                         {
                             mixedRadix_FFT.makeFFT(inputDataC, forwFFTout, true);
@@ -166,10 +167,11 @@ void CalculateDTFT::fftCalc()
                                 backFFTout[i] = mixedRadix_FFT.waveEnvelopeCalc(inputDataC[i], i);
                             }
                         }
+                    }
                 }
                 else
                 {
-                    smbPitchShift(wPitchShift, winFrameSize, overLap, wSampleRate, inputDataC, windowedBackFFTout);
+                    smbPitchShift(wPitchShift, overLap, wSampleRate, inputDataC, windowedBackFFTout);
                 }
                 break;
                 
@@ -179,26 +181,28 @@ void CalculateDTFT::fftCalc()
                     if(isForward)
                     {
                         if(isWindowed)
-                            windowOverlap_ForwFFT(winFrameSize, overLap, wSampleRate, inputDataC);
+               /*    */             windowOverlap_ForwFFT(overLap, wSampleRate, inputDataC);
                         else
                             radix2_FFT.makeFFT(inputDataC, forwFFTout, true);
                     }
                     else
+                    {
                         if(isWindowed)
-                            windowOverlap_ForwBackFFT(winFrameSize, overLap, wSampleRate, inputDataC, windowedBackFFTout);
+                            windowOverlap_ForwBackFFT(overLap, wSampleRate, inputDataC, windowedBackFFTout);
                         else
                         {
                             radix2_FFT.makeFFT(inputDataC, forwFFTout, true);
-                            radix2_FFT.makeFFT(forwFFTout, inputDataC, false);
+                            radix2_FFT.makeFFT(forwFFTout, forwFFTout, false);
                             for(long i=0; i<newBufferSize; i++)
                             {
-                                backFFTout[i] = radix2_FFT.waveEnvelopeCalc(inputDataC[i], i);
+                                backFFTout[i] = radix2_FFT.waveEnvelopeCalc(forwFFTout[i], i);
                             }
                         }
+                    }
                 }
                 else
                 {
-                    smbPitchShift(wPitchShift, winFrameSize, overLap, wSampleRate, inputDataC, windowedBackFFTout);
+                    smbPitchShift(wPitchShift, overLap, wSampleRate, inputDataC, windowedBackFFTout);
                 }
                 break;
                 
@@ -230,11 +234,11 @@ void CalculateDTFT::defineDeviceBuffSize(long dev_buf_size)
     tempOutput.clear();
 }
 
-void CalculateDTFT::setNewBufSize(double new_buf_size)
+void CalculateDTFT::setNewBufSize(double new_buf_size, int fft_Type)
 {
     newBufferSize = new_buf_size;
     winFrameSize = (long)newBufferSize;
-    resetOutputData();
+    resetOutputData(fft_Type);
 }
 
 void CalculateDTFT::selectFFT(int identifier)
@@ -242,11 +246,22 @@ void CalculateDTFT::selectFFT(int identifier)
     fftType = identifier;
 }
 
-void CalculateDTFT::resetOutputData()
-{
+void CalculateDTFT::resetOutputData(int fft_Type)
+{ // 20 - gFFTworksp; inputDataC; gInFIFO;     ??? inFifoLatency,
+    rad2TrueBuffSize = radix2_FFT.getTrueBufferSize();
+    
+    rad2winFrameSize = (rad2TrueBuffSize<winFrameSize) ? rad2TrueBuffSize : winFrameSize;
+    if(rad2TrueBuffSize<winFrameSize)
+        rad2WindowChooser = &PajFFT_Radix2::windowingTrueBuf;
+    else
+        rad2WindowChooser = &PajFFT_Radix2::windowing;
+
     indexDEVbufSize=0;
     indexFFToutSize=0;
-    inputDataC.resize(newBufferSize);
+    if(fftType == 2)
+        inputDataC.resize(rad2winFrameSize);
+    else
+        inputDataC.resize(newBufferSize);
     inputData.resize(newBufferSize);
     windowedBackFFTout.resize(newBufferSize);
     backFFTout.resize(newBufferSize);
@@ -257,7 +272,13 @@ void CalculateDTFT::resetOutputData()
     for(int i=0; i<newBufferSize; i++)
     {
         inputData[i] = 0.0f;
-        inputDataC[i] = 0.0f;
+        if(fftType == 2) {
+            if(i < rad2TrueBuffSize)
+                inputDataC[i] = 0.0f;
+        }
+        else {
+            inputDataC[i] = 0.0f;
+        }
         windowedBackFFTout[i] = 0.0f;
         backFFTout[i] = 0.0f;
         forwFFTout[i] = 0.0f;
@@ -281,17 +302,23 @@ void CalculateDTFT::resetOutputData()
     
     gInFIFO.resize(2*newBufferSize);
     gOutFIFO.resize(2*newBufferSize);
-    gFFTworksp.resize(2*newBufferSize);
+    gFFTworksp.resize(newBufferSize);
     outPP.resize(2*newBufferSize);
     outPP2.resize(2*newBufferSize);
     
     for(int i=0; i<2*newBufferSize; i++)
     {
-        gFFTworksp[i] = 0.0f;
         outPP[i] = 0.0f;
         outPP2[i] = 0.0f;
         gInFIFO[i] = 0.0f;
         gOutFIFO[i] = 0.0f;
+        if(fftType == 2) {
+            if(i < rad2TrueBuffSize)
+                gFFTworksp[i] = 0.0f;
+        }
+        else {
+            gFFTworksp[i] = 0.0f;
+        }
     }
     
     if (gLastPhase)   delete [] gLastPhase;
@@ -320,23 +347,23 @@ void CalculateDTFT::resetOutputData()
 }
 
 
-void CalculateDTFT::smbPitchShift(float &pitchShift, long &fftFrameSize, long &osamp, float &sampleRate, std::vector<std::complex<float>> &indata, std::vector<float> &outdata)
+void CalculateDTFT::smbPitchShift(float &pitchShift, long &osamp, float &sampleRate, std::vector<std::complex<float>> &indata, std::vector<float> &outdata)
 /*
  I was hardly inspired by:
  Author: (c)1999-2015 Stephan M. Bernsee <s.bernsee [AT] zynaptiq [DOT] com>
  */
 {
     /* set up some handy variables */
-    fftFrameSize2 = fftFrameSize/2;
-    stepSize = fftFrameSize/osamp;
-    freqPerBin = sampleRate/(double)fftFrameSize;
-    expct = 2.*fPi*(double)stepSize/(double)fftFrameSize;
-    inFifoLatency = fftFrameSize-stepSize;
+    fftFrameSize2 = winFrameSize/2;
+    stepSize = winFrameSize/osamp;
+    freqPerBin = sampleRate/(double)winFrameSize;
+    expct = 2.*fPi*(double)stepSize/(double)winFrameSize;
+    inFifoLatency = winFrameSize-stepSize;
     long gRover = inFifoLatency;
 
     
     /* main processing loop */
-    for (int i = 0; i < fftFrameSize; i++){
+    for (int i = 0; i < winFrameSize; i++){
         
         /* As long as we have not yet collected enough data just read in */
         gInFIFO[gRover] = indata[i];
@@ -344,17 +371,17 @@ void CalculateDTFT::smbPitchShift(float &pitchShift, long &fftFrameSize, long &o
         gRover++;
         
         /* now we have enough data for processing */
-        if (gRover >= fftFrameSize) {
+        if (gRover >= winFrameSize) {
             gRover = inFifoLatency;
             
-            windowingOverlap_FFT(fftFrameSize);
+            windowingOverlap_FFT();
             
             analyzeData(osamp);
             
             /* ***************** PROCESSING ******************* */
             /* this does the actual pitch shifting */
-            memset(gSynMagn, 0, fftFrameSize*sizeof(float));
-            memset(gSynFreq, 0, fftFrameSize*sizeof(float));
+            memset(gSynMagn, 0, winFrameSize*sizeof(float));
+            memset(gSynFreq, 0, winFrameSize*sizeof(float));
             for (long k = 0; k <= fftFrameSize2; k++) {
                 index = k*pitchShift;
                 if (index <= fftFrameSize2) {
@@ -392,14 +419,14 @@ void CalculateDTFT::smbPitchShift(float &pitchShift, long &fftFrameSize, long &o
             }
             
             /* zero negative frequencies */
-            for (long k = fftFrameSize2+1; k < fftFrameSize; k++) forwFFTout[k] = 0.0f;
+            for (long k = fftFrameSize2+1; k < winFrameSize; k++) forwFFTout[k] = 0.0f;
             
-            inverseFFT_windowingOverlap(fftFrameSize, osamp);
+            inverseFFT_windowingOverlap(osamp);
             
             for (long k = 0; k < stepSize; k++) gOutFIFO[k] = gOutputAccum[k];
             
             /* shift accumulator */
-            memmove(gOutputAccum, gOutputAccum+stepSize, fftFrameSize*sizeof(float));
+            memmove(gOutputAccum, gOutputAccum+stepSize, winFrameSize*sizeof(float));
             
             /* move input FIFO */
             for (long k = 0; k < inFifoLatency; k++) gInFIFO[k] = gInFIFO[k+stepSize];
@@ -409,35 +436,35 @@ void CalculateDTFT::smbPitchShift(float &pitchShift, long &fftFrameSize, long &o
 }
 
 
-void CalculateDTFT::windowOverlap_ForwBackFFT(long &fftFrameSize, long &osamp, float &sampleRate, std::vector<std::complex<float>> &indata, std::vector<float> &outdata)
+void CalculateDTFT::windowOverlap_ForwBackFFT(long &osamp, float &sampleRate, std::vector<std::complex<float>> &indata, std::vector<float> &outdata)
 {
-    fftFrameSize2 = fftFrameSize/2;
-    stepSize = fftFrameSize/osamp;
-    freqPerBin = sampleRate/(double)fftFrameSize;
-    expct = 2.*fPi*(double)stepSize/(double)fftFrameSize;
-    inFifoLatency = fftFrameSize-stepSize;
+    fftFrameSize2 = winFrameSize/2;
+    stepSize = winFrameSize/osamp;
+    freqPerBin = sampleRate/(double)winFrameSize;
+    expct = 2.*fPi*(double)stepSize/(double)winFrameSize;
+    inFifoLatency = winFrameSize-stepSize;
     long gRover = inFifoLatency;
 
-    for (int i = 0; i < fftFrameSize; i++){
+    for (int i = 0; i < winFrameSize; i++){
 
         gInFIFO[gRover] = indata[i];
         outdata[i] = gOutFIFO[gRover-inFifoLatency].real();
         gRover++;
 
-        if (gRover >= fftFrameSize) {
+        if (gRover >= winFrameSize) {
             gRover = inFifoLatency;
 
-            windowingOverlap_FFT(fftFrameSize);
+            windowingOverlap_FFT();
 
             analyzeData(osamp);
 
-            for (long k = fftFrameSize2+1; k < fftFrameSize; k++) forwFFTout[k] = 0.0f;
+            for (long k = fftFrameSize2+1; k < winFrameSize; k++) forwFFTout[k] = 0.0f;
 
-            inverseFFT_windowingOverlap(fftFrameSize, osamp);
+            inverseFFT_windowingOverlap(osamp);
 
             for (long k = 0; k < stepSize; k++) gOutFIFO[k] = gOutputAccum[k];
 
-            memmove(gOutputAccum, gOutputAccum+stepSize, fftFrameSize*sizeof(float));
+            memmove(gOutputAccum, gOutputAccum+stepSize, winFrameSize*sizeof(float));
 
             for (long k = 0; k < inFifoLatency; k++) gInFIFO[k] = gInFIFO[k+stepSize];
         }
@@ -445,24 +472,24 @@ void CalculateDTFT::windowOverlap_ForwBackFFT(long &fftFrameSize, long &osamp, f
 }
 
 
-void CalculateDTFT::windowOverlap_ForwFFT(long &fftFrameSize, long &osamp, float &sampleRate, std::vector<std::complex<float>> &indata)
+void CalculateDTFT::windowOverlap_ForwFFT(long &osamp, float &sampleRate, std::vector<std::complex<float>> &indata)
 {
-    fftFrameSize2 = fftFrameSize/2;
-    stepSize = fftFrameSize/osamp;
-    freqPerBin = sampleRate/(double)fftFrameSize;
-    expct = 2.*fPi*(double)stepSize/(double)fftFrameSize;
-    inFifoLatency = fftFrameSize-stepSize;
+    fftFrameSize2 = winFrameSize/2;
+    stepSize = winFrameSize/osamp;
+    freqPerBin = sampleRate/(double)winFrameSize;
+    expct = 2.*fPi*(double)stepSize/(double)winFrameSize;
+    inFifoLatency = winFrameSize-stepSize;
     long gRover = inFifoLatency;
     
-    for (int i = 0; i < fftFrameSize; i++){
+    for (int i = 0; i < winFrameSize; i++){
         
         gInFIFO[gRover] = indata[i];
         gRover++;
         
-        if (gRover >= fftFrameSize) {
+        if (gRover >= winFrameSize) {
             gRover = inFifoLatency;
             
-            windowingOverlap_FFT(fftFrameSize);
+            windowingOverlap_FFT();
             
             analyzeData(osamp);
             
@@ -471,36 +498,36 @@ void CalculateDTFT::windowOverlap_ForwFFT(long &fftFrameSize, long &osamp, float
     }
 }
 
-void CalculateDTFT::windowingOverlap_FFT(long &frameSize)
+void CalculateDTFT::windowingOverlap_FFT()
 {
     /* do windowing and re,im interleave */
     /* ***************** ANALYSIS ******************* */
     /* do transform */
     if(fftType==1) {
-        for (long k = 0; k < frameSize; k++)
+        for (long k = 0; k < winFrameSize; k++)
         {
             gFFTworksp[k] = mixedRadix_FFT.windowing(gInFIFO[k], k);
         }
         mixedRadix_FFT.makeFFT(gFFTworksp, forwFFTout, true);
     }
     else if(fftType==2) {
-        for (long k = 0; k < frameSize; k++)
+        for (long k = 0; k < rad2winFrameSize; k++)
         {
-            gFFTworksp[k] = radix2_FFT.windowing(gInFIFO[k], k);
+            gFFTworksp[k] = (radix2_FFT.*rad2WindowChooser)(gInFIFO[k], k);
         }
         radix2_FFT.makeFFT(gFFTworksp, forwFFTout, true);
     }
 }
 
 
-void CalculateDTFT::inverseFFT_windowingOverlap(long &frameSize, long &overSamp)
+void CalculateDTFT::inverseFFT_windowingOverlap(long &overSamp)
 {
     /* do inverse transform */
     if(fftType==1)
     {
         mixedRadix_FFT.makeFFT(forwFFTout, outPP2, false);
         /* do windowing and add to output accumulator */
-        for(long k=0; k < frameSize; k++) {
+        for(long k=0; k < winFrameSize; k++) {
             gOutputAccum[k] += 2.0*(mixedRadix_FFT.waveEnvelopeCalc(outPP2[k], k)/overSamp);
         }
     }
@@ -508,7 +535,7 @@ void CalculateDTFT::inverseFFT_windowingOverlap(long &frameSize, long &overSamp)
     {
         radix2_FFT.makeFFT(forwFFTout, outPP2, false);
         /* do windowing and add to output accumulator */
-        for(long k=0; k < frameSize; k++) {
+        for(long k=0; k < winFrameSize; k++) {
             gOutputAccum[k] += 2.0*(radix2_FFT.waveEnvelopeCalc(outPP2[k], k)/overSamp);
         }
     }

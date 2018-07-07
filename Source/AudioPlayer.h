@@ -51,9 +51,9 @@ private:
     TextButton openButton;
     TextButton playButton;
     TextButton pauseButton;
+public:
     Slider audioVolumeSlider;
     Label  audioVolumeLabel;
-public:
     Slider audioPositionSlider;
     Atomic<double> audioPos, audioVol;
 private:

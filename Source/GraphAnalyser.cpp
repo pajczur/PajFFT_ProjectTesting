@@ -381,7 +381,9 @@ void GraphAnalyser::paintIfFileLoaded (Graphics& g, double &audioPosition)
     auto audioLength (thumbnail->getTotalLength());
 
     auto minSlid = waveFormZoom;
-    thumbnailBounds.setBounds((getWidth()/2.0) - (minSlid*audioPosition*getWidth()/audioLength), 20, (minSlid*getWidth()), getHeight()-20);
+    auto vol = (getHeight()-20) * audioSource->audioVol.get();
+    auto volPos = ((getHeight()-20) - vol)/2.0;
+    thumbnailBounds.setBounds((getWidth()/2.0) - (minSlid*audioPosition*getWidth()/audioLength), 20 + volPos, (minSlid*getWidth()), vol);
     
     thumbnail->drawChannels (g,
                             thumbnailBounds,

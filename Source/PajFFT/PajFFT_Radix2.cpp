@@ -245,11 +245,13 @@ void PajFFT_Radix2::setWindowing                           (bool wind)
 // ==== PRIVATE: ====
 void PajFFT_Radix2::bitReversal                            (float bufSize)
 {
+    bitReversed_0.resize(bufSize);
     bitReversed.resize(bufSize);
     
     for(int i=0; i<bitReversed.size(); i++)
     {
         bitReversed[i] = i;
+        bitReversed_0[i] = i;
     }
     
     unsigned long nn, n, m, j;
@@ -260,8 +262,10 @@ void PajFFT_Radix2::bitReversal                            (float bufSize)
     
     for (int i=1; i<n; i+=1)
     {
-        if (j>i)
+        if (j>i) {
             std::swap(bitReversed[j-1], bitReversed[i-1]);
+            std::swap(bitReversed_0[j-1], bitReversed_0[i-1]);
+        }
         
         m = nn;
         while (m>=2 && j>m)
@@ -272,13 +276,13 @@ void PajFFT_Radix2::bitReversal                            (float bufSize)
         j += m;
     }
     
-    if(zeroPadding && bitReversed.size() > trueBuffersize)
+    if(zeroPadding && bitReversed_0.size() > trueBuffersize)
     {
         resizeInput = true;
-        for(int i=0; i<bitReversed.size(); i++)
+        for(int i=0; i<bitReversed_0.size(); i++)
         {
-            if(bitReversed[i] > trueBuffersize)
-                bitReversed[i] = trueBuffersize;
+            if(bitReversed_0[i] > trueBuffersize)
+                bitReversed_0[i] = trueBuffersize;
         }
     }
     else
@@ -321,10 +325,20 @@ void PajFFT_Radix2::prepare_sN0_matrix                     ()
 void PajFFT_Radix2::prepareWindowingArray                  ()
 {
     windowHann.clear();
+    windowHannTrueBuf.clear();
     for(int i=0; i<wBufferSize; ++i)
     {
         float windowSample = -0.5*cos(2.*fPi*(double)i/(double)wBufferSize)+0.5;
         windowHann.push_back(windowSample);
+    }
+    
+    if(trueBuffersize<wBufferSize)
+    {
+        for(int i=0; i<trueBuffersize; ++i)
+        {
+            float windowSample = -0.5*cos(2.*fPi*(double)i/(double)trueBuffersize)+0.5;
+            windowHannTrueBuf.push_back(windowSample);
+        }
     }
 }
 
@@ -335,20 +349,20 @@ void PajFFT_Radix2::prepareWindowingArray                  ()
 // == F F T == A L G O R I T H M ===========================================================================================================
 // =========================================================================================================================================
 // ==== PUBLIC: ====
-void PajFFT_Radix2::makeFFT                                (std::vector<float> inputSignal, std::vector<std::complex<float>> &wOutputC, bool isForwardOrNot)
+void PajFFT_Radix2::makeFFT                                (std::vector<float> &inputSignal, std::vector<std::complex<float>> &wOutputC, bool isForwardOrNot)
 {
+    std::vector<int> &bitR = (inputSignal.size() == wBufferSize)?bitReversed:bitReversed_0;
     std::vector<std::complex<float>>& wnkNXX = isForwardOrNot?wnkN_forw:wnkN_back;
     isForward=isForwardOrNot;
     wOutputData = &wOutputC;
-//    wOutputData->resize(wBufferSize);
-    std::vector<float> wBuffer = inputSignal;
+
+    std::vector<float> &wBuffer = inputSignal;
     if(resizeInput) wBuffer.push_back(0.0f);
-//    if(resizeInput) inputSignal.push_back(0.0f);
 
     for(int radix2=0; radix2<sN0.size(); radix2++)
     {
         if      (radix2==0)
-            firstStepFFT(wBuffer, radix2);
+            firstStepFFT(wBuffer, radix2, bitR);
 
         else if (radix2 >0 && radix2<sN0.size()-1)
             divideAndConquereFFT(radix2, wnkNXX);
@@ -358,21 +372,23 @@ void PajFFT_Radix2::makeFFT                                (std::vector<float> i
     }
 }
 
-void PajFFT_Radix2::makeFFT                                (std::vector<std::complex<float>> inputSignalC, std::vector<std::complex<float>> &wOutputC, bool isForwardOrNot)
+void PajFFT_Radix2::makeFFT                                (std::vector<std::complex<float>> &inputSignalC, std::vector<std::complex<float>> &wOutputC, bool isForwardOrNot)
 {
+    temppp++;
+    std::vector<int> &bitR = (inputSignalC.size() == wBufferSize)?bitReversed:bitReversed_0;
     std::vector<std::complex<float>>& wnkNXX = isForwardOrNot?wnkN_forw:wnkN_back;
     isForward=isForwardOrNot;
     wOutputData = &wOutputC;
-//    wOutputData->resize(wBufferSize);
-    std::vector<std::complex<float>> wBuffer = inputSignalC;
+
+    std::vector<std::complex<float>> &wBuffer = inputSignalC;
     if(resizeInput) wBuffer.push_back(0.0f);
-//    if(resizeInput) inputSignalC.push_back(0.0f);
+
 
     
     for(int radix2=0; radix2<sN0.size(); radix2++)
     {
         if      (radix2==0)
-            firstStepFFTc(wBuffer, radix2);
+            firstStepFFTc(wBuffer, radix2, bitR);
         
         else if (radix2 >0 && radix2<sN0.size()-1)
             divideAndConquereFFT(radix2, wnkNXX);
@@ -380,38 +396,43 @@ void PajFFT_Radix2::makeFFT                                (std::vector<std::com
         else
             lastStepFFT(radix2, wnkNXX);
     }
+    
+    if(resizeInput) wBuffer.pop_back();
 }
 
 
 // PRIVATE:
-void PajFFT_Radix2::firstStepFFT                           (std::vector<float> inputSignal, int rdx2)
+void PajFFT_Radix2::firstStepFFT                           (std::vector<float> &inputSignal, int &rdx2, std::vector<int> &bitRev)
 {
     for(int k=0; k<wBufferSize/pow(2, rdx2+1); k++)
     {
         for(int n=0; n<pow(2, rdx2+1); n++)
         {
-            sN0[rdx2][k][n]   = inputSignal[bitReversed[2*k]]
+            sN0[rdx2][k][n]   = inputSignal[bitRev[2*k]]
                               + pow(-1.0f, (float)(n/1))
-                              * inputSignal[bitReversed[2*k+1]];
+                              * inputSignal[bitRev[2*k+1]];
         }
     }
 }
 
-void PajFFT_Radix2::firstStepFFTc                          (std::vector<std::complex<float>> inputSignalc, int rdx2)
+void PajFFT_Radix2::firstStepFFTc                          (std::vector<std::complex<float>> &inputSignalc, int &rdx2, std::vector<int> &bitRev)
 {
     for(int k=0; k<wBufferSize/pow(2, rdx2+1); k++)
     {
         for(int n=0; n<pow(2, rdx2+1); n++)
         {
-            sN0[rdx2][k][n]   = inputSignalc[bitReversed[2*k]]
-            + pow(-1.0f, (float)(n/1))
-            * inputSignalc[bitReversed[2*k+1]];
+            sN0[rdx2][k][n]   = inputSignalc[bitRev[2*k]]
+                                + pow(-1.0f, (float)(n/1))
+                                * inputSignalc[bitRev[2*k+1]];
+            
+//            std::cout << temppp << "   " << bitRev[2*k] << "=" << inputSignalc[bitRev[2*k]] << "   " << bitRev[2*k+1] << "=" << inputSignalc[bitRev[2*k+1]] << std::endl;
+//            std::cout << inputSignalc.size() << std::endl;
         }
     }
 }
 
 
-void PajFFT_Radix2::divideAndConquereFFT                   (int rdx2, std::vector<std::complex<float>> &twiddle)
+void PajFFT_Radix2::divideAndConquereFFT                   (int &rdx2, std::vector<std::complex<float>> &twiddle)
 {
     for(int k=0; k<wBufferSize/pow(2, rdx2+1); k++)
     {
@@ -423,7 +444,6 @@ void PajFFT_Radix2::divideAndConquereFFT                   (int rdx2, std::vecto
                             *
                             (
                                   sN0[rdx2-1][2*k+1][n%(int)pow(2, rdx2)]
-//                                * wnkN[(n%(int)pow(2, rdx2)) * (int)(wBufferSize/pow(2.0f, (float)rdx2+1.0f))]
                                 * twiddle[(n%(int)pow(2, rdx2)) * (int)(wBufferSize/pow(2.0f, (float)rdx2+1.0f))]
                             );
         }
@@ -431,7 +451,7 @@ void PajFFT_Radix2::divideAndConquereFFT                   (int rdx2, std::vecto
 }
 
 
-void PajFFT_Radix2::lastStepFFT                            (int rdx2, std::vector<std::complex<float>> &twiddle)
+void PajFFT_Radix2::lastStepFFT                            (int &rdx2, std::vector<std::complex<float>> &twiddle)
 {
     for(int k=0; k<wBufferSize/pow(2, rdx2+1); k++)
     {
@@ -488,7 +508,7 @@ std::complex<float> PajFFT_Radix2::twiddleCalculator       (float nXk)
 }
 
 
-float PajFFT_Radix2::freqMagnitudeCalc               (std::complex<float> fftOutput, long freqBin)
+float PajFFT_Radix2::freqMagnitudeCalc               (std::complex<float> &fftOutput, long freqBin)
 {
     if(freqBin<lEndScale  ||  freqBin>tEndScale)
         return fZero;
@@ -504,13 +524,13 @@ float PajFFT_Radix2::freqMagnitudeCalc               (std::complex<float> fftOut
 }
 
 
-float PajFFT_Radix2::waveEnvelopeCalc                       (std::complex<float> fftOutput, long index)
+float PajFFT_Radix2::waveEnvelopeCalc                       (std::complex<float> &fftOutput, long index)
 {
     fftOutput *= phaseRotation;
     return windowing(fftOutput.real(), index)/((long)wBufferSize);
 }
 
-float PajFFT_Radix2::phaseCalculator          (std::complex<float> fftOutput, long index)
+float PajFFT_Radix2::phaseCalculator          (std::complex<float> &fftOutput, long index)
 {
     return atan2(fftOutput.imag(),fftOutput.real());
 }
@@ -531,6 +551,22 @@ float PajFFT_Radix2::windowing(float dataToWindowing, long index)
         return dataToWindowing;
 }
 
+std::complex<float> PajFFT_Radix2::windowingTrueBuf(std::complex<float> dataToWindowing, long index)
+{
+    if(isWindowing)
+        return dataToWindowing*windowHannTrueBuf[index];
+    else
+        return dataToWindowing;
+}
+
+float PajFFT_Radix2::windowingTrueBuf(float dataToWindowing, long index)
+{
+    if(isWindowing)
+        return dataToWindowing*windowHannTrueBuf[index];
+    else
+        return dataToWindowing;
+}
+
 
 // =========================================================================================================================================
 // == G E T == I N F O R M A T I O N S =====================================================================================================
@@ -539,6 +575,11 @@ float PajFFT_Radix2::windowing(float dataToWindowing, long index)
 float PajFFT_Radix2::getBufferSize()
 {
     return wBufferSize;
+}
+
+float PajFFT_Radix2::getTrueBufferSize()
+{
+    return trueBuffersize;
 }
 
 
