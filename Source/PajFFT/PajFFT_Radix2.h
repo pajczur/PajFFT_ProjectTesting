@@ -176,8 +176,7 @@ private:
     std::vector<std::complex<float>> wnkN;           // Array of precalculated forward twiddle - W^nk
     std::vector<std::complex<float>> wnkN_forw;      // Array of precalculated forward twiddle
     std::vector<std::complex<float>> wnkN_back;      // Array of precalculated backward twiddle
-    std::vector<int>                 bitReversed;
-    std::vector<int>                 bitReversed_0;  // Array of bit reversed indexes for Zero padding
+    std::vector<int>                 bitReversed;  // Array of bit reversed indexes for Zero padding
     
     std::vector<std::vector<std::vector<std::complex<float>>>> sN0;  // Temporarily input complex FFT - S(n)
     std::vector<float>               windowHann;

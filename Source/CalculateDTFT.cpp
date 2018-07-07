@@ -192,10 +192,10 @@ void CalculateDTFT::fftCalc()
                         else
                         {
                             radix2_FFT.makeFFT(inputDataC, forwFFTout, true);
-                            radix2_FFT.makeFFT(forwFFTout, forwFFTout, false);
+                            radix2_FFT.makeFFT(forwFFTout, inputDataC, false);
                             for(long i=0; i<newBufferSize; i++)
                             {
-                                backFFTout[i] = radix2_FFT.waveEnvelopeCalc(forwFFTout[i], i);
+                                backFFTout[i] = radix2_FFT.waveEnvelopeCalc(inputDataC[i], i);
                             }
                         }
                     }
@@ -248,20 +248,11 @@ void CalculateDTFT::selectFFT(int identifier)
 
 void CalculateDTFT::resetOutputData(int fft_Type)
 { // 20 - gFFTworksp; inputDataC; gInFIFO;     ??? inFifoLatency,
-    rad2TrueBuffSize = radix2_FFT.getTrueBufferSize();
-    
-    rad2winFrameSize = (rad2TrueBuffSize<winFrameSize) ? rad2TrueBuffSize : winFrameSize;
-    if(rad2TrueBuffSize<winFrameSize)
-        rad2WindowChooser = &PajFFT_Radix2::windowingTrueBuf;
-    else
-        rad2WindowChooser = &PajFFT_Radix2::windowing;
 
     indexDEVbufSize=0;
     indexFFToutSize=0;
-    if(fftType == 2)
-        inputDataC.resize(rad2winFrameSize);
-    else
-        inputDataC.resize(newBufferSize);
+
+    inputDataC.resize(newBufferSize);
     inputData.resize(newBufferSize);
     windowedBackFFTout.resize(newBufferSize);
     backFFTout.resize(newBufferSize);
@@ -511,9 +502,9 @@ void CalculateDTFT::windowingOverlap_FFT()
         mixedRadix_FFT.makeFFT(gFFTworksp, forwFFTout, true);
     }
     else if(fftType==2) {
-        for (long k = 0; k < rad2winFrameSize; k++)
+        for (long k = 0; k < winFrameSize; k++)
         {
-            gFFTworksp[k] = (radix2_FFT.*rad2WindowChooser)(gInFIFO[k], k);
+            gFFTworksp[k] = radix2_FFT.windowingTrueBuf(gInFIFO[k], k);
         }
         radix2_FFT.makeFFT(gFFTworksp, forwFFTout, true);
     }

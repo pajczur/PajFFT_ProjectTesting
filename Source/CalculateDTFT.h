@@ -68,7 +68,7 @@ public:
     double rad2TrueBuffSize;
 private:
     long deviceBuffSize;
-    std::complex<float> (PajFFT_Radix2::*rad2WindowChooser)         (std::complex<float>, long);
+//    std::complex<float> (PajFFT_Radix2::*rad2WindowChooser)         (std::complex<float>, long);
  public:
     std::vector<float>               inputData;
     std::vector<float>               tempInput;
@@ -83,8 +83,6 @@ private:
     std::vector<float>               tempOutput;
     
     std::vector<float>               freqOutput;
-    
-//    std::vector<std::complex<float>> outCompMixed;
     
     Atomic<bool> fftIsReady;
     
@@ -134,7 +132,6 @@ private:
     
     long overLap;
     long winFrameSize;
-    long rad2winFrameSize;
     
     
     
