@@ -141,8 +141,10 @@ void WavesGen::playWave(AudioBuffer<float> &outputBuffer, float bufSize, int sta
         outputBuffer.addSample(0, startSample, voice);
 //        outputBuffer.addSample(1, startSample, voice);
         startSample++;
+//        phase += (frequency * slideTempDown());
         phase += frequency;
     }
+//    std::cout << "przod" << std::endl;
 }
 
 void WavesGen::prepareWave(std::vector<float> &outputBuffer, float bufSize, int startSample)
@@ -157,12 +159,30 @@ void WavesGen::prepareWave(std::vector<float> &outputBuffer, float bufSize, int 
         outputBuffer.push_back(voice);
 
         startSample++;
+//        phase += (frequency * slideTempDown());
         phase += frequency;
     }
+//    std::cout << "inverse" << std::endl;
 }
 
 
 int WavesGen::getWaveType()
 {
     return waveType;
+}
+
+float WavesGen::slideTempUp()
+{
+    slide++;
+    if(slide>(2*wSampleRate)) slide = 0.0;
+    
+    return slide/2*wSampleRate;
+}
+
+float WavesGen::slideTempDown()
+{
+    slide++;
+    if(slide>(wSampleRate/2.0)) slide = 0.0;
+    
+    return 1.0-(slide/(wSampleRate));
 }

@@ -100,6 +100,10 @@ private:
     
     ToggleButton      selectRadix2FFT;
 
+    enum radioButtons {
+        fftRadioButton = 1,
+        fifoRadioButton = 2
+    };
     
     
 public:
@@ -109,7 +113,6 @@ public:
     
     TextButton        turnOFF;
 private:
-    int               fftRadioButtonsID=1;
 
     ToggleButton      zeroPadding;
     TextEditor        zerosPaddingDescript;

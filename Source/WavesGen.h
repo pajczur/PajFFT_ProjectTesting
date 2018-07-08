@@ -62,4 +62,7 @@ private:
     float amplitude;
 
 
+    float slideTempUp();
+    float slideTempDown();
+    float slide=0.0;
 };

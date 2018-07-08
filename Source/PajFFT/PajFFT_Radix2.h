@@ -117,11 +117,12 @@ public:
     void makeFFT                  (std::vector<             float>  &inputSignal,  std::vector<std::complex<float>> &wOutputC, bool isForwardOrNot);
     void makeFFT                  (std::vector<std::complex<float>> &inputSignalC, std::vector<std::complex<float>> &wOutputC, bool isForwardOrNot);
 private:
-    void firstStepFFT             (std::vector<             float>  &inputSignal,  int &rdx2, std::vector<int> &bitRev);
-    void firstStepFFTc            (std::vector<std::complex<float>> &inputSignalC, int &rdx2, std::vector<int> &bitRev);
-    void divideAndConquereFFT     (int &rdx2, std::vector<std::complex<float>> &twiddle);
-    void lastStepFFT              (int &rdx2, std::vector<std::complex<float>> &twiddle);
-    
+    void firstStepFFT                      (std::vector<             float>  &inputSignal,  int &rdx2);
+    void firstStepFFTc                     (std::vector<std::complex<float>> &inputSignalC, int &rdx2);
+    void divideAndConquereFFT              (int &rdx2, std::vector<std::complex<float>> &twiddle);
+    void lastStepFFT                       (int &rdx2, std::vector<std::complex<float>> &twiddle);
+    void lastStepFFT_zeroPad               (int &rdx2, std::vector<std::complex<float>> &twiddle);
+    void (PajFFT_Radix2::*lastStepChooser) (int &rdx2, std::vector<std::complex<float>> &twiddle);
     
     
     // == CALCULATORS ===============================================================
@@ -135,7 +136,6 @@ public:
     float                  windowing                (float dataToWindowing, long index);
     std::complex<float>    windowingTrueBuf         (std::complex<float> dataToWindowing, long index);
     float                  windowingTrueBuf         (float dataToWindowing, long index);
-//    void  (PajFFT_Radix2::*forwBackChooser)         (std::complex<float> fftOutput, int freqBinOrIndex);
     
     
     
@@ -173,7 +173,6 @@ private:
     bool  rememberedForwardOrBackward;
     double wPhase;
     
-    std::vector<std::complex<float>> wnkN;           // Array of precalculated forward twiddle - W^nk
     std::vector<std::complex<float>> wnkN_forw;      // Array of precalculated forward twiddle
     std::vector<std::complex<float>> wnkN_back;      // Array of precalculated backward twiddle
     std::vector<int>                 bitReversed;  // Array of bit reversed indexes for Zero padding
@@ -190,6 +189,9 @@ private:
 public:
 //    std::vector<float> *wOutputData;
     std::vector<std::complex<float>> *wOutputData;
+    std::vector<std::complex<float>> internalOutput;
+    std::vector<std::complex<float>> internalTempOutput;
+    float buffRatio=1;
     
     int temppp=0;
 };

@@ -134,9 +134,16 @@ void PajFFT_Radix2::setBufferSize                          (float bufferS)
     int correction = log2(bufferS);
     wBufferSize= pow(2, correction);
     
-    if(wBufferSize < bufferS && zeroPadding/* && rememberedForwardOrBackward*/)
+    if(wBufferSize < bufferS && zeroPadding)
     {
         wBufferSize *= 2.0f;
+        if(wBufferSize > 1.0)
+            buffRatio = ((float)(trueBuffersize-1)) / (wBufferSize-1.0f);
+        lastStepChooser=&PajFFT_Radix2::lastStepFFT_zeroPad;
+    }
+    else
+    {
+        lastStepChooser=&PajFFT_Radix2::lastStepFFT;
     }
     
     wBufNyquist = wBufferSize/2.0f;
@@ -147,26 +154,12 @@ void PajFFT_Radix2::setBufferSize                          (float bufferS)
 
 void PajFFT_Radix2::resetData                        ()
 {
-//    if(isComplexOutput)
-//    {
-//        wOutputDataC->resize(wBufferSize);
-//        for(int i=0; i<wOutputDataC->size(); i++)
-//        {
-//            wOutputDataC->at(i).real(0.0f);
-//            wOutputDataC->at(i).imag(0.0f);
-//        }
-//    }
-//    else
-//    {
-//        wOutputData->resize(wBufferSize);
-//        for(int i=0; i<wOutputData->size(); i++)
-//        {
-//            wOutputData->at(i) = 0.0f;
-//        }
-//    }
     if(sampleRateConfirm && bufferSizeConfirm)
     {
         bitReversal(wBufferSize);
+        internalOutput.resize(wBufferSize);
+        internalTempOutput.resize(wBufferSize);
+        for(int i=0; i<wBufferSize; i++) internalTempOutput[i] = 0.0;
         prepare_sN0_matrix();
         prepareWindowingArray();
         updateFreqRangeScale(low_End, top_End);
@@ -348,8 +341,7 @@ void PajFFT_Radix2::prepareWindowingArray                  ()
 // ==== PUBLIC: ====
 void PajFFT_Radix2::makeFFT                                (std::vector<float> &inputSignal, std::vector<std::complex<float>> &wOutputC, bool isForwardOrNot)
 {
-    std::vector<int> &bitR = bitReversed;
-    std::vector<std::complex<float>>& wnkNXX = isForwardOrNot?wnkN_forw:wnkN_back;
+    std::vector<std::complex<float>>& wnkN = isForwardOrNot?wnkN_forw:wnkN_back;
     isForward=isForwardOrNot;
     wOutputData = &wOutputC;
 
@@ -359,21 +351,19 @@ void PajFFT_Radix2::makeFFT                                (std::vector<float> &
     for(int radix2=0; radix2<sN0.size(); radix2++)
     {
         if      (radix2==0)
-            firstStepFFT(wBuffer, radix2, bitR);
+            firstStepFFT(wBuffer, radix2);
 
         else if (radix2 >0 && radix2<sN0.size()-1)
-            divideAndConquereFFT(radix2, wnkNXX);
+            divideAndConquereFFT(radix2, wnkN);
 
         else
-            lastStepFFT(radix2, wnkNXX);
+            (this->*lastStepChooser)(radix2, wnkN);
     }
 }
 
 void PajFFT_Radix2::makeFFT                                (std::vector<std::complex<float>> &inputSignalC, std::vector<std::complex<float>> &wOutputC, bool isForwardOrNot)
 {
-    temppp++;
-    std::vector<int> &bitR = bitReversed;
-    std::vector<std::complex<float>>& wnkNXX = isForwardOrNot?wnkN_forw:wnkN_back;
+    std::vector<std::complex<float>>& wnkN = isForwardOrNot?wnkN_forw:wnkN_back;
     isForward=isForwardOrNot;
     wOutputData = &wOutputC;
 
@@ -385,13 +375,13 @@ void PajFFT_Radix2::makeFFT                                (std::vector<std::com
     for(int radix2=0; radix2<sN0.size(); radix2++)
     {
         if      (radix2==0)
-            firstStepFFTc(wBuffer, radix2, bitR);
+            firstStepFFTc(wBuffer, radix2);
         
         else if (radix2 >0 && radix2<sN0.size()-1)
-            divideAndConquereFFT(radix2, wnkNXX);
+            divideAndConquereFFT(radix2, wnkN);
         
         else
-            lastStepFFT(radix2, wnkNXX);
+            (this->*lastStepChooser)(radix2, wnkN);
     }
     
     if(resizeInput) wBuffer.pop_back();
@@ -399,31 +389,28 @@ void PajFFT_Radix2::makeFFT                                (std::vector<std::com
 
 
 // PRIVATE:
-void PajFFT_Radix2::firstStepFFT                           (std::vector<float> &inputSignal, int &rdx2, std::vector<int> &bitRev)
+void PajFFT_Radix2::firstStepFFT                           (std::vector<float> &inputSignal, int &rdx2)
 {
     for(int k=0; k<wBufferSize/pow(2, rdx2+1); k++)
     {
         for(int n=0; n<pow(2, rdx2+1); n++)
         {
-            sN0[rdx2][k][n]   = inputSignal[bitRev[2*k]]
+            sN0[rdx2][k][n]   = inputSignal[bitReversed[2*k]]
                               + pow(-1.0f, (float)(n/1))
-                              * inputSignal[bitRev[2*k+1]];
+                              * inputSignal[bitReversed[2*k+1]];
         }
     }
 }
 
-void PajFFT_Radix2::firstStepFFTc                          (std::vector<std::complex<float>> &inputSignalc, int &rdx2, std::vector<int> &bitRev)
+void PajFFT_Radix2::firstStepFFTc                          (std::vector<std::complex<float>> &inputSignalc, int &rdx2)
 {
     for(int k=0; k<wBufferSize/pow(2, rdx2+1); k++)
     {
         for(int n=0; n<pow(2, rdx2+1); n++)
         {
-            sN0[rdx2][k][n]   = inputSignalc[bitRev[2*k]]
+            sN0[rdx2][k][n]   = inputSignalc[bitReversed[2*k]]
                                 + pow(-1.0f, (float)(n/1))
-                                * inputSignalc[bitRev[2*k+1]];
-            
-//            std::cout << temppp << "   " << bitRev[2*k] << "=" << inputSignalc[bitRev[2*k]] << "   " << bitRev[2*k+1] << "=" << inputSignalc[bitRev[2*k+1]] << std::endl;
-//            std::cout << inputSignalc.size() << std::endl;
+                                * inputSignalc[bitReversed[2*k+1]];
         }
     }
 }
@@ -460,7 +447,6 @@ void PajFFT_Radix2::lastStepFFT                            (int &rdx2, std::vect
                             *
                             (
                                  sN0[rdx2-1][2*k+1][n%(int)pow(2, rdx2)]
-//                               * wnkN[(n%(int)pow(2, rdx2)) * (int)(wBufferSize/pow(2.0f, (float)rdx2+1.0f))]
                                * twiddle[(n%(int)pow(2, rdx2)) * (int)(wBufferSize/pow(2.0f, (float)rdx2+1.0f))]
                             );
             
@@ -468,12 +454,68 @@ void PajFFT_Radix2::lastStepFFT                            (int &rdx2, std::vect
                 wOutputData->at(n) = 0.0f;
             else
                 wOutputData->at(n) = sN0[rdx2][k][n];
-//            (this->*forwBackChooser)(sN0[rdx2][k][n], n);
-            
         }
     }
 }
 
+void PajFFT_Radix2::lastStepFFT_zeroPad                    (int &rdx2, std::vector<std::complex<float>> &twiddle)
+{
+    for(int k=0; k<wBufferSize/pow(2, rdx2+1); k++)
+    {
+        float ppp=0.0;
+        float div1=0;
+        float div2=0;
+        
+        for(int n=0, www=0, zzz=0, yyy=0, temp=0; n<wBufferSize; n++)
+        {
+            sN0[rdx2][k][n] = sN0[rdx2-1] [2*k][n%(int)pow(2, rdx2)]
+            +
+            pow(-1.0f, (float)(n/(int)pow(2, rdx2)))
+            *
+            (
+             sN0[rdx2-1][2*k+1][n%(int)pow(2, rdx2)]
+             * twiddle[(n%(int)pow(2, rdx2)) * (int)(wBufferSize/pow(2.0f, (float)rdx2+1.0f))]
+             );
+            
+            if(isForward   &&   n>=wBufNyquist)
+                internalOutput[n] = 0.0f;
+            else
+                internalOutput[n] = sN0[rdx2][k][n];
+            
+            
+            // RESAMPLING
+            www = floor((float)n*buffRatio);
+            if((ppp >= 1.0)  ||  (n==(int)(wBufferSize-1))) ppp = ppp-1.0;
+
+            internalTempOutput[www] += internalOutput[n] * (1.0f-ppp);
+            
+            if(temp!=www) {
+                wOutputData->at(www-1) = internalTempOutput[www-1] / ((float)zzz - div1);
+                internalTempOutput[www-1] = 0.0f;
+                zzz=yyy; yyy=0;
+                div1 = div2;
+                div2 = 0.0;
+                
+                if(n==(int)(wBufferSize-1.0f)) {
+                    wOutputData->at(www) = internalTempOutput[www] / (2.0f - div1);
+                    internalTempOutput[www] = 0.0f;
+                }
+            }
+            
+            temp = www;
+            zzz++;
+            div1 = div1 + ppp;
+            
+            if(((float)n*buffRatio != www)  &&  (n<wBufferSize-1)) {
+                internalTempOutput[www+1] += internalOutput[n] * ppp;
+                yyy++;
+                div2 = div2 + (1.0f-ppp);
+            }
+            
+            ppp += buffRatio;
+        }
+    }
+}
 
 
 

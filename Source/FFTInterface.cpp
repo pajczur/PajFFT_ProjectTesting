@@ -31,13 +31,13 @@ FFTInterface::FFTInterface(AudioAppComponent *wAudioApp)
     fftBufSizeEditDescript.setJustificationType(Justification::centredRight);
     
     addAndMakeVisible(&selectMatrixFFT);
-    selectMatrixFFT.setRadioGroupId(fftRadioButtonsID);
+    selectMatrixFFT.setRadioGroupId(fftRadioButton);
     selectMatrixFFT.onClick = [this] { updateToggleState(&selectMatrixFFT, selectMatrixFFT_ID); };
     selectMatrixFFT.setButtonText("Matrix FFT");
     
 
     addAndMakeVisible(&selectRadix2FFT);
-    selectRadix2FFT.setRadioGroupId(fftRadioButtonsID);
+    selectRadix2FFT.setRadioGroupId(fftRadioButton);
     selectRadix2FFT.onClick = [this] { updateToggleState(&selectRadix2FFT, selectRadix2FFT_ID); };
     selectRadix2FFT.setButtonText("Radix-2 FFT");
     
@@ -54,13 +54,14 @@ FFTInterface::FFTInterface(AudioAppComponent *wAudioApp)
 
     addAndMakeVisible(&turnOFF);
     turnOFF.setButtonText("OFF");
-    turnOFF.setRadioGroupId(fftRadioButtonsID);
+    turnOFF.setRadioGroupId(fftRadioButton);
     turnOFF.onClick = [this] { updateToggleState(&turnOFF, turnOFF_ID); };
 
 
     addAndMakeVisible(&zeroPadding);
+    zeroPadding.setRadioGroupId(fifoRadioButton);
     zeroPadding.setVisible(false);
-    zeroPadding.setToggleState(false, dontSendNotification);
+    zeroPadding.setToggleState(true, dontSendNotification);
     zeroPadding.onClick = [this] { updateToggleState(&zeroPadding, zeroPadding_ID); };
     zeroPadding.setButtonText("Zeros padding");
 
@@ -73,8 +74,9 @@ FFTInterface::FFTInterface(AudioAppComponent *wAudioApp)
     zerosPaddingDescript.setText("Uses all 512\nof samples");
     
     addAndMakeVisible(&rad2FIFO);
+    rad2FIFO.setRadioGroupId(fifoRadioButton);
     rad2FIFO.setVisible(false);
-    rad2FIFO.setToggleState(true, dontSendNotification);
+    rad2FIFO.setToggleState(false, dontSendNotification);
     rad2FIFO.onClick = [this] { updateToggleState(&rad2FIFO, rad2FIFO_ID); };
     rad2FIFO.setButtonText("fifo");
 
@@ -211,30 +213,21 @@ void FFTInterface::timerCallback()
     
     else if (whatIsChanged_ID==zeroPadding_ID)
     {
-        if(!zeroPadding.getToggleState())
+        if(zeroPadding.getToggleState())
         {
-            calculator_FFT->radix2_FFT.setZeroPadding(false);
-        }
-        else
-        {
+            oscillator->selectWave(rememberedWaveType);
             calculator_FFT->radix2_FFT.setZeroPadding(true);
+            calculator_FFT->radix2_FFT.wSettings(wSampleRate, rememberedBuffer);
+            refresh();
         }
-        calculator_FFT->radix2_FFT.wSettings(wSampleRate, rememberedBuffer);
-        refresh();
     }
     
     else if (whatIsChanged_ID==rad2FIFO_ID)
     {
-        if(!rad2FIFO.getToggleState())
+        if(rad2FIFO.getToggleState())
         {
             oscillator->selectWave(rememberedWaveType);
-            zeroPadding.setVisible(true);
-            updateToggleState(&zeroPadding, zeroPadding_ID);
-        }
-        else
-        {
-            zeroPadding.setVisible(false);
-//            calculator_FFT->radix2_FFT.setZeroPadding(true);
+            calculator_FFT->radix2_FFT.setZeroPadding(false);
             calculator_FFT->radix2_FFT.wSettings(wSampleRate, twoPowerToInt(rememberedBuffer));
             refresh();
         }
@@ -487,7 +480,7 @@ void FFTInterface::labelTextChanged         (Label *labelThatHasChanged)
 
 void FFTInterface::updateToggleState        (Button* button, ButtonID buttonID)
 {
-    if(button->getRadioGroupId() == fftRadioButtonsID   &&   button->getToggleState())
+    if(button->getRadioGroupId() == fftRadioButton   &&   button->getToggleState())
     {
         switch (buttonID)
         {
@@ -518,15 +511,19 @@ void FFTInterface::updateToggleState        (Button* button, ButtonID buttonID)
                 break;
                 
             case zeroPadding_ID: // RADIX-2 - SET ZERO PADDING
-                whatIsChanged_ID = zeroPadding_ID;
-                pauseFFT(false);
-                startTimer(ceil((calculator_FFT->timeElapsed/1000.0f)*10.0f));
+                if(zeroPadding.getToggleState()) {
+                    whatIsChanged_ID = zeroPadding_ID;
+                    pauseFFT(false);
+                    startTimer(ceil((calculator_FFT->timeElapsed/1000.0f)*10.0f));
+                }
                 break;
                 
             case rad2FIFO_ID: // RADIX-2 - SET FIFO
-                whatIsChanged_ID = rad2FIFO_ID;
-                pauseFFT(false);
-                startTimer(ceil((calculator_FFT->timeElapsed/1000.0f)*10.0f));
+                if(rad2FIFO.getToggleState()) {
+                    whatIsChanged_ID = rad2FIFO_ID;
+                    pauseFFT(false);
+                    startTimer(ceil((calculator_FFT->timeElapsed/1000.0f)*10.0f));
+                }
                 break;
                 
             case wInverse_ID: // INVERSE
@@ -674,10 +671,10 @@ void FFTInterface::setON_radix2fft          ()
         rememberedInvPitchWin();
         calculator_FFT->selectFFT(2);
         
-        double tempBufDisc = calculator_FFT->radix2_FFT.getBufferSize();;
-        double tempBuf = zeroPadding.getToggleState() ? calculator_FFT->radix2_FFT.getTrueBufferSize() : calculator_FFT->radix2_FFT.getBufferSize();;
-        calculator_FFT->setNewBufSize(tempBufDisc, 2);
-        graphAnalyser->setNewBufSize(tempBufDisc);
+        double tempBufDisc = calculator_FFT->radix2_FFT.getBufferSize();
+        double tempBuf = calculator_FFT->radix2_FFT.getTrueBufferSize();
+        calculator_FFT->setNewBufSize(tempBuf, 2);
+        graphAnalyser->setNewBufSize(tempBuf);
         fftBufSizeEdit.setText(to_string((int)tempBuf), dontSendNotification);
         zerosPaddingDescript.setText(setZerosInfo(!rad2FIFO.getToggleState()?
                                                   (rememberedBuffer>tempBufDisc?tempBufDisc:rememberedBuffer):tempBufDisc,
@@ -685,21 +682,21 @@ void FFTInterface::setON_radix2fft          ()
                                                   !rad2FIFO.getToggleState()?(tempBufDisc-rememberedBuffer):0  ));
         
 
-        if(tempBufDisc >= rememberedBuffer)
+        if(tempBuf >= rememberedBuffer)
             dispLine->setBuffSize(rememberedBuffer);
         else
-            dispLine->setBuffSize(tempBufDisc);
+            dispLine->setBuffSize(tempBuf);
 
         sliderValueChanged(&filterSetTopEnd);
         
         if(dispLine->timeOrWave == 1)
         {
-            dispLine->wSampleRateToDisplay = tempBufDisc;
+            dispLine->wSampleRateToDisplay = tempBuf;
             dispLine->setZoomRangeTime();
         }
         if(dispLine->timeOrWave == 2)
         {
-            dispLine->wSampleRateToDisplay = tempBufDisc;
+            dispLine->wSampleRateToDisplay = tempBuf;
             dispLine->setZoomRangeOscil();
         }
         
@@ -746,7 +743,6 @@ void FFTInterface::setInverse_fft           ()
 void FFTInterface::pauseFFT(bool pauseFALSE_ResumeTRUE)
 {
     rememberedWaveType=oscillator->getWaveType();
-
     if(graphAnalyser->isTimerRunning()  &&  !isGraphON)
         graphAnalyser->stopTimer();
     
@@ -844,9 +840,8 @@ void FFTInterface::setVisibleFiltersAndBuffSize()
     else if(selectRadix2FFT.getToggleState())
     {
         zerosPaddingDescript.setVisible(true);
-        if(!rad2FIFO.getToggleState())
-            zeroPadding.setVisible(true);
-        rad2FIFO.setVisible(false);
+        zeroPadding.setVisible(true);
+        rad2FIFO.setVisible(true);
         matrixSizeInfo.setVisible(false);
         matrixDividerEdit.setVisible(false);
         matrixDividerEditDescript.setVisible(false);
