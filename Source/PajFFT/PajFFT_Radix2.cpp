@@ -130,6 +130,7 @@ void PajFFT_Radix2::setSampleRate                          (float sampleR)
 void PajFFT_Radix2::setBufferSize                          (float bufferS)
 {
     trueBuffersize = bufferS;
+    
 
     int correction = log2(bufferS);
     wBufferSize= pow(2, correction);
@@ -321,15 +322,13 @@ void PajFFT_Radix2::prepareWindowingArray                  ()
         float windowSample = -0.5*cos(2.*fPi*(double)i/(double)wBufferSize)+0.5;
         windowHann.push_back(windowSample);
     }
-    
-    if(trueBuffersize<wBufferSize)
+
+    for(int i=0; i<trueBuffersize; ++i)
     {
-        for(int i=0; i<trueBuffersize; ++i)
-        {
-            float windowSample = -0.5*cos(2.*fPi*(double)i/(double)trueBuffersize)+0.5;
-            windowHannTrueBuf.push_back(windowSample);
-        }
+        float windowSample = -0.5*cos(2.*fPi*(double)i/(double)trueBuffersize)+0.5;
+        windowHannTrueBuf.push_back(windowSample);
     }
+    std::cout << "windowHannTrueBuf.size() = " << windowHannTrueBuf.size() << std::endl;
 }
 
 

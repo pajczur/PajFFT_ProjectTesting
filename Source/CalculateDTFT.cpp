@@ -181,7 +181,7 @@ void CalculateDTFT::fftCalc()
                     if(isForward)
                     {
                         if(isWindowed)
-               /*    */             windowOverlap_ForwFFT(overLap, wSampleRate, inputDataC);
+                            windowOverlap_ForwFFT(overLap, wSampleRate, inputDataC);
                         else
                             radix2_FFT.makeFFT(inputDataC, forwFFTout, true);
                     }
@@ -285,17 +285,18 @@ void CalculateDTFT::resetOutputData(int fft_Type)
     
     gInFIFO.resize(2*newBufferSize);
     gOutFIFO.resize(2*newBufferSize);
-    gFFTworksp.resize(2*newBufferSize);
-    outPP.resize(2*newBufferSize);
-    outPP2.resize(2*newBufferSize);
+    gFFTworksp.resize(newBufferSize);
+    outPP2.resize(newBufferSize);
     
     for(int i=0; i<2*newBufferSize; i++)
     {
         gFFTworksp[i] = 0.0f;
-        outPP[i] = 0.0f;
-        outPP2[i] = 0.0f;
         gInFIFO[i] = 0.0f;
         gOutFIFO[i] = 0.0f;
+        if(i<newBufferSize) {
+            gFFTworksp[i] = 0.0f;
+            outPP2[i] = 0.0f;
+        }
     }
     
     if (gLastPhase)   delete [] gLastPhase;
@@ -306,8 +307,10 @@ void CalculateDTFT::resetOutputData(int fft_Type)
     if (gSynFreq)     delete [] gSynFreq;
     if (gSynMagn)     delete [] gSynMagn;
     
-    gLastPhase   =   new float[(2*newBufferSize)/2+1];
-    gSumPhase    =   new float[(2*newBufferSize)/2+1];
+//    gLastPhase   =   new float[(2*newBufferSize)/2+1];
+//    gSumPhase    =   new float[(2*newBufferSize)/2+1];
+    gLastPhase   =   new float[newBufferSize];
+    gSumPhase    =   new float[newBufferSize];
     gOutputAccum =   new float[2*newBufferSize];
     gAnaFreq     =   new float[2*newBufferSize];
     gAnaMagn     =   new float[2*newBufferSize];

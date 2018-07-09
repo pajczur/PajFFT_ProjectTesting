@@ -369,9 +369,10 @@ double GraphAnalyser::wDecibels(double linearMag, int freqIndex)
 void GraphAnalyser::paintIfNoFileLoaded (Graphics& g)
 {
     g.setColour (Colours::darkgrey);
-    g.fillRect (thumbnailBounds);
+    g.fillRect (chan0Bounds);
+    g.fillRect (chan1Bounds);
     g.setColour (Colours::white);
-    g.drawFittedText ("No File Loaded", thumbnailBounds, Justification::centred, 1.0f);
+    g.drawFittedText ("No File Loaded", chan0Bounds, Justification::centred, 1.0f);
 }
 
 void GraphAnalyser::paintIfFileLoaded (Graphics& g, double &audioPosition)
@@ -381,14 +382,22 @@ void GraphAnalyser::paintIfFileLoaded (Graphics& g, double &audioPosition)
     auto audioLength (thumbnail->getTotalLength());
 
     auto minSlid = waveFormZoom;
-    auto vol = (getHeight()-20) * audioSource->audioVol.get();
+    auto vol = (getHeight()-20) * audioSource->audioVol.get()/5.0;
     auto volPos = ((getHeight()-20) - vol)/2.0;
-    thumbnailBounds.setBounds((getWidth()/2.0) - (minSlid*audioPosition*getWidth()/audioLength), 20 + volPos, (minSlid*getWidth()), vol);
+    chan0Bounds.setBounds((getWidth()/2.0) - (minSlid*audioPosition*getWidth()/audioLength), 20 + volPos-65, (minSlid*getWidth()), vol);
+    chan1Bounds.setBounds((getWidth()/2.0) - (minSlid*audioPosition*getWidth()/audioLength), 20 + volPos+65, (minSlid*getWidth()), vol);
     
-    thumbnail->drawChannels (g,
-                            thumbnailBounds,
+    thumbnail->drawChannel (g,
+                            chan0Bounds,
                             0.0,
                             thumbnail->getTotalLength(),
+                            0,
+                            1);
+    thumbnail->drawChannel (g,
+                            chan1Bounds,
+                            0.0,
+                            thumbnail->getTotalLength(),
+                            1,
                             1);
     
     g.setColour (Colours::green);

@@ -109,7 +109,6 @@ private:
     std::vector<std::complex<float>> gInFIFO;
     std::vector<std::complex<float>> gOutFIFO;
     std::vector<std::complex<float>> gFFTworksp;
-    std::vector<std::complex<float>> outPP;
     std::vector<std::complex<float>> outPP2; 
 //    float gLastPhase[MAX_FRAME_LENGTH/2+1];
     float *gLastPhase;

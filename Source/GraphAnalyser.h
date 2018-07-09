@@ -92,7 +92,8 @@ public:
     bool sourceIsReady;
     
     float waveFormZoom;
-    Rectangle<int> thumbnailBounds;
+    Rectangle<int> chan0Bounds;
+    Rectangle<int> chan1Bounds;
     
     AudioThumbnail *thumbnail;
     

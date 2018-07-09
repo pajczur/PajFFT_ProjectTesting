@@ -403,11 +403,11 @@ void PajFFT_MixedRadix::prepareTwiddlesArray                 ()
 
 void PajFFT_MixedRadix::prepareWindowingArray               ()
 {
-    windowHann.clear();
+    windowHann.resize(wBufferSize);
     for(int i=0; i<wBufferSize; ++i)
     {
         float windowSample = -0.5*cos(2.*fPi*(double)i/(double)wBufferSize)+0.5;
-        windowHann.push_back(windowSample);
+        windowHann[i] = windowSample;
     }
 }
 
