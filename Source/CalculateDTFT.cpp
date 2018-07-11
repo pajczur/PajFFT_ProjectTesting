@@ -46,7 +46,7 @@ void CalculateDTFT::fftCalculator(AudioBuffer<float> &inp)
         inputDataC[indexFFToutSize] = stereoToMono;
         tempInput[indexFFToutSize] = stereoToMono;
         indexFFToutSize++;
-//std::cout << backFFTout.size() << std::endl;
+
         if(indexFFToutSize >= newBufferSize)
         {
             inputData = tempInput;
@@ -235,8 +235,8 @@ void CalculateDTFT::selectFFT(int identifier)
     fftType = identifier;
 }
 
-void CalculateDTFT::resetOutputData(int fft_Type)
-{ // 20 - gFFTworksp; inputDataC; gInFIFO;     ??? inFifoLatency,
+void CalculateDTFT::resetOutputData()
+{
     indexDEVbufSize=0;
     indexFFToutSize=0;
     inputDataC.resize(newBufferSize);
