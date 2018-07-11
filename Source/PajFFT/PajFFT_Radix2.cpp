@@ -140,11 +140,11 @@ void PajFFT_Radix2::setBufferSize                          (float bufferS)
         wBufferSize *= 2.0f;
         if(wBufferSize > 1.0)
             buffRatio = ((float)(trueBuffersize-1)) / (wBufferSize-1.0f);
-        lastStepChooser=&PajFFT_Radix2::lastStepFFT_zeroPad;
+//        lastStepChooser=&PajFFT_Radix2::lastStepFFT_zeroPad;
     }
     else
     {
-        lastStepChooser=&PajFFT_Radix2::lastStepFFT;
+//        lastStepChooser=&PajFFT_Radix2::lastStepFFT;
     }
     
     wBufNyquist = wBufferSize/2.0f;
@@ -328,7 +328,6 @@ void PajFFT_Radix2::prepareWindowingArray                  ()
         float windowSample = -0.5*cos(2.*fPi*(double)i/(double)trueBuffersize)+0.5;
         windowHannTrueBuf.push_back(windowSample);
     }
-    std::cout << "windowHannTrueBuf.size() = " << windowHannTrueBuf.size() << std::endl;
 }
 
 
@@ -356,7 +355,8 @@ void PajFFT_Radix2::makeFFT                                (std::vector<float> &
             divideAndConquereFFT(radix2, wnkN);
 
         else
-            (this->*lastStepChooser)(radix2, wnkN);
+            lastStepFFT(radix2, wnkN);
+//            (this->*lastStepChooser)(radix2, wnkN);
     }
 }
 
@@ -380,7 +380,8 @@ void PajFFT_Radix2::makeFFT                                (std::vector<std::com
             divideAndConquereFFT(radix2, wnkN);
         
         else
-            (this->*lastStepChooser)(radix2, wnkN);
+            lastStepFFT(radix2, wnkN);
+//            (this->*lastStepChooser)(radix2, wnkN);
     }
     
     if(resizeInput) wBuffer.pop_back();
@@ -438,7 +439,7 @@ void PajFFT_Radix2::lastStepFFT                            (int &rdx2, std::vect
 {
     for(int k=0; k<wBufferSize/pow(2, rdx2+1); k++)
     {
-        for(int n=0; n<wBufferSize; n++)
+        for(int n=0; n<trueBuffersize; n++)
         {
             sN0[rdx2][k][n] = sN0[rdx2-1] [2*k][n%(int)pow(2, rdx2)]
                             +
@@ -449,69 +450,10 @@ void PajFFT_Radix2::lastStepFFT                            (int &rdx2, std::vect
                                * twiddle[(n%(int)pow(2, rdx2)) * (int)(wBufferSize/pow(2.0f, (float)rdx2+1.0f))]
                             );
             
-            if(isForward   &&   n>=wBufNyquist)
+            if(isForward   &&   n>wBufNyquist)
                 wOutputData->at(n) = 0.0f;
             else
                 wOutputData->at(n) = sN0[rdx2][k][n];
-        }
-    }
-}
-
-void PajFFT_Radix2::lastStepFFT_zeroPad                    (int &rdx2, std::vector<std::complex<float>> &twiddle)
-{
-    for(int k=0; k<wBufferSize/pow(2, rdx2+1); k++)
-    {
-        float ppp=0.0;
-        float div1=0;
-        float div2=0;
-        
-        for(int n=0, www=0, zzz=0, yyy=0, temp=0; n<wBufferSize; n++)
-        {
-            sN0[rdx2][k][n] = sN0[rdx2-1] [2*k][n%(int)pow(2, rdx2)]
-            +
-            pow(-1.0f, (float)(n/(int)pow(2, rdx2)))
-            *
-            (
-             sN0[rdx2-1][2*k+1][n%(int)pow(2, rdx2)]
-             * twiddle[(n%(int)pow(2, rdx2)) * (int)(wBufferSize/pow(2.0f, (float)rdx2+1.0f))]
-             );
-            
-            if(isForward   &&   n>=wBufNyquist)
-                internalOutput[n] = 0.0f;
-            else
-                internalOutput[n] = sN0[rdx2][k][n];
-            
-            
-            // RESAMPLING
-            www = floor((float)n*buffRatio);
-            if((ppp >= 1.0)  ||  (n==(int)(wBufferSize-1))) ppp = ppp-1.0;
-
-            internalTempOutput[www] += internalOutput[n] * (1.0f-ppp);
-            
-            if(temp!=www) {
-                wOutputData->at(www-1) = internalTempOutput[www-1] / ((float)zzz - div1);
-                internalTempOutput[www-1] = 0.0f;
-                zzz=yyy; yyy=0;
-                div1 = div2;
-                div2 = 0.0;
-                
-                if(n==(int)(wBufferSize-1.0f)) {
-                    wOutputData->at(www) = internalTempOutput[www] / (2.0f - div1);
-                    internalTempOutput[www] = 0.0f;
-                }
-            }
-            
-            temp = www;
-            zzz++;
-            div1 = div1 + ppp;
-            
-            if(((float)n*buffRatio != www)  &&  (n<wBufferSize-1)) {
-                internalTempOutput[www+1] += internalOutput[n] * ppp;
-                yyy++;
-                div2 = div2 + (1.0f-ppp);
-            }
-            
-            ppp += buffRatio;
         }
     }
 }
@@ -565,7 +507,7 @@ float PajFFT_Radix2::freqMagnitudeCalc               (std::complex<float> &fftOu
 float PajFFT_Radix2::waveEnvelopeCalc                       (std::complex<float> &fftOutput, long index)
 {
     fftOutput *= phaseRotation;
-    return windowing(fftOutput.real(), index)/((long)wBufferSize);
+    return windowingTrueBuf(fftOutput.real(), index) / ((float)trueBuffersize);
 }
 
 float PajFFT_Radix2::phaseCalculator          (std::complex<float> &fftOutput, long index)

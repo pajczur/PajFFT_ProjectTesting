@@ -110,20 +110,14 @@ private:
     std::vector<std::complex<float>> gOutFIFO;
     std::vector<std::complex<float>> gFFTworksp;
     std::vector<std::complex<float>> outPP2; 
-//    float gLastPhase[MAX_FRAME_LENGTH/2+1];
-    float *gLastPhase;
-//    float gSumPhase[MAX_FRAME_LENGTH/2+1];
-    float *gSumPhase;
-//    float gOutputAccum[MAX_FRAME_LENGTH];
+
     float *gOutputAccum;
-//    float gAnaFreq[MAX_FRAME_LENGTH];
-    float *gAnaFreq;
-//    float gAnaMagn[MAX_FRAME_LENGTH];
-    float *gAnaMagn;
-//    float gSynFreq[MAX_FRAME_LENGTH];
-    float *gSynFreq;
-//    float gSynMagn[MAX_FRAME_LENGTH];
-    float *gSynMagn;
+
+    std::vector<float> gLastPhase;
+    std::vector<float> gSumPhase;
+    std::vector<float> gAnaFreq;
+    std::vector<float> gAnaMagn;
+    
     long gInit = false;
     float magn, phase, window, tmp, real, imag;
     double freqPerBin, expct;
@@ -131,7 +125,7 @@ private:
     
     long overLap;
     long winFrameSize;
-    
+    bool isAllocated=false;
     
     
     

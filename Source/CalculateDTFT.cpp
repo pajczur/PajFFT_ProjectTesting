@@ -25,25 +25,14 @@ CalculateDTFT::CalculateDTFT() : fftIsReady(false)
     indexFFToutSize = 0;
     indexDEVbufSize = 0;
     dupex=false;
-    
-    gLastPhase   =   new float[1];
-    gSumPhase    =   new float[1];
-    gOutputAccum =   new float[1];
-    gAnaFreq     =   new float[1];
-    gAnaMagn     =   new float[1];
-    gSynFreq     =   new float[1];
-    gSynMagn     =   new float[1];
 }
 
 CalculateDTFT::~CalculateDTFT()
 {
-    if (gLastPhase)   delete [] gLastPhase;
-    if (gSumPhase)    delete [] gSumPhase;
-    if (gOutputAccum) delete [] gOutputAccum;
-    if (gAnaFreq)     delete [] gAnaFreq;
-    if (gAnaMagn)     delete [] gAnaMagn;
-    if (gSynFreq)     delete [] gSynFreq;
-    if (gSynMagn)     delete [] gSynMagn;
+    if(isAllocated) {
+        delete [] gOutputAccum;
+        isAllocated=false;
+    }
 }
 
 void CalculateDTFT::fftCalculator(AudioBuffer<float> &inp)
@@ -281,138 +270,43 @@ void CalculateDTFT::resetOutputData(int fft_Type)
         wOutput[i] = 0.0f;
     }
     
+    if(isAllocated) {
+        delete [] gOutputAccum;
+        isAllocated=false;
+    }
+    
+    if(!isAllocated) {
+        gOutputAccum =   new float[2*newBufferSize];
+        memset(gOutputAccum, 0, (2*newBufferSize)*sizeof(float));
+        isAllocated=true;
+    }
+    
     
     
     gInFIFO.resize(2*newBufferSize);
     gOutFIFO.resize(2*newBufferSize);
     gFFTworksp.resize(newBufferSize);
     outPP2.resize(newBufferSize);
+    gLastPhase.resize(newBufferSize);
+    gSumPhase.resize(newBufferSize);
+    gAnaFreq.resize(2*newBufferSize);
+    gAnaMagn.resize(2*newBufferSize);
     
     for(int i=0; i<2*newBufferSize; i++)
     {
         gFFTworksp[i] = 0.0f;
         gInFIFO[i] = 0.0f;
         gOutFIFO[i] = 0.0f;
+        gAnaFreq[i] = 0.0f;
+        gAnaMagn[i] = 0.0f;
+        
         if(i<newBufferSize) {
             gFFTworksp[i] = 0.0f;
             outPP2[i] = 0.0f;
+            gLastPhase[i] = 0.0f;
+            gSumPhase[i] = 0.0f;
         }
     }
-    
-    if (gLastPhase)   delete [] gLastPhase;
-    if (gSumPhase)    delete [] gSumPhase;
-    if (gOutputAccum) delete [] gOutputAccum;
-    if (gAnaFreq)     delete [] gAnaFreq;
-    if (gAnaMagn)     delete [] gAnaMagn;
-    if (gSynFreq)     delete [] gSynFreq;
-    if (gSynMagn)     delete [] gSynMagn;
-    
-//    gLastPhase   =   new float[(2*newBufferSize)/2+1];
-//    gSumPhase    =   new float[(2*newBufferSize)/2+1];
-    gLastPhase   =   new float[newBufferSize];
-    gSumPhase    =   new float[newBufferSize];
-    gOutputAccum =   new float[2*newBufferSize];
-    gAnaFreq     =   new float[2*newBufferSize];
-    gAnaMagn     =   new float[2*newBufferSize];
-    gSynFreq     =   new float[2*newBufferSize];
-    gSynMagn     =   new float[2*newBufferSize];
-    
-    memset(gLastPhase,   0, ((2*newBufferSize)/2+1)*sizeof(float));
-    memset(gSumPhase,    0, ((2*newBufferSize)/2+1)*sizeof(float));
-    memset(gOutputAccum, 0, (2*newBufferSize)*sizeof(float));
-    memset(gAnaFreq,     0, (2*newBufferSize)*sizeof(float));
-    memset(gAnaMagn,     0, (2*newBufferSize)*sizeof(float));
-    memset(gSynFreq,     0, (2*newBufferSize)*sizeof(float));
-    memset(gSynMagn,     0, (2*newBufferSize)*sizeof(float));
-    
-    
-//
-//    indexDEVbufSize=0;
-//    indexFFToutSize=0;
-//
-//    inputDataC.resize(newBufferSize);
-//    inputData.resize(newBufferSize);
-//    windowedBackFFTout.resize(newBufferSize);
-//    backFFTout.resize(newBufferSize);
-//    forwFFTout.resize(newBufferSize);
-//    freqOutput.resize(newBufferSize);
-//    tempInput.resize(newBufferSize);
-//
-//    for(int i=0; i<newBufferSize; i++)
-//    {
-//        inputData[i] = 0.0f;
-//        if(fftType == 2) {
-//            if(i < rad2TrueBuffSize)
-//                inputDataC[i] = 0.0f;
-//        }
-//        else {
-//            inputDataC[i] = 0.0f;
-//        }
-//        windowedBackFFTout[i] = 0.0f;
-//        backFFTout[i] = 0.0f;
-//        forwFFTout[i] = 0.0f;
-//        freqOutput[i] = 0.0f;
-//        tempInput[i] = 0.0f;
-//    }
-//
-//    tempOutput.clear();
-//    tempOutput.shrink_to_fit();
-//    dupa = (ceil(newBufferSize/deviceBuffSize))*deviceBuffSize;
-//    tempOutput.reserve(dupa+10);
-//    dupex = false;
-//    wOutput.resize(deviceBuffSize);
-//
-//    for(int i=0; i<wOutput.size(); i++)
-//    {
-//        wOutput[i] = 0.0f;
-//    }
-//
-//
-//
-//    gInFIFO.resize(2*newBufferSize);
-//    gOutFIFO.resize(2*newBufferSize);
-//    gFFTworksp.resize(newBufferSize);
-//    outPP.resize(2*newBufferSize);
-//    outPP2.resize(2*newBufferSize);
-//
-//    for(int i=0; i<2*newBufferSize; i++)
-//    {
-//        outPP[i] = 0.0f;
-//        outPP2[i] = 0.0f;
-//        gInFIFO[i] = 0.0f;
-//        gOutFIFO[i] = 0.0f;
-//        if(fftType == 2) {
-//            if(i < rad2TrueBuffSize)
-//                gFFTworksp[i] = 0.0f;
-//        }
-//        else {
-//            gFFTworksp[i] = 0.0f;
-//        }
-//    }
-//
-//    if (gLastPhase)   delete [] gLastPhase;
-//    if (gSumPhase)    delete [] gSumPhase;
-//    if (gOutputAccum) delete [] gOutputAccum;
-//    if (gAnaFreq)     delete [] gAnaFreq;
-//    if (gAnaMagn)     delete [] gAnaMagn;
-//    if (gSynFreq)     delete [] gSynFreq;
-//    if (gSynMagn)     delete [] gSynMagn;
-//
-//    gLastPhase   =   new float[(2*newBufferSize)/2+1];
-//    gSumPhase    =   new float[(2*newBufferSize)/2+1];
-//    gOutputAccum =   new float[2*newBufferSize];
-//    gAnaFreq     =   new float[2*newBufferSize];
-//    gAnaMagn     =   new float[2*newBufferSize];
-//    gSynFreq     =   new float[2*newBufferSize];
-//    gSynMagn     =   new float[2*newBufferSize];
-//
-//    memset(gLastPhase,   0, ((2*newBufferSize)/2+1)*sizeof(float));
-//    memset(gSumPhase,    0, ((2*newBufferSize)/2+1)*sizeof(float));
-//    memset(gOutputAccum, 0, (2*newBufferSize)*sizeof(float));
-//    memset(gAnaFreq,     0, (2*newBufferSize)*sizeof(float));
-//    memset(gAnaMagn,     0, (2*newBufferSize)*sizeof(float));
-//    memset(gSynFreq,     0, (2*newBufferSize)*sizeof(float));
-//    memset(gSynMagn,     0, (2*newBufferSize)*sizeof(float));
 }
 
 
@@ -422,6 +316,9 @@ void CalculateDTFT::smbPitchShift(float &pitchShift, long &osamp, float &sampleR
  Author: (c)1999-2015 Stephan M. Bernsee <s.bernsee [AT] zynaptiq [DOT] com>
  */
 {
+    float gSynMagn[2*winFrameSize];
+    float gSynFreq[2*winFrameSize];
+    
     /* set up some handy variables */
     fftFrameSize2 = winFrameSize/2;
     stepSize = winFrameSize/osamp;

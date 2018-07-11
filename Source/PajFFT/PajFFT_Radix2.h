@@ -121,8 +121,8 @@ private:
     void firstStepFFTc                     (std::vector<std::complex<float>> &inputSignalC, int &rdx2);
     void divideAndConquereFFT              (int &rdx2, std::vector<std::complex<float>> &twiddle);
     void lastStepFFT                       (int &rdx2, std::vector<std::complex<float>> &twiddle);
-    void lastStepFFT_zeroPad               (int &rdx2, std::vector<std::complex<float>> &twiddle);
-    void (PajFFT_Radix2::*lastStepChooser) (int &rdx2, std::vector<std::complex<float>> &twiddle);
+//    void lastStepFFT_zeroPad               (int &rdx2, std::vector<std::complex<float>> &twiddle);
+//    void (PajFFT_Radix2::*lastStepChooser) (int &rdx2, std::vector<std::complex<float>> &twiddle);
     
     
     // == CALCULATORS ===============================================================
