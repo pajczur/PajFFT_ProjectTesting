@@ -504,7 +504,7 @@ void MainComponent::fft_defaultSettings()
     
     calculator_FFT.defineDeviceBuffSize((long)deviceBufferSize);
     calculator_FFT.setSampleRate(wSampleRate, (long)fftInterface.setWindowOverLap.getValue());
-    calculator_FFT.setNewBufSize(deviceBufferSize, 2);
+    calculator_FFT.setNewBufSize(deviceBufferSize);
     calculator_FFT.mixedRadix_FFT.wSettings(wSampleRate, deviceBufferSize);
     
     calculator_FFT.radix2_FFT.wSettings(wSampleRate, deviceBufferSize);
