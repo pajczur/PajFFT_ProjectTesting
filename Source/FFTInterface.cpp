@@ -628,7 +628,7 @@ void FFTInterface::setON_matrixfft          ()
         calculator_FFT->selectFFT(1);
         
         double tempBuf = calculator_FFT->mixedRadix_FFT.getBufferSize();
-        calculator_FFT->setNewBufSize(tempBuf, 1);
+        calculator_FFT->setNewBufSize(tempBuf);
         graphAnalyser->setNewBufSize(tempBuf);
         fftBufSizeEdit.setText(to_string((int)tempBuf), dontSendNotification);
         dispLine->setBuffSize(tempBuf);
@@ -673,7 +673,7 @@ void FFTInterface::setON_radix2fft          ()
         
         double tempBufDisc = calculator_FFT->radix2_FFT.getBufferSize();
         double tempBuf = calculator_FFT->radix2_FFT.getTrueBufferSize();
-        calculator_FFT->setNewBufSize(tempBuf, 2);
+        calculator_FFT->setNewBufSize(tempBuf);
         graphAnalyser->setNewBufSize(tempBuf);
         fftBufSizeEdit.setText(to_string((int)tempBuf), dontSendNotification);
         zerosPaddingDescript.setText(setZerosInfo(!rad2FIFO.getToggleState()?

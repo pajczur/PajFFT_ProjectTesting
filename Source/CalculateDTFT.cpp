@@ -223,11 +223,11 @@ void CalculateDTFT::defineDeviceBuffSize(long dev_buf_size)
     tempOutput.clear();
 }
 
-void CalculateDTFT::setNewBufSize(double new_buf_size, int fft_Type)
+void CalculateDTFT::setNewBufSize(double new_buf_size)
 {
     newBufferSize = new_buf_size;
     winFrameSize = (long)newBufferSize;
-    resetOutputData(fft_Type);
+    resetOutputData();
 }
 
 void CalculateDTFT::selectFFT(int identifier)
@@ -235,7 +235,7 @@ void CalculateDTFT::selectFFT(int identifier)
     fftType = identifier;
 }
 
-void CalculateDTFT::resetOutputData(int fft_Type)
+void CalculateDTFT::resetOutputData()
 { // 20 - gFFTworksp; inputDataC; gInFIFO;     ??? inFifoLatency,
     indexDEVbufSize=0;
     indexFFToutSize=0;

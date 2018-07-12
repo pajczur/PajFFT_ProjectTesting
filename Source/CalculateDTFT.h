@@ -38,7 +38,7 @@ public:
     void fftCalc();
     
     void defineDeviceBuffSize(long dev_buf_size);
-    void setNewBufSize(double new_buf_size, int fft_Type);
+    void setNewBufSize(double new_buf_size);
     void setSampleRate(double &sampR, long overLapping);
 
     PajFFT_MixedRadix mixedRadix_FFT;
@@ -62,7 +62,7 @@ public:
     bool dataIsReadyToGraph;
     
     void selectFFT(int identifier);
-    void resetOutputData(int fft_Type);
+    void resetOutputData();
     
     double newBufferSize;
     double rad2TrueBuffSize;
