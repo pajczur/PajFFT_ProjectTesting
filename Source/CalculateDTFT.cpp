@@ -46,7 +46,7 @@ void CalculateDTFT::fftCalculator(AudioBuffer<float> &inp)
         inputDataC[indexFFToutSize] = stereoToMono;
         tempInput[indexFFToutSize] = stereoToMono;
         indexFFToutSize++;
-
+//std::cout << backFFTout.size() << std::endl;
         if(indexFFToutSize >= newBufferSize)
         {
             inputData = tempInput;
@@ -223,11 +223,11 @@ void CalculateDTFT::defineDeviceBuffSize(long dev_buf_size)
     tempOutput.clear();
 }
 
-void CalculateDTFT::setNewBufSize(double new_buf_size, int fft_Type)
+void CalculateDTFT::setNewBufSize(double new_buf_size)
 {
     newBufferSize = new_buf_size;
     winFrameSize = (long)newBufferSize;
-    resetOutputData(fft_Type);
+    resetOutputData();
 }
 
 void CalculateDTFT::selectFFT(int identifier)
@@ -236,7 +236,7 @@ void CalculateDTFT::selectFFT(int identifier)
 }
 
 void CalculateDTFT::resetOutputData()
-{
+{ // 20 - gFFTworksp; inputDataC; gInFIFO;     ??? inFifoLatency,
     indexDEVbufSize=0;
     indexFFToutSize=0;
     inputDataC.resize(newBufferSize);
@@ -314,6 +314,7 @@ void CalculateDTFT::smbPitchShift(float &pitchShift, long &osamp, float &sampleR
 /*
  I was hardly inspired by:
  Author: (c)1999-2015 Stephan M. Bernsee <s.bernsee [AT] zynaptiq [DOT] com>
+ http://blogs.zynaptiq.com/bernsee/pitch-shifting-using-the-ft/
  */
 {
     float gSynMagn[2*winFrameSize];
@@ -494,7 +495,7 @@ void CalculateDTFT::inverseFFT_windowingOverlap(long &overSamp)
         mixedRadix_FFT.makeFFT(forwFFTout, outPP2, false);
         /* do windowing and add to output accumulator */
         for(long k=0; k < winFrameSize; k++) {
-            gOutputAccum[k] += 2.0*(mixedRadix_FFT.waveEnvelopeCalc(outPP2[k], k)/overSamp);
+            gOutputAccum[k] += 2.0f*(mixedRadix_FFT.waveEnvelopeCalc(outPP2[k], k)/overSamp);
         }
     }
     else if(fftType==2)
@@ -502,7 +503,7 @@ void CalculateDTFT::inverseFFT_windowingOverlap(long &overSamp)
         radix2_FFT.makeFFT(forwFFTout, outPP2, false);
         /* do windowing and add to output accumulator */
         for(long k=0; k < winFrameSize; k++) {
-            gOutputAccum[k] += 2.0*(radix2_FFT.waveEnvelopeCalc(outPP2[k], k)/overSamp);
+            gOutputAccum[k] += 2.0f*(radix2_FFT.waveEnvelopeCalc(outPP2[k], k)/overSamp);
         }
     }
 }

@@ -317,15 +317,27 @@ void PajFFT_Radix2::prepareWindowingArray                  ()
 {
     windowHann.clear();
     windowHannTrueBuf.clear();
-    for(int i=0; i<trueBuffersize; ++i)
+    for(int i=0; i<wBufferSize; ++i)
     {
-        float windowSample = -0.5*cos(2.*fPi*(double)i/(double)wBufferSize)+0.5;
-        windowHann.push_back(windowSample);
+        float windowSample;
+        
+        if(i==0)
+            windowSample = 0.0f;
+        else
+            windowSample = -0.5*cos(2.*fPi*(double)i/(double)wBufferSize)+0.5;
+        
+        windowHannTrueBuf.push_back(windowSample);
     }
 
     for(int i=0; i<trueBuffersize; ++i)
     {
-        float windowSample = -0.5*cos(2.*fPi*(double)i/(double)trueBuffersize)+0.5;
+        float windowSample;
+        
+        if(i==0)
+            windowSample = 0.0f;
+        else
+            windowSample = -0.5*cos(2.*fPi*(double)i/(double)trueBuffersize)+0.5;
+        
         windowHannTrueBuf.push_back(windowSample);
     }
 }
@@ -449,7 +461,7 @@ void PajFFT_Radix2::lastStepFFT                            (int &rdx2, std::vect
                                  sN0[rdx2-1][2*k+1][n%(int)pow(2, rdx2)]
                                * twiddle[(n%(int)pow(2, rdx2)) * (int)(wBufferSize/pow(2.0f, (float)rdx2+1.0f))]
                             );
-            
+
             if(isForward   &&   n>wBufNyquist)
                 wOutputData->at(n) = 0.0f;
             else
