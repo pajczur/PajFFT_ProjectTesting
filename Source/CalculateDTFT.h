@@ -112,6 +112,8 @@ private:
     std::vector<std::complex<float>> outPP2; 
 
     float *gOutputAccum;
+    float *gSynMagn;
+    float *gSynFreq;
 
     std::vector<float> gLastPhase;
     std::vector<float> gSumPhase;
