@@ -31,6 +31,8 @@ CalculateDTFT::~CalculateDTFT()
 {
     if(isAllocated) {
         delete [] gOutputAccum;
+        delete [] gSynMagn;
+        delete [] gSynFreq;
         isAllocated=false;
     }
 }
@@ -272,12 +274,20 @@ void CalculateDTFT::resetOutputData()
     
     if(isAllocated) {
         delete [] gOutputAccum;
+        delete [] gSynMagn;
+        delete [] gSynFreq;
         isAllocated=false;
     }
     
     if(!isAllocated) {
         gOutputAccum =   new float[2*newBufferSize];
         memset(gOutputAccum, 0, (2*newBufferSize)*sizeof(float));
+      
+        gSynMagn =   new float[2*newBufferSize];
+        memset(gSynMagn, 0, (2*newBufferSize)*sizeof(float));
+      
+        gSynFreq =   new float[2*newBufferSize];
+        memset(gSynFreq, 0, (2*newBufferSize)*sizeof(float));
         isAllocated=true;
     }
     
@@ -294,7 +304,6 @@ void CalculateDTFT::resetOutputData()
     
     for(int i=0; i<2*newBufferSize; i++)
     {
-        gFFTworksp[i] = 0.0f;
         gInFIFO[i] = 0.0f;
         gOutFIFO[i] = 0.0f;
         gAnaFreq[i] = 0.0f;
@@ -317,9 +326,6 @@ void CalculateDTFT::smbPitchShift(float &pitchShift, long &osamp, float &sampleR
  http://blogs.zynaptiq.com/bernsee/pitch-shifting-using-the-ft/
  */
 {
-    float gSynMagn[2*winFrameSize];
-    float gSynFreq[2*winFrameSize];
-    
     /* set up some handy variables */
     fftFrameSize2 = winFrameSize/2;
     stepSize = winFrameSize/osamp;
